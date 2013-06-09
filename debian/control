@@ -61,7 +61,7 @@ Section: debug
 Priority: extra
 Depends: libtinfo5 (= ${binary:Version}), libtinfo-dev (= ${binary:Version}),
          ${shlibs:Depends}, ${misc:Depends}
-Replaces: libncurses5-dbg (<< 5.9-3)
+Replaces: libncurses5-dbg (<< 5.9+20130608)
 Breaks: libncurses5-dbg (<< 5.9-3)
 Description: debugging/profiling library for the low-level terminfo library
  The ncurses library routines are a terminal-independent method of
