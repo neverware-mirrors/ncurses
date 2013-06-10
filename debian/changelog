@@ -1,4 +1,4 @@
-ncurses (5.9+20130608-1) UNRELEASED; urgency=low
+ncurses (5.9+20130608-1) unstable; urgency=low
 
   * New upstream patchlevel.
     - Add pow() to configure-check for math library, needed for
@@ -10,7 +10,7 @@ ncurses (5.9+20130608-1) UNRELEASED; urgency=low
   * Switch Vcs-* fields to anonscm.debian.org.
   * Upgrade Standards-Version to 3.9.4, no changes needed.
 
- -- Sven Joachim <svenjoac@gmx.de>  Fri, 31 May 2013 17:56:12 +0200
+ -- Sven Joachim <svenjoac@gmx.de>  Mon, 10 Jun 2013 20:18:59 +0200
 
 ncurses (5.9+20130504-1) unstable; urgency=low
 
