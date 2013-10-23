@@ -1,3 +1,10 @@
+ncurses (5.9+20130608-2) UNRELEASED; urgency=low
+
+  * Sync hurd terminfo description from the Savannah git repository.
+    - Add xenl (Closes: #727119).
+
+ -- Sven Joachim <svenjoac@gmx.de>  Wed, 23 Oct 2013 20:17:14 +0200
+
 ncurses (5.9+20130608-1) unstable; urgency=low
 
   * New upstream patchlevel.
