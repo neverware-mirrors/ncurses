@@ -190,6 +190,7 @@
 ./Ada95/src/terminal_interface-curses-text_io.ads
 ./Ada95/src/terminal_interface-curses-trace.adb_p
 ./Ada95/src/terminal_interface.ads
+./COPYING
 ./INSTALL
 ./MANIFEST
 ./Makefile.in
@@ -658,6 +659,8 @@
 ./man/legacy_coding.3x
 ./man/make_sed.sh
 ./man/man_db.renames
+./man/manhtml.aliases
+./man/manhtml.externs
 ./man/manlinks.sed
 ./man/menu.3x
 ./man/menu_attributes.3x
@@ -868,9 +871,11 @@
 ./ncurses/llib-lncursestw
 ./ncurses/llib-lncursesw
 ./ncurses/llib-ltic
+./ncurses/llib-ltict
 ./ncurses/llib-ltictw
 ./ncurses/llib-lticw
 ./ncurses/llib-ltinfo
+./ncurses/llib-ltinfot
 ./ncurses/llib-ltinfotw
 ./ncurses/llib-ltinfow
 ./ncurses/modules
@@ -975,6 +980,20 @@
 ./ncurses/win32con/gettimeofday.c
 ./ncurses/win32con/wcwidth.c
 ./ncurses/win32con/win_driver.c
+./package/debian-mingw/changelog
+./package/debian-mingw/compat
+./package/debian-mingw/control
+./package/debian-mingw/copyright
+./package/debian-mingw/rules
+./package/debian-mingw/source/format
+./package/debian-mingw/watch
+./package/debian-mingw64/changelog
+./package/debian-mingw64/compat
+./package/debian-mingw64/control
+./package/debian-mingw64/copyright
+./package/debian-mingw64/rules
+./package/debian-mingw64/source/format
+./package/debian-mingw64/watch
 ./package/debian/changelog
 ./package/debian/compat
 ./package/debian/control
@@ -982,6 +1001,8 @@
 ./package/debian/rules
 ./package/debian/source/format
 ./package/debian/watch
+./package/mingw-ncurses.nsi
+./package/mingw-ncurses.spec
 ./package/ncurses.spec
 ./panel/Makefile.in
 ./panel/headers
@@ -1051,6 +1072,7 @@
 ./test/ditto.c
 ./test/dots.c
 ./test/dots_mvcur.c
+./test/dots_termcap.c
 ./test/echochar.c
 ./test/edit_field.c
 ./test/edit_field.h
@@ -1058,6 +1080,7 @@
 ./test/firework.c
 ./test/firstlast.c
 ./test/foldkeys.c
+./test/form_driver_w.c
 ./test/gdc.6
 ./test/gdc.c
 ./test/hanoi.c
@@ -1088,6 +1111,7 @@
 ./test/package/debian/rules
 ./test/package/debian/source/format
 ./test/package/debian/watch
+./test/package/mingw-ncurses-examples.spec
 ./test/package/ncurses-examples.spec
 ./test/programs
 ./test/railroad.c

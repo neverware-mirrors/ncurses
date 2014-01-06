@@ -41,7 +41,7 @@
 
 #include <tic.h>
 
-MODULE_ID("$Id: read_entry.c,v 1.123 2013/05/25 20:17:49 tom Exp $")
+MODULE_ID("$Id: read_entry.c,v 1.126 2013/12/15 00:35:36 tom Exp $")
 
 #define TYPE_CALLOC(type,elts) typeCalloc(type, (unsigned)(elts))
 
@@ -107,13 +107,43 @@ fake_read(char *src, int *offset, int limit, char *dst, unsigned want)
     return (int) want;
 }
 
-#define Read(buf, count) fake_read(buffer, &offset, limit, buf, (unsigned) count)
+#define Read(buf, count) fake_read(buffer, &offset, limit, (char *) buf, (unsigned) count)
 
 #define read_shorts(buf, count) \
 	(Read(buf, (count)*2) == (int) (count)*2)
 
 #define even_boundary(value) \
     if ((value) % 2 != 0) Read(buf, 1)
+
+NCURSES_EXPORT(void)
+_nc_init_termtype(TERMTYPE *const tp)
+{
+    unsigned i;
+
+#if NCURSES_XNAMES
+    tp->num_Booleans = BOOLCOUNT;
+    tp->num_Numbers = NUMCOUNT;
+    tp->num_Strings = STRCOUNT;
+    tp->ext_Booleans = 0;
+    tp->ext_Numbers = 0;
+    tp->ext_Strings = 0;
+#endif
+    if (tp->Booleans == 0)
+	TYPE_MALLOC(NCURSES_SBOOL, BOOLCOUNT, tp->Booleans);
+    if (tp->Numbers == 0)
+	TYPE_MALLOC(short, NUMCOUNT, tp->Numbers);
+    if (tp->Strings == 0)
+	TYPE_MALLOC(char *, STRCOUNT, tp->Strings);
+
+    for_each_boolean(i, tp)
+	tp->Booleans[i] = FALSE;
+
+    for_each_number(i, tp)
+	tp->Numbers[i] = ABSENT_NUMERIC;
+
+    for_each_string(i, tp)
+	tp->Strings[i] = ABSENT_STRING;
+}
 
 /*
  * Return TGETENT_YES if read, TGETENT_NO if not found or garbled.
@@ -404,9 +434,9 @@ make_db_filename(char *filename, unsigned limit, const char *const path)
 {
     static const char suffix[] = DBM_SUFFIX;
 
-    unsigned lens = sizeof(suffix) - 1;
-    unsigned size = strlen(path);
-    unsigned test = lens + size;
+    size_t lens = sizeof(suffix) - 1;
+    size_t size = strlen(path);
+    size_t test = lens + size;
     bool result = FALSE;
 
     if (test < limit) {
@@ -490,7 +520,7 @@ _nc_read_tic_entry(char *filename,
 	 * (source/binary) by checking the lengths.
 	 */
 	while (_nc_db_get(capdbp, &key, &data) == 0) {
-	    int used = data.size - 1;
+	    int used = (int) data.size - 1;
 	    char *have = (char *) data.data;
 
 	    if (*have++ == 0) {

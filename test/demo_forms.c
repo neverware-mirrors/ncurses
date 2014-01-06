@@ -26,7 +26,7 @@
  * authorization.                                                           *
  ****************************************************************************/
 /*
- * $Id: demo_forms.c,v 1.44 2013/06/08 15:21:26 tom Exp $
+ * $Id: demo_forms.c,v 1.46 2013/09/28 21:55:54 tom Exp $
  *
  * Demonstrate a variety of functions from the form library.
  * Thomas Dickey - 2003/4/26
@@ -103,7 +103,7 @@ static int
 trimmed(const char *value)
 {
     int result = (int) strlen(value);
-    while (result > 0 && isspace(value[result - 1])) {
+    while (result > 0 && isspace(UChar(value[result - 1]))) {
 	--result;
     }
     return result;
@@ -139,7 +139,7 @@ read_data(const char *filename)
 	int more = 0;
 	int item = 0;
 
-	my_data = typeCalloc(MY_DATA, 100);	/* FIXME */
+	my_data = typeCalloc(MY_DATA, (size_t) 100);	/* FIXME */
 	while (fgets(buffer, sizeof(buffer), fp) != 0) {
 	    chomp(buffer);
 	    if (more) {

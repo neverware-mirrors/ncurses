@@ -28,14 +28,14 @@ dnl***************************************************************************
 dnl
 dnl Author: Thomas E. Dickey 1995-on
 dnl
-dnl $Id: configure.in,v 1.567 2013/05/25 20:15:02 tom Exp $
+dnl $Id: configure.in,v 1.577 2013/12/15 00:03:02 tom Exp $
 dnl Process this file with autoconf to produce a configure script.
 dnl
 dnl See http://invisible-island.net/autoconf/ for additional information.
 dnl
 dnl ---------------------------------------------------------------------------
 AC_PREREQ(2.52.20030208)
-AC_REVISION($Revision: 1.567 $)
+AC_REVISION($Revision: 1.577 $)
 AC_INIT(ncurses/base/lib_initscr.c)
 AC_CONFIG_HEADER(include/ncurses_cfg.h:include/ncurses_cfg.hin)
 
@@ -123,6 +123,13 @@ AC_MSG_RESULT($cf_with_cxx_binding)
 AC_MSG_CHECKING(if you want to build with Ada95)
 AC_MSG_RESULT($cf_with_ada)
 
+AC_MSG_CHECKING(if you want to install terminal database)
+AC_ARG_ENABLE(db-install,
+	[  --disable-db-install    suppress install of terminal database],
+	[cf_with_db_install=$enableval],
+	[cf_with_db_install=yes])
+AC_MSG_RESULT($cf_with_db_install)
+
 AC_MSG_CHECKING(if you want to install manpages)
 AC_ARG_WITH(manpages,
 	[  --without-manpages      suppress install of manpages],
@@ -132,14 +139,14 @@ AC_MSG_RESULT($cf_with_manpages)
 
 AC_MSG_CHECKING(if you want to build programs such as tic)
 AC_ARG_WITH(progs,
-	[  --without-progs         suppress build with programs (e.g., tic)],
+	[  --without-progs         suppress build/install with programs (e.g., tic)],
 	[cf_with_progs=$withval],
 	[cf_with_progs=yes])
 AC_MSG_RESULT($cf_with_progs)
 
 AC_MSG_CHECKING(if you want to build test-programs)
 AC_ARG_WITH(tests,
-	[  --without-tests         suppress build with test-programs],
+	[  --without-tests         suppress build/install with test-programs],
 	[cf_with_tests=$withval],
 	[cf_with_tests=yes])
 AC_MSG_RESULT($cf_with_tests)
@@ -196,6 +203,7 @@ dnl These are standard among *NIX systems, but not when cross-compiling
 AC_CHECK_TOOL(RANLIB, ranlib, ':')
 AC_CHECK_TOOL(LD, ld, ld)
 AC_CHECK_TOOL(AR, ar, ar)
+AC_CHECK_TOOL(NM, nm, nm)
 CF_AR_FLAGS
 
 dnl Special option for use by system-builders: the install-prefix is used to
@@ -402,6 +410,8 @@ AC_MSG_RESULT($cf_cv_do_relink)
 	;;
 esac
 
+# we will build libraries one-level down.
+rel_builddir=..
 CF_SHARED_OPTS
 if test "$CC_SHARED_OPTS" = "unknown"; then
 	for model in $cf_list_models; do
@@ -1171,7 +1181,17 @@ if test "x$with_reentrant" = xyes ; then
 		CF_ADD_LIB(pthread,TEST_LIBS)
 		CF_ADD_LIB(pthread,TEST_LIBS2)
 	else
-		LIB_SUFFIX="t${LIB_SUFFIX}"
+		# when not using weak symbols but with_reentrant,
+		# add 't' to the library suffix on all platforms
+		# except cygwin, where we only do that if ALSO
+		# compiling with full thread support.
+		case "$host" in
+		*cygwin* | *msys*)
+			if test "$with_pthread" = "yes" ; then
+				LIB_SUFFIX="t${LIB_SUFFIX}"
+			fi ;;
+		* ) LIB_SUFFIX="t${LIB_SUFFIX}" ;;
+		esac
 	fi
 	AC_DEFINE(USE_REENTRANT,1,[Define to 1 to use experimental reentrant feature])
 	CF_NCURSES_ABI_6
@@ -1251,7 +1271,7 @@ AC_MSG_RESULT($with_warnings)
 
 if test "x$with_warnings" = "xyes"; then
  	CF_ADD_ADAFLAGS(-gnatg)
-	CF_GCC_WARNINGS(Wdeclaration-after-statement Wextra Wno-unknown-pragmas Wswitch-enum)
+	CF_GCC_WARNINGS(Wno-unknown-pragmas Wswitch-enum)
 	if test "x$cf_with_cxx" = xyes ; then
 		CF_GXX_WARNINGS(Wno-unused)
 	fi
@@ -1600,6 +1620,11 @@ else
 	cf_with_ada=no
 fi
 
+# do this "late" to avoid conflict with header-checks
+if test "x$with_widec" = xyes ; then
+	AC_CHECK_SIZEOF(wchar_t)
+fi
+
 ### Construct the ncurses library-subsets, if any, from this set of keywords:
 ###	none, base, ext_funcs, ext_tinfo, ticlib, termlib, widechar
 ###
@@ -1783,8 +1808,8 @@ fi
 
 if test "$DFT_LWR_MODEL" = shared ; then
 	case $cf_cv_system_name in #(vi
-	cygwin*)
-		# "lib" files have ".dll.a" suffix, "cyg" files have ".dll"
+	cygwin*|msys*)
+		# "lib" files have ".dll.a" suffix, "cyg"or "msys-" files have ".dll"
 		TINFO_SUFFIX=.dll
 		;;
 	esac
@@ -1815,10 +1840,15 @@ normal|debug|profile)
 esac
 
 AC_MSG_CHECKING(where we will install curses.h)
-test "$with_overwrite" = no && \
-test "x$includedir" = 'x${prefix}/include' && \
-	includedir='${prefix}/include/ncurses'${LIB_SUFFIX}
-AC_MSG_RESULT($includedir)
+AC_SUBST(includesubdir)
+includesubdir=
+if test "$with_overwrite" = no && \
+ ( test "x$includedir" = 'x${prefix}/include' || \
+   test "x$includedir" = "x${prefix}/include" )
+then
+	includesubdir="/ncurses${LIB_SUFFIX}"
+fi
+AC_MSG_RESULT(${includedir}${includesubdir})
 
 ### Resolve a conflict between normal and wide-curses by forcing applications
 ### that will need libutf8 to add it to their configure script.
@@ -1918,6 +1948,30 @@ AC_SUBST(MENU_NAME)
 AC_SUBST(FORM_NAME)
 AC_SUBST(CXX_NAME)
 
+# workaround for g++ versus Solaris (20131116)
+case $cf_cv_system_name in #(vi
+solaris2*) #(vi
+	case "x$CPPFLAGS" in #(vi
+	*-D_XOPEN_SOURCE_EXTENDED*)
+		CF_VERBOSE(moving _XOPEN_SOURCE_EXTENDED to work around g++ problem)
+		CFLAGS="$CFLAGS -D_XOPEN_SOURCE_EXTENDED"
+		CPPFLAGS=`echo "x$CPPFLAGS" | sed -e  's/^.//' -e 's/-D_XOPEN_SOURCE_EXTENDED//'`
+		;;
+	esac
+	;;
+esac
+
+# AC_CHECK_SIZEOF demands a literal parameter, no variables.  So we do this.
+case "x$NCURSES_OSPEED" in #(vi
+*short*) #(vi
+	cf_compatible=1
+	;;
+*)
+	cf_compatible=0
+	;;
+esac
+AC_DEFINE_UNQUOTED(NCURSES_OSPEED_COMPAT,$cf_compatible,[Define to 1 if termcap variable ospeed is short])
+
 SUB_SCRIPTS=
 
 AC_OUTPUT( \
@@ -1992,6 +2046,7 @@ cf_cv_system_name="$cf_cv_system_name"
 cf_cv_term_driver="$with_term_driver"
 cf_with_ada="$cf_with_ada"
 cf_with_cxx_binding="$cf_with_cxx_binding"
+cf_with_db_install="$cf_with_db_install"
 cf_with_manpages="$cf_with_manpages"
 cf_with_tests="$cf_with_tests"
 with_shared_cxx="$with_shared_cxx"

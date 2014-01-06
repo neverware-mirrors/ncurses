@@ -34,7 +34,7 @@
  ****************************************************************************/
 
 /*
- * $Id: curses.priv.h,v 1.523 2013/01/26 21:51:56 tom Exp $
+ * $Id: curses.priv.h,v 1.529 2013/11/16 19:44:28 tom Exp $
  *
  *	curses.priv.h
  *
@@ -350,7 +350,7 @@ color_t;
 #define HasTerminal(sp)      (((sp) != 0) && (0 != ((sp)->_term)))
 #define IsValidScreen(sp)    (HasTerminal(sp) && !IsPreScreen(sp))
 
-#if BROKEN_LINKER || USE_REENTRANT
+#if USE_REENTRANT
 #define CurTerm              _nc_prescreen._cur_term
 #else
 #define CurTerm              cur_term
@@ -378,6 +378,16 @@ color_t;
 #include <term_entry.h>
 
 #include <nc_tparm.h>
+
+/*
+ * Simplify ifdef's for the "*_ATTR" macros in case italics are not configured.
+ */
+#ifdef A_ITALIC
+#define USE_ITALIC 1
+#else
+#define USE_ITALIC 0
+#define A_ITALIC 0
+#endif
 
 /*
  * Use these macros internally, to make tracing less verbose.  But leave the
@@ -835,6 +845,7 @@ typedef struct {
 
 	char		*first_name;
 	char		**keyname_table;
+	int		init_keyname;
 
 	int		slk_format;
 
@@ -1088,6 +1099,9 @@ struct screen {
 	/* used in lib_vidattr.c */
 	bool		_use_rmso;	/* true if we may use 'rmso'	     */
 	bool		_use_rmul;	/* true if we may use 'rmul'	     */
+#if USE_ITALIC
+	bool		_use_ritm;	/* true if we may use 'ritm'	     */
+#endif
 
 #if USE_KLIBC_KBD
 	bool		_extended_key;	/* true if an extended key	     */
@@ -1333,8 +1347,8 @@ extern NCURSES_EXPORT_VAR(SIG_ATOMIC_T) _nc_have_sigwinch;
 
 #define UChar(c)	((unsigned char)(c))
 #define UShort(c)	((unsigned short)(c))
-#define ChCharOf(c)	((c) & (chtype)A_CHARTEXT)
-#define ChAttrOf(c)	((c) & (chtype)A_ATTRIBUTES)
+#define ChCharOf(c)	((chtype)(c) & (chtype)A_CHARTEXT)
+#define ChAttrOf(c)	((chtype)(c) & (chtype)A_ATTRIBUTES)
 
 #ifndef MB_LEN_MAX
 #define MB_LEN_MAX 8 /* should be >= MB_CUR_MAX, but that may be a function */
@@ -1703,7 +1717,9 @@ extern	NCURSES_EXPORT(void) name (void); \
 	NCURSES_EXPORT(void) name (void) { }
 
 #define ALL_BUT_COLOR ((chtype)~(A_COLOR))
-#define NONBLANK_ATTR (A_NORMAL|A_BOLD|A_DIM|A_BLINK)
+#define NONBLANK_ATTR (A_BOLD | A_DIM | A_BLINK | A_ITALIC)
+#define TPARM_ATTR    (A_STANDOUT | A_UNDERLINE | A_REVERSE | A_BLINK | A_DIM | A_BOLD | A_ALTCHARSET | A_INVIS | A_PROTECT)
+#define XMC_CONFLICT  (A_STANDOUT | A_UNDERLINE | A_REVERSE | A_BLINK | A_DIM | A_BOLD | A_INVIS | A_PROTECT | A_ITALIC)
 #define XMC_CHANGES(c) ((c) & SP_PARM->_xmc_suppress)
 
 #define toggle_attr_on(S,at) {\
@@ -2328,12 +2344,13 @@ extern NCURSES_EXPORT_VAR(TERM_DRIVER) _nc_TINFO_DRIVER;
 #endif
 
 #ifdef USE_TERM_DRIVER
-#define IsTermInfo(sp)       (TCBOf(sp) && ((TCBOf(sp)->drv->isTerminfo)))
+#define IsTermInfo(sp)       ((TCBOf(sp) != 0) && ((TCBOf(sp)->drv->isTerminfo)))
+#define HasTInfoTerminal(sp) ((0 != TerminalOf(sp)) && IsTermInfo(sp))
 #else
 #define IsTermInfo(sp)       TRUE
+#define HasTInfoTerminal(sp) (0 != TerminalOf(sp))
 #endif
 
-#define HasTInfoTerminal(sp) ((0 != TerminalOf(sp)) && IsTermInfo(sp))
 #define IsValidTIScreen(sp)  (HasTInfoTerminal(sp))
 
 /*

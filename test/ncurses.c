@@ -40,7 +40,7 @@ AUTHOR
    Author: Eric S. Raymond <esr@snark.thyrsus.com> 1993
            Thomas E. Dickey (beginning revision 1.27 in 1996).
 
-$Id: ncurses.c,v 1.389 2013/04/27 19:46:53 tom Exp $
+$Id: ncurses.c,v 1.396 2013/11/23 21:43:51 tom Exp $
 
 ***************************************************************************/
 
@@ -1429,6 +1429,9 @@ show_attr(int row, int skip, bool arrow, chtype attr, const char *name)
 #ifdef A_INVIS
 		    A_INVIS,
 #endif
+#ifdef A_ITALIC
+		    A_ITALIC,
+#endif
 		    A_PROTECT,
 		    A_ALTCHARSET
 		};
@@ -1450,11 +1453,13 @@ show_attr(int row, int skip, bool arrow, chtype attr, const char *name)
     }
     return row + 2;
 }
+
+typedef struct {
+    attr_t attr;
+    NCURSES_CONST char *name;
+} ATTR_TBL;
 /* *INDENT-OFF* */
-static const struct {
-    chtype			attr;
-    NCURSES_CONST char *	name;
-} attrs_to_test[] = {
+static const ATTR_TBL attrs_to_test[] = {
     { A_STANDOUT,	"STANDOUT" },
     { A_REVERSE,	"REVERSE" },
     { A_BOLD,		"BOLD" },
@@ -1465,12 +1470,30 @@ static const struct {
 #ifdef A_INVIS
     { A_INVIS,		"INVISIBLE" },
 #endif
+#ifdef A_ITALIC
+    { A_ITALIC,		"ITALIC" },
+#endif
     { A_NORMAL,		"NORMAL" },
 };
 /* *INDENT-ON* */
 
+static unsigned
+init_attr_list(ATTR_TBL * target, attr_t attrs)
+{
+    unsigned result = 0;
+    size_t n;
+
+    for (n = 0; n < SIZEOF(attrs_to_test); ++n) {
+	attr_t test = attrs_to_test[n].attr;
+	if (test == A_NORMAL || (test & attrs) != 0) {
+	    target[result++] = attrs_to_test[n];
+	}
+    }
+    return result;
+}
+
 static bool
-attr_getc(int *skip, short *fg, short *bg, short *tx, int *ac, unsigned *kc)
+attr_getc(int *skip, short *fg, short *bg, short *tx, int *ac, unsigned *kc, unsigned limit)
 {
     bool result = TRUE;
     bool error = FALSE;
@@ -1503,13 +1526,13 @@ attr_getc(int *skip, short *fg, short *bg, short *tx, int *ac, unsigned *kc)
 		break;
 	    case 'v':
 		if (*kc == 0)
-		    *kc = SIZEOF(attrs_to_test) - 1;
+		    *kc = limit - 1;
 		else
 		    *kc -= 1;
 		break;
 	    case 'V':
 		*kc += 1;
-		if (*kc >= SIZEOF(attrs_to_test))
+		if (*kc >= limit)
 		    *kc = 0;
 		break;
 	    case '<':
@@ -1541,67 +1564,73 @@ attr_test(void)
     short tx = -1;
     int ac = 0;
     unsigned j, k;
+    ATTR_TBL my_list[SIZEOF(attrs_to_test)];
+    unsigned my_size = init_attr_list(my_list, termattrs());
 
-    if (skip < 0)
-	skip = 0;
+    if (my_size > 1) {
+	if (skip < 0)
+	    skip = 0;
 
-    n = skip;			/* make it easy */
-    k = SIZEOF(attrs_to_test) - 1;
-    init_attr_string();
+	n = skip;		/* make it easy */
+	k = my_size - 1;
+	init_attr_string();
 
-    do {
-	int row = 2;
-	chtype normal = A_NORMAL | BLANK;
-	chtype extras = (chtype) ac;
+	do {
+	    int row = 2;
+	    chtype normal = A_NORMAL | BLANK;
+	    chtype extras = (chtype) ac;
 
-	if (use_colors) {
-	    short pair = (short) (fg != COLOR_BLACK || bg != COLOR_BLACK);
-	    if (pair != 0) {
-		pair = 1;
-		if (init_pair(pair, fg, bg) == ERR) {
-		    beep();
-		} else {
-		    normal |= (chtype) COLOR_PAIR(pair);
+	    if (use_colors) {
+		short pair = (short) (fg != COLOR_BLACK || bg != COLOR_BLACK);
+		if (pair != 0) {
+		    pair = 1;
+		    if (init_pair(pair, fg, bg) == ERR) {
+			beep();
+		    } else {
+			normal |= (chtype) COLOR_PAIR(pair);
+		    }
+		}
+		if (tx >= 0) {
+		    pair = 2;
+		    if (init_pair(pair, tx, bg) == ERR) {
+			beep();
+		    } else {
+			extras |= (chtype) COLOR_PAIR(pair);
+		    }
 		}
 	    }
-	    if (tx >= 0) {
-		pair = 2;
-		if (init_pair(pair, tx, bg) == ERR) {
-		    beep();
-		} else {
-		    extras |= (chtype) COLOR_PAIR(pair);
-		}
+	    bkgd(normal);
+	    bkgdset(normal);
+	    erase();
+
+	    box(stdscr, 0, 0);
+	    MvAddStr(0, 20, "Character attribute test display");
+
+	    for (j = 0; j < my_size; ++j) {
+		bool arrow = (j == k);
+		row = show_attr(row, n, arrow,
+				extras |
+				my_list[j].attr |
+				my_list[k].attr,
+				my_list[j].name);
 	    }
-	}
-	bkgd(normal);
-	bkgdset(normal);
+
+	    MvPrintw(row, 8,
+		     "This terminal does %shave the magic-cookie glitch",
+		     get_xmc() > -1 ? "" : "not ");
+	    MvPrintw(row + 1, 8, "Enter '?' for help.");
+	    show_color_attr(fg, bg, tx);
+	    printw("  ACS (%d)", ac != 0);
+
+	    refresh();
+	} while (attr_getc(&n, &fg, &bg, &tx, &ac, &k, my_size));
+
+	bkgdset(A_NORMAL | BLANK);
 	erase();
-
-	box(stdscr, 0, 0);
-	MvAddStr(0, 20, "Character attribute test display");
-
-	for (j = 0; j < SIZEOF(attrs_to_test); ++j) {
-	    bool arrow = (j == k);
-	    row = show_attr(row, n, arrow,
-			    extras |
-			    attrs_to_test[j].attr |
-			    attrs_to_test[k].attr,
-			    attrs_to_test[j].name);
-	}
-
-	MvPrintw(row, 8,
-		 "This terminal does %shave the magic-cookie glitch",
-		 get_xmc() > -1 ? "" : "not ");
-	MvPrintw(row + 1, 8, "Enter '?' for help.");
-	show_color_attr(fg, bg, tx);
-	printw("  ACS (%d)", ac != 0);
-
-	refresh();
-    } while (attr_getc(&n, &fg, &bg, &tx, &ac, &k));
-
-    bkgdset(A_NORMAL | BLANK);
-    erase();
-    endwin();
+	endwin();
+    } else {
+	Cannot("does not support video attributes.");
+    }
 }
 
 #if USE_WIDEC_SUPPORT
@@ -1702,7 +1731,7 @@ wide_show_attr(int row, int skip, bool arrow, chtype attr, short pair, const cha
 	attr_t old_attr = 0;
 	short old_pair = 0;
 
-	(void) attr_get(&old_attr, &old_pair, 0);
+	(void) (attr_get) (&old_attr, &old_pair, 0);
 	(void) attr_set(attr, pair, 0);
 	addwstr(wide_attr_test_string);
 	(void) attr_set(old_attr, old_pair, 0);
@@ -1747,7 +1776,10 @@ wide_show_attr(int row, int skip, bool arrow, chtype attr, short pair, const cha
 }
 
 static bool
-wide_attr_getc(int *skip, short *fg, short *bg, short *tx, int *ac, unsigned *kc)
+wide_attr_getc(int *skip,
+	       short *fg, short *bg,
+	       short *tx, int *ac,
+	       unsigned *kc, unsigned limit)
 {
     bool result = TRUE;
     bool error = FALSE;
@@ -1780,13 +1812,13 @@ wide_attr_getc(int *skip, short *fg, short *bg, short *tx, int *ac, unsigned *kc
 		break;
 	    case 'v':
 		if (*kc == 0)
-		    *kc = SIZEOF(attrs_to_test) - 1;
+		    *kc = limit - 1;
 		else
 		    *kc -= 1;
 		break;
 	    case 'V':
 		*kc += 1;
-		if (*kc >= SIZEOF(attrs_to_test))
+		if (*kc >= limit)
 		    *kc = 0;
 		break;
 	    case '<':
@@ -1818,63 +1850,69 @@ wide_attr_test(void)
     short tx = -1;
     int ac = 0;
     unsigned j, k;
+    ATTR_TBL my_list[SIZEOF(attrs_to_test)];
+    unsigned my_size = init_attr_list(my_list, term_attrs());
 
-    if (skip < 0)
-	skip = 0;
+    if (my_size > 1) {
+	if (skip < 0)
+	    skip = 0;
 
-    n = skip;			/* make it easy */
-    k = SIZEOF(attrs_to_test) - 1;
-    wide_init_attr_string();
+	n = skip;		/* make it easy */
+	k = my_size - 1;
+	wide_init_attr_string();
 
-    do {
-	int row = 2;
-	short pair = 0;
-	short extras = 0;
+	do {
+	    int row = 2;
+	    short pair = 0;
+	    short extras = 0;
 
-	if (use_colors) {
-	    pair = (short) (fg != COLOR_BLACK || bg != COLOR_BLACK);
-	    if (pair != 0) {
-		pair = 1;
-		if (init_pair(pair, fg, bg) == ERR) {
-		    beep();
+	    if (use_colors) {
+		pair = (short) (fg != COLOR_BLACK || bg != COLOR_BLACK);
+		if (pair != 0) {
+		    pair = 1;
+		    if (init_pair(pair, fg, bg) == ERR) {
+			beep();
+		    }
+		}
+		extras = pair;
+		if (tx >= 0) {
+		    extras = 2;
+		    if (init_pair(extras, tx, bg) == ERR) {
+			beep();
+		    }
 		}
 	    }
-	    extras = pair;
-	    if (tx >= 0) {
-		extras = 2;
-		if (init_pair(extras, tx, bg) == ERR) {
-		    beep();
-		}
+	    set_wide_background(pair);
+	    erase();
+
+	    box_set(stdscr, 0, 0);
+	    MvAddStr(0, 20, "Character attribute test display");
+
+	    for (j = 0; j < my_size; ++j) {
+		row = wide_show_attr(row, n, j == k,
+				     ((attr_t) ac |
+				      my_list[j].attr |
+				      my_list[k].attr),
+				     extras,
+				     my_list[j].name);
 	    }
-	}
-	set_wide_background(pair);
+
+	    MvPrintw(row, 8,
+		     "This terminal does %shave the magic-cookie glitch",
+		     get_xmc() > -1 ? "" : "not ");
+	    MvPrintw(row + 1, 8, "Enter '?' for help.");
+	    show_color_attr(fg, bg, tx);
+	    printw("  ACS (%d)", ac != 0);
+
+	    refresh();
+	} while (wide_attr_getc(&n, &fg, &bg, &tx, &ac, &k, my_size));
+
+	set_wide_background(0);
 	erase();
-
-	box_set(stdscr, 0, 0);
-	MvAddStr(0, 20, "Character attribute test display");
-
-	for (j = 0; j < SIZEOF(attrs_to_test); ++j) {
-	    row = wide_show_attr(row, n, j == k,
-				 ((attr_t) ac |
-				  attrs_to_test[j].attr |
-				  attrs_to_test[k].attr),
-				 extras,
-				 attrs_to_test[j].name);
-	}
-
-	MvPrintw(row, 8,
-		 "This terminal does %shave the magic-cookie glitch",
-		 get_xmc() > -1 ? "" : "not ");
-	MvPrintw(row + 1, 8, "Enter '?' for help.");
-	show_color_attr(fg, bg, tx);
-	printw("  ACS (%d)", ac != 0);
-
-	refresh();
-    } while (wide_attr_getc(&n, &fg, &bg, &tx, &ac, &k));
-
-    set_wide_background(0);
-    erase();
-    endwin();
+	endwin();
+    } else {
+	Cannot("does not support extended video attributes.");
+    }
 }
 #endif
 
@@ -2610,32 +2648,19 @@ color_edit(void)
  * Alternate character-set stuff
  *
  ****************************************************************************/
-/* *INDENT-OFF* */
-static struct {
-    chtype attr;
-    const char *name;
-} attrs_to_cycle[] = {
-    { A_NORMAL,		"normal" },
-    { A_BOLD,		"bold" },
-    { A_BLINK,		"blink" },
-    { A_REVERSE,	"reverse" },
-    { A_UNDERLINE,	"underline" },
-};
-/* *INDENT-ON* */
-
 static bool
-cycle_attr(int ch, unsigned *at_code, chtype *attr)
+cycle_attr(int ch, unsigned *at_code, chtype *attr, ATTR_TBL * list, unsigned limit)
 {
     bool result = TRUE;
 
     switch (ch) {
     case 'v':
-	if ((*at_code += 1) >= SIZEOF(attrs_to_cycle))
+	if ((*at_code += 1) >= limit)
 	    *at_code = 0;
 	break;
     case 'V':
 	if (*at_code == 0)
-	    *at_code = SIZEOF(attrs_to_cycle) - 1;
+	    *at_code = limit - 1;
 	else
 	    *at_code -= 1;
 	break;
@@ -2644,7 +2669,7 @@ cycle_attr(int ch, unsigned *at_code, chtype *attr)
 	break;
     }
     if (result)
-	*attr = attrs_to_cycle[*at_code].attr;
+	*attr = list[*at_code].attr;
     return result;
 }
 
@@ -2763,6 +2788,8 @@ slk_test(void)
     int bg = COLOR_WHITE;
     short pair = 0;
 #endif
+    ATTR_TBL my_list[SIZEOF(attrs_to_test)];
+    unsigned my_size = init_attr_list(my_list, termattrs());
 
     c = CTRL('l');
 #if HAVE_SLK_COLOR
@@ -2824,7 +2851,7 @@ slk_test(void)
 	    MvAddStr(SLK_WORK, 0, "Please enter the label value: ");
 	    strcpy(buf, "");
 	    if ((s = slk_label(c - '0')) != 0) {
-		strncpy(buf, s, 8);
+		strncpy(buf, s, (size_t) 8);
 	    }
 	    wGetstring(stdscr, buf, 8);
 	    slk_set((c - '0'), buf, fmt);
@@ -2843,7 +2870,7 @@ slk_test(void)
 #endif
 
 	default:
-	    if (cycle_attr(c, &at_code, &attr)) {
+	    if (cycle_attr(c, &at_code, &attr, my_list, my_size)) {
 		slk_attrset(attr);
 		slk_touch();
 		slk_noutrefresh();
@@ -2884,6 +2911,8 @@ wide_slk_test(void)
     int fg = COLOR_BLACK;
     int bg = COLOR_WHITE;
     short pair = 0;
+    ATTR_TBL my_list[SIZEOF(attrs_to_test)];
+    unsigned my_size = init_attr_list(my_list, term_attrs());
 
     c = CTRL('l');
     if (use_colors) {
@@ -2995,7 +3024,7 @@ wide_slk_test(void)
 	    break;
 #endif
 	default:
-	    if (cycle_attr(c, &at_code, &attr)) {
+	    if (cycle_attr(c, &at_code, &attr, my_list, my_size)) {
 		slk_attr_set(attr, (short) (fg || bg), NULL);
 		slk_touch();
 		slk_noutrefresh();
@@ -3042,7 +3071,7 @@ show_256_chars(int repeat, attr_t attr, short pair)
     for (code = first; code <= last; ++code) {
 	int row = (int) (2 + (code / 16));
 	int col = (int) (5 * (code % 16));
-	mvaddch(row, col, colored_chtype(code, attr, pair));
+	IGNORE_RC(mvaddch(row, col, colored_chtype(code, attr, pair)));
 	for (count = 1; count < repeat; ++count) {
 	    addch(colored_chtype(code, attr, pair));
 	}
@@ -3263,6 +3292,8 @@ acs_display(void)
     unsigned at_code = 0;
     short pair = 0;
     void (*last_show_acs) (int, attr_t, short) = 0;
+    ATTR_TBL my_list[SIZEOF(attrs_to_test)];
+    unsigned my_size = init_attr_list(my_list, termattrs());
 
     do {
 	switch (c) {
@@ -3320,7 +3351,7 @@ acs_display(void)
 		--repeat;
 	    break;
 	default:
-	    if (cycle_attr(c, &at_code, &attr)
+	    if (cycle_attr(c, &at_code, &attr, my_list, my_size)
 		|| cycle_colors(c, &fg, &bg, &pair)) {
 		break;
 	    } else {
@@ -3344,12 +3375,12 @@ acs_display(void)
 	if (use_colors) {
 	    MvPrintw(LINES - 1, 0,
 		     "v/V, f/F, b/B cycle through video attributes (%s) and color %d/%d.",
-		     attrs_to_cycle[at_code].name,
+		     my_list[at_code].name,
 		     fg, bg);
 	} else {
 	    MvPrintw(LINES - 1, 0,
 		     "v/V cycles through video attributes (%s).",
-		     attrs_to_cycle[at_code].name);
+		     my_list[at_code].name);
 	}
 	refresh();
     } while (!isQuit(c = Getchar()));
@@ -3803,6 +3834,8 @@ wide_acs_display(void)
     unsigned at_code = 0;
     short pair = 0;
     void (*last_show_wacs) (int, attr_t, short) = 0;
+    ATTR_TBL my_list[SIZEOF(attrs_to_test)];
+    unsigned my_size = init_attr_list(my_list, term_attrs());
 
     do {
 	switch (c) {
@@ -3852,7 +3885,7 @@ wide_acs_display(void)
 	    } else if (c == '_') {
 		space = (space == ' ') ? '_' : ' ';
 		last_show_wacs = 0;
-	    } else if (cycle_attr(c, &at_code, &attr)
+	    } else if (cycle_attr(c, &at_code, &attr, my_list, my_size)
 		       || cycle_colors(c, &fg, &bg, &pair)) {
 		if (last_show_wacs != 0)
 		    break;
@@ -3877,12 +3910,12 @@ wide_acs_display(void)
 	if (use_colors) {
 	    MvPrintw(LINES - 2, 2,
 		     "v/V, f/F, b/B cycle through video attributes (%s) and color %d/%d.",
-		     attrs_to_cycle[at_code].name,
+		     my_list[at_code].name,
 		     fg, bg);
 	} else {
 	    MvPrintw(LINES - 2, 2,
 		     "v/V cycles through video attributes (%s).",
-		     attrs_to_cycle[at_code].name);
+		     my_list[at_code].name);
 	}
 	refresh();
     } while (!isQuit(c = Getchar()));
@@ -4315,7 +4348,7 @@ acs_and_scroll(void)
 	transient((FRAME *) 0, (char *) 0);
 	switch (c) {
 	case CTRL('C'):
-	    if ((neww = typeCalloc(FRAME, 1)) == 0) {
+	    if ((neww = typeCalloc(FRAME, (size_t) 1)) == 0) {
 		failed("acs_and_scroll");
 		goto breakout;
 	    }
@@ -4397,7 +4430,7 @@ acs_and_scroll(void)
 	    if ((fp = fopen(DUMPFILE, "r")) == (FILE *) 0) {
 		transient(current, "Can't open screen dump file");
 	    } else {
-		if ((neww = typeCalloc(FRAME, 1)) != 0) {
+		if ((neww = typeCalloc(FRAME, (size_t) 1)) != 0) {
 
 		    neww->next = current ? current->next : 0;
 		    neww->last = current;
@@ -5789,13 +5822,13 @@ edit_secure(FIELD * me, int c)
 	size_t have = (source ? strlen(source) : 0) + 1;
 	size_t need = 80 + have;
 	char *temp = malloc(need);
-	long len;
+	size_t len;
 
 	if (temp != 0) {
 	    strncpy(temp, source ? source : "", have + 1);
-	    len = (long) (char *) field_userptr(me);
+	    len = (size_t) (char *) field_userptr(me);
 	    if (c <= KEY_MAX) {
-		if (isgraph(c) && (len + 1) < (int) sizeof(temp)) {
+		if (isgraph(c) && (len + 1) < sizeof(temp)) {
 		    temp[len++] = (char) c;
 		    temp[len] = 0;
 		    set_field_buffer(me, 1, temp);
@@ -6759,7 +6792,7 @@ main_menu(bool top)
 	command = 0;
 	for (;;) {
 	    char ch = '\0';
-	    if (read(fileno(stdin), &ch, 1) <= 0) {
+	    if (read(fileno(stdin), &ch, (size_t) 1) <= 0) {
 		if (command == 0)
 		    command = 'q';
 		break;

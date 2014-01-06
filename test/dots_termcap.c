@@ -29,12 +29,16 @@
 /*
  * Author: Thomas E. Dickey
  *
- * $Id: dots_termcap.c,v 1.5 2013/06/09 00:09:46 tom Exp $
+ * $Id: dots_termcap.c,v 1.7 2013/09/28 21:50:35 tom Exp $
  *
  * A simple demo of the termcap interface.
  */
 #define USE_TINFO
 #include <test.priv.h>
+
+#if !defined(__MINGW32__)
+#include <sys/time.h>
+#endif
 
 #if HAVE_TGETENT
 
@@ -101,7 +105,7 @@ TPUTS_PROTO(outc, c)
 
     if (interrupted) {
 	char tmp = (char) c;
-	if (write(STDOUT_FILENO, &tmp, 1) == -1)
+	if (write(STDOUT_FILENO, &tmp, (size_t) 1) == -1)
 	    rc = EOF;
     } else {
 	rc = putc(c, stdout);
@@ -149,7 +153,7 @@ ranf(void)
 static void
 my_napms(int ms)
 {
-#if defined(__MINGW32__)
+#if defined(__MINGW32__) || !HAVE_GETTIMEOFDAY
     Sleep(ms);
 #else
     struct timeval data;

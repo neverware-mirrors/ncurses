@@ -25,7 +25,7 @@
 -- sale, use or other dealings in this Software without prior written        --
 -- authorization.                                                            --
 -------------------------------------------------------------------------------
--- $Id: NEWS,v 1.2069 2013/06/08 21:00:03 tom Exp $
+-- $Id: NEWS,v 1.2151 2013/12/21 22:25:52 tom Exp $
 -------------------------------------------------------------------------------
 
 This is a log of changes that ncurses has gone through since Zeyd started
@@ -44,6 +44,206 @@ See the AUTHORS file for the corresponding full names.
 
 Changes through 1.9.9e did not credit all contributions;
 it is not possible to add this information.
+
+20131221
+	+ further improved man2html, used this to fix broken links in html
+	  manpages.  See
+	  ftp://invisible-island.net/ncurses/patches/man2html
+
+20131214
+	+ modify configure-script/ifdef's to allow OLD_TTY feature to be
+	  suppressed if the type of ospeed is configured using the option
+	  --with-ospeed to not be a short.  By default, it is a short for
+	  termcap-compatibility (adapted from suggestion by Christian
+	  Weisgerber).
+	+ correct a typo in _nc_baudrate() (patch by Christian Weisgerber,
+	  cf: 20061230).
+	+ fix a few -Wlogical-op warnings.
+	+ updated llib-l* files.
+
+20131207
+	+ add form_driver_w() entrypoint to wide-character forms library, as
+	  well as test program form_driver_w (adapted from patch by Gaute
+	  Hope).
+
+20131123
+	+ minor fix for CF_GCC_WARNINGS to special-case options which are not
+	  recognized by clang.
+
+20131116
+	+ add special case to configure script to move _XOPEN_SOURCE_EXTENDED 
+	  definition from CPPFLAGS to CFLAGS if it happens to be needed for
+	  Solaris, because g++ errors with that definition (report by
+	  Jean-Pierre Flori, Sage #15268).
+	+ correct logic in infocmp's -i option which was intended to ignore
+	  strings which correspond to function-keys as candidates for piecing
+	  together initialization- or reset-strings.  The problem dates to
+	  1.9.7a, but was overlooked until changes in -Wlogical-op warnings for
+	  gcc 4.8 (report by David Binderman).
+	+ updated CF_GCC_WARNINGS to documented options for gcc 4.9.0, adding
+	  checks for -Wextra, -Wignored-qualifiers and -Wlogical-op
+	+ updated CF_GCC_WARNINGS to documented options for gcc 4.9.0, moving
+	  checks for -Wextra and -Wdeclaration-after-statement into the macro,
+	  and adding checks for -Wignored-qualifiers, -Wlogical-op and
+	  -Wvarargs
+	+ updated CF_CURSES_UNCTRL_H and CF_SHARED_OPTS macros from ongoing
+	  work on cdk.
+	+ update config.sub from
+		http://git.savannah.gnu.org/cgit/config.git
+
+20131110
+	+ minor cleanup of terminfo.tail
+
+20131102
+	+ use TS extension to describe xterm's title-escapes -TD
+	+ modify terminator and nsterm-s to use xterm+sl-twm building block -TD
+	+ update hurd.ti, add xenl to reflect 2011-03-06 change in
+	  http://git.savannah.gnu.org/cgit/hurd/hurd.git/log/console/display.c
+	  (Debian #727119).
+	+ simplify pfkey expression in ansi.sys -TD
+
+20131027
+	+ correct/simplify ifdef's for cur_term versus broken-linker and
+	  reentrant options (report by Jean-Pierre Flori, cf: 20090530).
+	+ modify release/version combinations in test build-scripts to make
+	  them more consistent with other packages.
+
+20131019
+	+ add nc_mingw.h to installed headers for MinGW port; needed for
+	  compiling ncurses-examples.
+	+ add rpm-script for testing cross-compile of ncurses-examples.
+
+20131014
+	+ fix new typo in CF_ADA_INCLUDE_DIRS macro (report by Roumen Petrov).
+
+20131012
+	+ fix a few compiler warnings in progs and test.
+	+ minor fix to package/debian-mingw/rules, do not strip dll's.
+	+ minor fixes to configure script for empty $prefix, e.g., when doing
+	  cross-compiles to MinGW.
+	+ add script for building test-packages of binaries cross-compiled to
+	  MinGW using NSIS.
+
+20131005
+	+ minor fixes for ncurses-example package and makefile.
+	+ add scripts for test-builds of cross-compiler packages for ncurses6
+	  to MinGW.
+
+20130928
+	+ some build-fixes for ncurses-examples with NetBSD-6.0 curses, though
+	  it lacks some common functions such as use_env() which is not yet
+	  addressed.
+	+ build-fix and some compiler warning fixes for ncurses-examples with
+	  OpenBSD 5.3
+	+ fix a possible null-pointer reference in a trace message from newterm.
+	+ quiet a few warnings from NetBSD 6.0 namespace pollution by
+	  nonstandard popcount() function in standard strings.h header.
+	+ ignore g++ 4.2.1 warnings for "-Weffc++" in c++/cursesmain.cc
+	+ fix a few overlooked places for --enable-string-hacks option.
+
+20130921
+	+ fix typo in curs_attr.3x (patch by Sven Joachim, cf: 20130831).
+	+ build-fix for --with-shared option for DragonFly and FreeBSD (report
+	  by Rong-En Fan, cf: 20130727).
+
+20130907
+	+ build-fixes for MSYS for two test-programs (patches by Ray Donnelly,
+	  Alexey Pavlov).
+	+ revert change to two of the dpkg format files, to work with dpkg
+	  before/after Debian #700177.
+	+ fix gcc -Wconversion warning in wattr_get() macro.
+	+ add msys and msysdll to known host/configuration types (patch by
+	  Alexey Pavlov).
+	+ modify CF_RPATH_HACK configure macro to not rely upon "-u" option
+	  of sort, improving portability.
+	+ minor improvements for test-programs from reviewing Solaris port.
+	+ update config.guess, config.sub from
+		http://git.savannah.gnu.org/cgit/config.git
+
+20130831
+	+ modify test/ncurses.c b/B tests to display lines only for the
+	  attributes which a given terminal supports, to make room for an
+	  italics test.
+	+ completed ncv table in terminfo.tail; it did not list the wide
+	  character codes listed in X/Open Curses issue 7.
+	+ add A_ITALIC extension (prompted by discussion with Egmont Koblinger).
+
+20130824
+	+ fix some gcc 4.8 -Wconversion warnings.
+	+ change format of dpkg test-scripts to quilted to work around bug
+	  introduced by Debian #700177.
+	+ discard cached keyname() values if meta() is changed after a value
+	  was cached using (report by Kurban Mallachiev).
+
+20130816
+	+ add checks in tic to warn about terminals which lack cursor
+	  addressing, capabilities or having those, are marked as hard_copy or
+	  generic_type.
+	+ use --without-progs in mingw-ncurses rpm.
+	+ split out _nc_init_termtype() from alloc_entry.c to use in MinGW
+	  port when tic and other programs are not needed.
+
+20130805
+	+ minor fixes to the --disable-overwrite logic, to ensure that the
+	  configured $(includedir) is not cancelled by the mingwxx-filesystem
+	  rpm macros.
+	+ add --disable-db-install configure option, to simplify building
+	  cross-compile support packages.
+	+ add mingw-ncurses.spec file, for testing cross-compiles.
+
+20130727
+	+ improve configure macros from ongoing work on cdk, dialog, xterm:
+	  + CF_ADD_LIB_AFTER - fix a problem with -Wl options
+	  + CF_RPATH_HACK - add missing result-message
+	  + CF_SHARED_OPTS - modify to use $rel_builddir in cygwin and mingw
+	    dll symbols (which can be overridden) rather than explicit "../".
+	  + CF_SHARED_OPTS - modify NetBSD and DragonFly symbols to use ${CC}
+	    rather than ${LD} to improve rpath support.
+	  + CF_SHARED_OPTS - add a symbol to denote the temporary files that
+	    are created by the macro, to simplify clean-rules.
+	  + CF_X_ATHENA - trim extra libraries to work with -Wl,--as-needed
+	+ fix a regression in hashed-database support for NetBSD, which uses
+	  the key-size differently from other implementations (cf: 20121229).
+
+20130720
+	+ further improvements for setupterm manpage, clarifying the
+	  initialization of cur_term.
+
+20130713
+	+ improve manpages for initscr and setupterm.
+	+ minor compiler-warning fixes
+
+20130706
+	+ add fallback defs for <inttypes.h> and <stdint.h> (cf: 20120225).
+	+ add check for size of wchar_t, use that to suppress a chunk of
+	  wcwidth.h in MinGW port.
+	+ quiet linker warnings for MinGW cross-compile with dll's using the
+	  --enable-auto-import flag.
+	+ add ncurses.map rule to ncurses/Makefile to help diagnose symbol
+	  table issues.
+
+20130622
+	+ modify the clear program to take into account the E3 extended
+	  capability to clear the terminal's scrollback buffer (patch by
+	  Miroslav Lichvar, Redhat #815790).
+	+ clarify in resizeterm manpage that LINES and COLS are updated.
+	+ updated ansi example in terminfo.tail, correct misordered example
+	  of sgr.
+	+ fix other doclifter warnings for manpages
+	+ remove unnecessary ".ta" in terminfo.tail, add missing ".fi"
+	  (patch by Eric Raymond).
+
+20130615
+	+ minor changes to some configure macros to make them more reusable.
+	+ fixes for tabs program (prompted by report by Nick Andrik):
+	  + corrected logic in command-line parsing of -a and -c predefined
+	    tab-lists options.
+	  + allow "-0" and "-8" options to be combined with others, e.g.,"-0d".
+	  + make warning messages more consistent with the other utilities by
+	    not printing the full pathname of the program.
+	  + add -V option for consistency with other utilities.
+	+ fix off-by-one in columns for tabs program when processing an option
+	  such as "-5" (patch by Nick Andrik).
 
 20130608
 	+ add to test/demo_forms.c examples of using the menu-hooks as well
@@ -201,7 +401,7 @@ it is not possible to add this information.
 20130209
 	+ modify test/configure script to make it simpler to override names
 	  of curses-related libraries, to help with linking with pdcurses in
-	  mingw environment.
+	  MinGW environment.
 	+ if the --with-terminfo-dirs configure option is not used, there is
 	  no corresponding compiled-in value for that.  Fill in "no default
 	  value" for that part of the manpage substitution.
@@ -4615,7 +4815,7 @@ it is not possible to add this information.
 	  generated when cross-compiling for DJGPP.
 	+ modify infocmp to omit check for $TERM for operations that do not
 	  require it, e.g., "infocmp -e" used to build fallback list (report by
-	  Koblinger Egmont).
+	  Egmont Koblinger).
 
 20031004
 	+ add terminfo entries for DJGPP.

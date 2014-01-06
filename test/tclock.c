@@ -1,4 +1,4 @@
-/* $Id: tclock.c,v 1.31 2012/06/09 19:17:02 tom Exp $ */
+/* $Id: tclock.c,v 1.33 2013/09/28 21:52:34 tom Exp $ */
 
 #include <test.priv.h>
 
@@ -53,14 +53,14 @@
 
 /* Plot a point */
 static void
-plot(int x, int y, char col)
+plot(int x, int y, int col)
 {
     MvAddCh(y, x, (chtype) col);
 }
 
 /* Draw a diagonal(arbitrary) line using Bresenham's alogrithm. */
 static void
-dline(int pair, int from_x, int from_y, int x2, int y2, char ch)
+dline(int pair, int from_x, int from_y, int x2, int y2, int ch)
 {
     int dx, dy;
     int ax, ay;
@@ -135,8 +135,8 @@ main(int argc GCC_UNUSED, char *argv[]GCC_UNUSED)
     short my_bg = COLOR_BLACK;
 #if HAVE_GETTIMEOFDAY
     struct timeval current;
-    double fraction = 0.0;
 #endif
+    double fraction = 0.0;
 
     setlocale(LC_ALL, "");
 
