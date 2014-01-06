@@ -7,6 +7,7 @@ ncurses (5.9+20131221-1) UNRELEASED; urgency=low
   * Depend on libc6-dev | libc-dev rather than just libc-dev in
     libncurses{w,}5-dev.
   * Check GPG signature of upstream tarballs in the watch files.
+  * Upgrade Standards-Version to 3.9.5, no changes needed.
 
  -- Sven Joachim <svenjoac@gmx.de>  Wed, 23 Oct 2013 20:17:14 +0200
 
