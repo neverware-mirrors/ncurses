@@ -4,6 +4,8 @@ ncurses (5.9+20131221-1) UNRELEASED; urgency=low
     - Update libtinfo5 and libncursesw5 symbols files, bump shlibs.
   * Sync hurd terminfo description from the Savannah git repository.
     - Add xenl (Closes: #727119).
+  * Depend on libc6-dev | libc-dev rather than just libc-dev in
+    libncurses{w,}5-dev.
 
  -- Sven Joachim <svenjoac@gmx.de>  Wed, 23 Oct 2013 20:17:14 +0200
 

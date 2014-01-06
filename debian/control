@@ -78,7 +78,7 @@ Priority: optional
 Multi-Arch: same
 Depends: libtinfo5 (= ${binary:Version}), libncurses5 (= ${binary:Version}),
          libtinfo-dev (= ${binary:Version}), ncurses-bin (= ${binary:Version}),
-         libc-dev, ${misc:Depends}
+         libc6-dev | libc-dev, ${misc:Depends}
 Conflicts: ncurses-dev, libncurses-dev
 Replaces: ncurses-dev, libncurses-dev
 Provides: libncurses-dev, ncurses-dev
@@ -125,7 +125,7 @@ Priority: optional
 Multi-Arch: same
 Depends: libtinfo5 (= ${binary:Version}), libncursesw5 (= ${binary:Version}),
          libtinfo-dev (= ${binary:Version}), ncurses-bin (= ${binary:Version}),
-         libc-dev, ${misc:Depends}
+         libc6-dev | libc-dev, ${misc:Depends}
 Suggests: ncurses-doc
 Description: developer's libraries for ncursesw
  The ncurses library routines are a terminal-independent method of
