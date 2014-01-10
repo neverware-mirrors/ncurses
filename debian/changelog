@@ -1,4 +1,4 @@
-ncurses (5.9+20131221-1) UNRELEASED; urgency=low
+ncurses (5.9+20131221-1) unstable; urgency=low
 
   * New upstream patchlevel.
     - Update libtinfo5 and libncursesw5 symbols files, bump shlibs.
@@ -9,7 +9,7 @@ ncurses (5.9+20131221-1) UNRELEASED; urgency=low
   * Check GPG signature of upstream tarballs in the watch files.
   * Upgrade Standards-Version to 3.9.5, no changes needed.
 
- -- Sven Joachim <svenjoac@gmx.de>  Wed, 23 Oct 2013 20:17:14 +0200
+ -- Sven Joachim <svenjoac@gmx.de>  Fri, 10 Jan 2014 18:10:11 +0100
 
 ncurses (5.9+20130608-1) unstable; urgency=low
 
