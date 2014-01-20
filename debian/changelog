@@ -1,4 +1,4 @@
-ncurses (5.9+20140118-1) UNRELEASED; urgency=low
+ncurses (5.9+20140118-1) unstable; urgency=low
 
   * New upstream patchlevel.
     - Apply includesubdir variable which was introduced in 20130805 to
@@ -6,7 +6,7 @@ ncurses (5.9+20140118-1) UNRELEASED; urgency=low
   * Update years in debian/copyright.
   * Refresh Debian patches.
 
- -- Sven Joachim <svenjoac@gmx.de>  Sun, 19 Jan 2014 21:33:47 +0100
+ -- Sven Joachim <svenjoac@gmx.de>  Mon, 20 Jan 2014 18:31:56 +0100
 
 ncurses (5.9+20131221-1) unstable; urgency=low
 
