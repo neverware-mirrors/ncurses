@@ -554,6 +554,7 @@ libncursesw.so.5 #PACKAGE# #MINVER#
  wget_wstr@Base 5.6+20070908
  wgetbkgrnd@Base 5.6+20070908
  wgetch@Base 5.6+20070908
+ wgetdelay@Base 5.9+20140712
  wgetn_wstr@Base 5.6+20070908
  wgetnstr@Base 5.6+20070908
  wgetparent@Base 5.6+20070908
