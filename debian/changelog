@@ -4,6 +4,7 @@ ncurses (5.9+20140712-1) UNRELEASED; urgency=low
     - Update libncurses5 and libncursesw5 symbols files, bump shlibs.
   * Ship st and st-256color terminfo entries in ncurses-term, now that
     suckless-tools no longer includes them.
+  * Update xterm.ti from xterm 308.
 
  -- Sven Joachim <svenjoac@gmx.de>  Sun, 30 Mar 2014 07:45:36 +0200
 
