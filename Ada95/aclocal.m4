@@ -1,5 +1,5 @@
 dnl***************************************************************************
-dnl Copyright (c) 2010-2012,2013 Free Software Foundation, Inc.              *
+dnl Copyright (c) 2010-2013,2014 Free Software Foundation, Inc.              *
 dnl                                                                          *
 dnl Permission is hereby granted, free of charge, to any person obtaining a  *
 dnl copy of this software and associated documentation files (the            *
@@ -28,7 +28,7 @@ dnl***************************************************************************
 dnl
 dnl Author: Thomas E. Dickey
 dnl
-dnl $Id: aclocal.m4,v 1.77 2013/11/23 18:31:02 tom Exp $
+dnl $Id: aclocal.m4,v 1.87 2014/06/21 21:58:06 tom Exp $
 dnl Macros used in NCURSES Ada95 auto-configuration script.
 dnl
 dnl These macros are maintained separately from NCURSES.  The copyright on
@@ -39,7 +39,7 @@ dnl See http://invisible-island.net/autoconf/ for additional information.
 dnl
 dnl ---------------------------------------------------------------------------
 dnl ---------------------------------------------------------------------------
-dnl CF_ACVERSION_CHECK version: 4 updated: 2013/03/04 19:52:56
+dnl CF_ACVERSION_CHECK version: 5 updated: 2014/06/04 19:11:49
 dnl ------------------
 dnl Conditionally generate script according to whether we're using a given autoconf.
 dnl
@@ -48,7 +48,7 @@ dnl $2 = code to use if AC_ACVERSION is at least as high as $1.
 dnl $3 = code to use if AC_ACVERSION is older than $1.
 define([CF_ACVERSION_CHECK],
 [
-ifdef([AC_ACVERSION], ,[m4_copy([m4_PACKAGE_VERSION],[AC_ACVERSION])])dnl
+ifdef([AC_ACVERSION], ,[ifdef([AC_AUTOCONF_VERSION],[m4_copy([AC_AUTOCONF_VERSION],[AC_ACVERSION])],[m4_copy([m4_PACKAGE_VERSION],[AC_ACVERSION])])])dnl
 ifdef([m4_version_compare],
 [m4_if(m4_version_compare(m4_defn([AC_ACVERSION]), [$1]), -1, [$3], [$2])],
 [CF_ACVERSION_COMPARE(
@@ -709,6 +709,17 @@ AC_SUBST(SHOW_CC)
 AC_SUBST(ECHO_CC)
 ])dnl
 dnl ---------------------------------------------------------------------------
+dnl CF_DISABLE_GNAT_PROJECTS version: 1 updated: 2014/06/01 11:34:00
+dnl ------------------------
+AC_DEFUN([CF_DISABLE_GNAT_PROJECTS],[
+AC_MSG_CHECKING(if we want to use GNAT projects)
+CF_ARG_DISABLE(gnat-projects,
+	[  --disable-gnat-projects test: disable GNAT projects even if usable],
+	[enable_gnat_projects=no],
+	[enable_gnat_projects=yes])
+AC_MSG_RESULT($enable_gnat_projects)
+])dnl
+dnl ---------------------------------------------------------------------------
 dnl CF_ENABLE_PC_FILES version: 9 updated: 2012/08/04 13:59:54
 dnl ------------------
 dnl This is the "--enable-pc-files" option, which is available if there is a
@@ -1207,46 +1218,19 @@ AC_SUBST(cf_compile_generics)
 AC_SUBST(cf_generic_objects)
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_GNAT_PRAGMA_UNREF version: 1 updated: 2010/06/19 15:22:18
-dnl --------------------
-dnl Check if the gnat pragma "Unreferenced" works.
-AC_DEFUN([CF_GNAT_PRAGMA_UNREF],[
-AC_CACHE_CHECK(if GNAT pragma Unreferenced works,cf_cv_pragma_unreferenced,[
-CF_GNAT_TRY_LINK([procedure conftest;],
-[with Text_IO;
-with GNAT.OS_Lib;
-procedure conftest is
-   test : Integer;
-   pragma Unreferenced (test);
-begin
-   test := 1;
-   Text_IO.Put ("Hello World");
-   Text_IO.New_Line;
-   GNAT.OS_Lib.OS_Exit (0);
-end conftest;],
-	[cf_cv_pragma_unreferenced=yes],
-	[cf_cv_pragma_unreferenced=no])])
-
-# if the pragma is supported, use it (needed in the Trace code).
-if test $cf_cv_pragma_unreferenced = yes ; then
-	PRAGMA_UNREF=TRUE
-else
-	PRAGMA_UNREF=FALSE
-fi
-AC_SUBST(PRAGMA_UNREF)
-])dnl
-dnl ---------------------------------------------------------------------------
-dnl CF_GNAT_PROJECTS version: 4 updated: 2013/09/07 14:05:46
+dnl CF_GNAT_PROJECTS version: 7 updated: 2014/06/01 10:46:34
 dnl ----------------
 dnl GNAT projects are configured with ".gpr" project files.
 dnl GNAT libraries are a further development, using the project feature.
 AC_DEFUN([CF_GNAT_PROJECTS],
 [
 AC_REQUIRE([CF_GNAT_VERSION])
+AC_REQUIRE([CF_DISABLE_GNAT_PROJECTS])
 
 cf_gnat_libraries=no
 cf_gnat_projects=no
 
+if test "$enable_gnat_projects" != no ; then
 AC_MSG_CHECKING(if GNAT supports project files)
 case $cf_gnat_version in #(vi
 3.[[0-9]]*) #(vi
@@ -1270,14 +1254,6 @@ project Library is
   for Library_Dir use External("BUILD_DIR");
   Source_Dir := External ("SOURCE_DIR");
   for Source_Dirs use (Source_Dir);
-  package Compiler is
-     for Default_Switches ("Ada") use
-       ("-g",
-        "-O2",
-        "-gnatafno",
-        "-gnatVa",   -- All validity checks
-        "-gnatwa");  -- Activate all optional errors
-  end Compiler;
 end Library;
 CF_EOF
 		cat >>confpackage.ads <<CF_EOF
@@ -1315,6 +1291,7 @@ CF_EOF
 	;;
 esac
 AC_MSG_RESULT($cf_gnat_projects)
+fi # enable_gnat_projects
 
 if test $cf_gnat_projects = yes
 then
@@ -1579,7 +1556,7 @@ CPPFLAGS="-I. -I../include $CPPFLAGS"
 AC_SUBST(CPPFLAGS)
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_INTEL_COMPILER version: 5 updated: 2013/02/10 10:41:05
+dnl CF_INTEL_COMPILER version: 6 updated: 2014/03/17 13:13:07
 dnl -----------------
 dnl Check if the given compiler is really the Intel compiler for Linux.  It
 dnl tries to imitate gcc, but does not return an error when it finds a mismatch
@@ -1608,7 +1585,7 @@ if test "$ifelse([$1],,[$1],GCC)" = yes ; then
 make an error
 #endif
 ],[ifelse([$2],,INTEL_COMPILER,[$2])=yes
-cf_save_CFLAGS="$cf_save_CFLAGS -we147 -no-gcc"
+cf_save_CFLAGS="$cf_save_CFLAGS -we147"
 ],[])
 		ifelse([$3],,CFLAGS,[$3])="$cf_save_CFLAGS"
 		AC_MSG_RESULT($ifelse([$2],,INTEL_COMPILER,[$2]))
@@ -1756,7 +1733,7 @@ ifelse($1,,,[$1=$LIB_PREFIX])
 	AC_SUBST(LIB_PREFIX)
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_LIB_SUFFIX version: 22 updated: 2013/09/07 13:54:05
+dnl CF_LIB_SUFFIX version: 23 updated: 2014/06/21 17:47:12
 dnl -------------
 dnl Compute the library file-suffix from the given model name
 dnl $1 = model name
@@ -1781,7 +1758,7 @@ AC_DEFUN([CF_LIB_SUFFIX],
 	Xshared) #(vi
 		case $cf_cv_system_name in
 		aix[[5-7]]*) #(vi
-			$2='.a'
+			$2='.so'
 			$3=[$]$2
 			;;
 		cygwin*|msys*|mingw*) #(vi
@@ -1900,7 +1877,7 @@ fi
 
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_MAKEFLAGS version: 14 updated: 2011/03/31 19:29:46
+dnl CF_MAKEFLAGS version: 15 updated: 2014/05/10 16:43:23
 dnl ------------
 dnl Some 'make' programs support ${MAKEFLAGS}, some ${MFLAGS}, to pass 'make'
 dnl options to lower-levels.  It's very useful for "make -n" -- if we have it.
@@ -1919,7 +1896,7 @@ all :
 CF_EOF
 		cf_result=`${MAKE:-make} -k -f cf_makeflags.tmp 2>/dev/null | fgrep -v "ing directory" | sed -e 's,[[ 	]]*$,,'`
 		case "$cf_result" in
-		.*k)
+		.*k|.*kw)
 			cf_result=`${MAKE:-make} -k -f cf_makeflags.tmp CC=cc 2>/dev/null`
 			case "$cf_result" in
 			.*CC=*)	cf_cv_makeflags=
@@ -3514,14 +3491,14 @@ AC_SUBST(ADA_OBJECTS)
 AC_MSG_RESULT($ADA_OBJECTS)
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_WITH_ADA_SHAREDLIB version: 2 updated: 2010/06/26 17:35:58
+dnl CF_WITH_ADA_SHAREDLIB version: 4 updated: 2014/05/31 21:08:37
 dnl ---------------------
 dnl Command-line option to specify if an Ada95 shared-library should be built,
 dnl and optionally what its soname should be.
 AC_DEFUN([CF_WITH_ADA_SHAREDLIB],[
 AC_MSG_CHECKING(if an Ada95 shared-library should be built)
 AC_ARG_WITH(ada-sharedlib,
-	[  --with-ada-sharedlib=XX build Ada95 shared-library],
+	[  --with-ada-sharedlib=soname build shared-library (requires GNAT projects)],
 	[with_ada_sharedlib=$withval],
 	[with_ada_sharedlib=no])
 AC_MSG_RESULT($with_ada_sharedlib)
@@ -3718,7 +3695,7 @@ AC_ARG_WITH(system-type,
 ])
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_XOPEN_SOURCE version: 45 updated: 2013/09/07 14:06:25
+dnl CF_XOPEN_SOURCE version: 46 updated: 2014/02/09 19:30:15
 dnl ---------------
 dnl Try to get _XOPEN_SOURCE defined properly that we can use POSIX functions,
 dnl or adapt to the vendor's definitions to get equivalent functionality,
@@ -3796,6 +3773,7 @@ sco*) #(vi
 	;;
 solaris2.*) #(vi
 	cf_xopen_source="-D__EXTENSIONS__"
+	cf_cv_xopen_source=broken
 	;;
 *)
 	CF_TRY_XOPEN_SOURCE

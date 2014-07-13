@@ -25,7 +25,7 @@
 -- sale, use or other dealings in this Software without prior written        --
 -- authorization.                                                            --
 -------------------------------------------------------------------------------
--- $Id: NEWS,v 1.2155 2014/01/18 23:59:51 tom Exp $
+-- $Id: NEWS,v 1.2239 2014/07/12 20:24:13 tom Exp $
 -------------------------------------------------------------------------------
 
 This is a log of changes that ncurses has gone through since Zeyd started
@@ -44,6 +44,231 @@ See the AUTHORS file for the corresponding full names.
 
 Changes through 1.9.9e did not credit all contributions;
 it is not possible to add this information.
+
+20140712
+	+ correct Charable() macro check for A_ALTCHARSET in wide-characters.
+	+ build-fix for position-debug code in tty_update.c, to work with or
+	  without sp-funcs.
+
+20140705
+	+ add w/W toggle to ncurses.c 'B' test, to demonstrate permutation of
+	  video-attributes and colors with double-width character strings.
+
+20140629
+	+ correct check in win_driver.c for saving screen contents, e.g., when
+	  NCURSES_CONSOLE2 is set (cf: 20140503).
+	+ reorganize b/B menu items in ncurses.c, putting the test-strings into
+	  subwindows.  This is needed for a planned change to use Unicode
+	  fullwidth characters in the test-screens.
+	+ correct update to form status for _NEWTOP, broken by fixes for
+	  compiler warnings (patch by Leon Winter, cf: 20120616).
+
+20140621
+	+ change shared-library suffix for AIX 5 and 6 to ".so", avoiding
+	  conflict with the static library (report by Ben Lentz).
+	+ document RPATH_LIST in INSTALLATION file, as part of workarounds for
+	  upgrading an ncurses library using the "--with-shared" option.
+	+ modify test/ncurses.c c/C tests to cycle through subsets of the
+	  total number of colors, to better illustrate 8/16/88/256-colors by
+	  providing directly comparable screens.
+	+ add test/dots_curses.c, for comparison with the low-level examples.
+
+20140614
+	+ fix dereference before null check found by Coverity in tic.c 
+	  (cf: 20140524).
+	+ fix sign-extension bug in read_entry.c which prevented "toe" from
+	  reading empty "screen+italics" entry.
+	+ modify sgr for screen.xterm-new to support dim capability -TD
+	+ add dim capability to nsterm+7 -TD
+	+ cancel dim capability for iterm -TD
+	+ add dim, invis capabilities to vte-2012 -TD
+	+ add sitm/ritm to konsole-base and mlterm3 -TD
+
+20140609
+	> fix regression in screen terminfo entries (reports by Christian
+	  Ebert, Gabriele Balducci) -TD
+	+ revert the change to screen; see notes for why this did not work -TD
+	+ cancel sitm/ritm for entries which extend "screen", to work around
+	  screen's hardcoded behavior for SGR 3 -TD
+
+20140607
+	+ separate masking for sgr in vidputs from sitm/ritm, which do not
+	  overlap with sgr functionality.
+	+ remove unneeded -i option from adacurses-config; put -a in the -I
+	  option for consistency (patch by Pascal Pignard).
+	+ update xterm-new to patch #305 -TD
+	+ change format of test-scripts for Debian Ada95 and ncurses-examples
+	  packages to quilted to work around Debian #700177 (cf: 20130907).
+	+ build fix for form_driver_w.c as part of ncurses-examples package for
+	  older ncurses than 20131207.
+	+ add Hello World example to adacurses-config manpage.
+	+ remove unused --enable-pc-files option from Ada95/configure.
+	+ add --disable-gnat-projects option for testing.
+	+ revert changes to Ada95 project-files configuration (cf: 20140524).
+	+ corrected usage message in adacurses-config.
+
+20140524
+	+ fix typo in ncurses manpage for the NCURSES_NO_MAGIC_COOKIE
+	  environment variable.
+	+ improve discussion of input-echoing in curs_getch.3x
+	+ clarify discussion in curs_addch.3x of wrapping.
+	+ modify parametrized.h to make fln non-padded.
+	+ correct several entries which had termcap-style padding used in
+	  terminfo: adm21, aj510, alto-h19, att605-pc, x820 -TD
+	+ correct syntax for padding in some entries: dg211, h19 -TD
+	+ correct ti924-8 which had confused padding versus octal escapes -TD
+	+ correct padding in sbi entry -TD
+	+ fix an old bug in the termcap emulation; "%i" was ignored in tparm()
+	  because the parameters to be incremented were already on the internal
+	  stack (report by Corinna Vinschen).
+	+ modify tic's "-c" option to take into account the "-C" option to
+	  activate additional checks which compare the results from running
+	  tparm() on the terminfo expressions versus the translated termcap
+	  expressions.
+	+ modify tic to allow it to read from FIFOs (report by Matthieu Fronton,
+	  cf: 20120324).
+	> patches by Nicolas Boulenguez:
+	+ explicit dereferences to suppress some style warnings.
+	+ when c_varargs_to_ada.c includes its header, use double quotes
+	  instead of <>.
+	+ samples/ncurses2-util.adb:  removed unused with clause.  The warning
+	  was removed by an obsolete pragma.
+	+ replaced Unreferenced pragmas with Warnings (Off).  The latter,
+	  available with older GNATs, needs no configure test.  This also
+	  replaces 3 untested Unreferenced pragmas.
+	+ simplified To_C usage in trace handling.  Using two parameters allows
+	  some basic formatting, and avoids a warning about security with some
+	  compiler flags.
+	+ for generated Ada sources, replace many snippets with one pure
+	  package.
+	+ removed C_Chtype and its conversions.
+	+ removed C_AttrType and its conversions.
+	+ removed conversions between int, Item_Option_Set, Menu_Option_Set.
+	+ removed int, Field_Option_Set, Item_Option_Set conversions.
+	+ removed C_TraceType, Attribute_Option_Set conversions.
+	+ replaced C.int with direct use of Eti_Error, now enumerated.  As it
+	  was used in a case statement, values were tested by the Ada compiler
+	  to be consecutive anyway.
+	+ src/Makefile.in: remove duplicate stanza
+	+ only consider using a project for shared libraries.
+	+ style. Silent gnat-4.9 warning about misplaced "then".
+	+ generate shared library project to honor ADAFLAGS, LDFLAGS.
+
+20140510
+	+ cleanup recently introduced compiler warnings for MingW port.
+	+ workaround for ${MAKEFLAGS} configure check versus GNU make 4.0,
+	  which introduces more than one gratuitous incompatibility.
+
+20140503
+	+ add vt520ansi terminfo entry (patch by Mike Gran)
+	+ further improve MinGW support for the scenario where there is an
+	  ANSI-escapes handler such as ansicon running in the console window
+	  (patch by Juergen Pfeifer).
+
+20140426
+	+ add --disable-lib-suffixes option (adapted from patch by Juergen
+	  Pfeifer).
+	+ merge some changes from Juergen Pfeifer's work with MSYS2, to
+	  simplify later merging:
+	  + use NC_ISATTY() macro for isatty() in library
+	  + add _nc_mingw_isatty() and related functions to windows-driver
+	  + rename terminal driver entrypoints to simplify grep's
+	+ remove a check in the sp-funcs flavor of newterm() which allowed only
+	  the first call to newterm() to succeed (report by Thomas Beierlein,
+	  cf: 20090927).
+
+20140419
+	+ update config.guess, config.sub from
+		http://git.savannah.gnu.org/cgit/config.git
+
+20140412
+	+ modify configure script:
+	  + drop the -no-gcc option from Intel compiler, from lynx changes.
+	  + extend the --with-hashed-db configure option to simplify building
+	    with different versions of Berkeley database using FreeBSD ports.
+	+ improve initialization for MinGW port (Juergen Pfeifer):
+	  + enforce Windows-style path-separator if cross-compiling,
+	  + add a driver-name method to each of the drivers,
+	  + allow the Windows driver name to match "unknown", ignoring case,
+	  + lengthen the built-in name for the Windows console driver to
+	    "#win32console", and
+	  + move the comparison of driver-names allowing abbreviation, e.g.,
+	    to "#win32con" into the Windows console driver.
+
+20140329
+	+ add check in tic for mismatch between ccc and initp/initc
+	+ cancel ccc in putty-256color and konsole-256color for consistency
+	  with the cancelled initc capability (patch by Sven Zuhlsdorf).
+	+ add xterm+256setaf building block for various terminals which only
+	  get the 256-color feature half-implemented -TD
+	+ updated "st" entry (leaving the 0.1.1 version as "simpleterm") to
+	  0.4.1 -TD
+
+20140323
+	+ fix typo in "mlterm" entry (report by Gabriele Balducci) -TD
+
+20140322
+	+ use types from <stdint.h> in sample build-scripts for chtype, etc.
+	+ modify configure script and curses.h.in to allow the types specified
+	  using --with-chtype and related options to be defined in <stdint.h>
+	+ add terminology entry -TD
+	+ add mlterm3 entry, use that as "mlterm" -TD
+	+ inherit mlterm-256color from mlterm -TD
+
+20140315
+	+ modify _nc_New_TopRow_and_CurrentItem() to ensure that the menu's
+	  top-row is adjusted as needed to ensure that the current item is
+	  on the screen (patch by Johann Klammer).
+	+ add wgetdelay() to retrieve _delay member of WINDOW if it happens to
+	  be opaque, e.g., in the pthread configuration (prompted by patch by
+	  Soren Brinkmann).
+
+20140308
+	+ modify ifdef in read_entry.c to handle the case where
+	  NCURSES_USE_DATABASE is not defined (patch by Xin Li).
+	+ add cast in form_driver_w() to fix ARM build (patch by Xin Li).
+	+ add logic to win_driver.c to save/restore screen contents when not
+	  allocating a console-buffer (cf: 20140215).
+
+20140301
+	+ clarify error-returns from newwin (report by Ruslan Nabioullin).
+
+20140222
+	+ fix some compiler warnings in win_driver.c
+	+ updated notes for wsvt25 based on tack and vttest -TD
+	+ add teken entry to show actual properties of FreeBSD's "xterm"
+	  console -TD
+
+20140215
+	+ in-progress changes to win_driver.c to implement output without
+	  allocating a console-buffer.  This uses a pre-existing environment
+	  variable NCGDB used by Juergen Pfeifer for debugging (prompted by
+	  discussion with Erwin Waterlander regarding Console2, which hangs
+	  when reading in an allocated console-buffer).
+	+ add -t option to gdc.c, and modify to accept "S" to step through the
+	  scrolling-stages.
+	+ regenerate NCURSES-Programming-HOWTO.html to fix some of the broken
+	  html emitted by docbook.
+
+20140209
+	+ modify CF_XOPEN_SOURCE macro to omit followup check to determine if
+	  _XOPEN_SOURCE can/should be defined.  g++ 4.7.2 built on Solaris 10
+	  has some header breakage due to its own predefinition of this symbol
+	  (report by Jean-Pierre Flori, Sage #15796).
+
+20140201
+	+ add/use symbol NCURSES_PAIRS_T like NCURSES_COLOR_T, to illustrate
+	  which "short" types are for color pairs and which are color values.
+	+ fix build for s390x, by correcting field bit offsets in generated
+	  representation clauses when int=32 long=64 and endian=big, or at
+	  least on s390x (patch by Nicolas Boulenguez).
+	+ minor cleanup change to test/form_driver_w.c (patch by Gaute Hope).
+
+20140125
+	+ remove unnecessary ifdef's in Ada95/gen/gen.c, which reportedly do
+	  not work as is with gcc 4.8 due to fixes using chtype cast made for
+	  new compiler warnings by gcc 4.8 in 20130824 (Debian #735753, patch
+	  by Nicolas Boulenguez).
 
 20140118
 	+ apply includesubdir variable which was introduced in 20130805 to
@@ -75,7 +300,7 @@ it is not possible to add this information.
 	  recognized by clang.
 
 20131116
-	+ add special case to configure script to move _XOPEN_SOURCE_EXTENDED 
+	+ add special case to configure script to move _XOPEN_SOURCE_EXTENDED
 	  definition from CPPFLAGS to CFLAGS if it happens to be needed for
 	  Solaris, because g++ errors with that definition (report by
 	  Jean-Pierre Flori, Sage #15268).
@@ -239,7 +464,7 @@ it is not possible to add this information.
 
 20130615
 	+ minor changes to some configure macros to make them more reusable.
-	+ fixes for tabs program (prompted by report by Nick Andrik):
+	+ fixes for tabs program (prompted by report by Nick Andrik).
 	  + corrected logic in command-line parsing of -a and -c predefined
 	    tab-lists options.
 	  + allow "-0" and "-8" options to be combined with others, e.g.,"-0d".
@@ -488,7 +713,7 @@ it is not possible to add this information.
 	  a null-pointer check in _nc_mvcur_resume.
 	+ correct display of double-width characters with MinGW port (report
 	  by Erwin Waterlander).
-	+ replace MinGW's wcrtomb(), fixing a problem with _nc_viscbuf 
+	+ replace MinGW's wcrtomb(), fixing a problem with _nc_viscbuf
 	> fixes based on Coverity report:
 	+ correct coloring in test/bs.c
 	+ correct check for 8-bit value in _nc_insert_ch().
@@ -577,7 +802,7 @@ it is not possible to add this information.
 	  first corrects pattern used for Mac OS X's customization of gcc.
 
 20121017
-	+ fix change to _nc_scroll_optimize(), which incorrectly freed memory 
+	+ fix change to _nc_scroll_optimize(), which incorrectly freed memory
 	  (Redhat #866989).
 
 20121013
@@ -930,7 +1155,7 @@ it is not possible to add this information.
 	+ make sgr for aaa-unk, aaa-rv agree with other caps -TD
 	+ make sgr for avt-ns agree with other caps -TD
 	+ amend fix intended to separate fixups for acsc to allow "tic -cv" to
-	  give verbose warnings (cf:  20110730). 
+	  give verbose warnings (cf:  20110730).
 	+ modify misc/gen-edit.sh to make the location of the tabset directory
 	  consistent with misc/Makefile.in, i.e., using ${datadir}/tabset
 	  (Debian #653435, patch by Sven Joachim).
@@ -962,7 +1187,7 @@ it is not possible to add this information.
 	  + drop mk-dlls.sh script.
 	  + change recommended regular expression library.
 	  + modify rain.c to allow for threaded configuraton.
-	  + modify tset.c to allow for case when size-change logic is not used. 
+	  + modify tset.c to allow for case when size-change logic is not used.
 
 20111231
 	+ modify toe's report when -a and -s options are combined, to add
@@ -1334,7 +1559,7 @@ it is not possible to add this information.
 	+ Ada95 build-fix for big-endian architectures such as sparc.  This
 	  undoes one of the fixes from 20110319, which added an "Unused" member
 	  to representation clauses, replacing that with pragmas to suppress
-	  warnings about unused bits (patch by Nicolas Boulenguez):
+	  warnings about unused bits (patch by Nicolas Boulenguez).
 
 20110423
 	+ add check in test/configure for use_window, use_screen.
@@ -2021,7 +2246,7 @@ it is not possible to add this information.
 	+ quiet some pedantic gcc warnings.
 	+ modify _nc_wgetch() to check for a -1 in the fifo, e.g., after a
 	  SIGWINCH, and discard that value, to avoid confusing application
-	  (patch by Eygene Ryabinkin, FreeBSD bin/136223).
+	  (patch by Eygene Ryabinkin, FreeBSD #136223).
 
 20091017
 	+ modify handling of $PKG_CONFIG_LIBDIR to use only the first item in
@@ -2101,7 +2326,7 @@ it is not possible to add this information.
 
 20090815
 	+ correct use of terminfo capabilities for initializing soft-keys,
-	  broken in 20090509 merging.
+	  broken in 20090510 merging.
 	+ modify wgetch() to ensure it checks SIGWINCH when it gets an error
 	  in non-blocking mode (patch by Clemens Ladisch).
 	+ use PATH_SEPARATOR symbol when substituting into run_tic.sh, to
@@ -2140,7 +2365,7 @@ it is not possible to add this information.
 
 20090718
 	+ fix a null-pointer check in _nc_format_slks() in lib_slk.c, from
-	  20070704 changes.
+	  20090704 changes.
 	+ modify _nc_find_type_entry() to use hashing.
 	+ make CCHARW_MAX value configurable, noting that changing this would
 	  change the size of cchar_t, and would be ABI-incompatible.
@@ -2246,7 +2471,7 @@ it is not possible to add this information.
 	  intermediate variable LT_UNDEF in the configure script, and then
 	  using that in the libtool link-commands.
 	+ fix an missing use of NCURSES_PUBLIC_VAR() in tinfo/MKcodes.awk
-	  from 2009031 changes.
+	  from 20090321 changes.
 	+ improve mk-1st.awk script by writing separate cases for the
 	  LIBTOOL_LINK command, depending on which library (ncurses, ticlib,
 	  termlib) is to be linked.
@@ -4359,7 +4584,7 @@ it is not possible to add this information.
 	  However that did find a coding error in Assume_Default_Colors().
 	+ modify several terminfo entries to ensure xterm mouse and cursor
 	  visibility are reset in rs2 string:  hurd, putty, gnome,
-	  konsole-base, mlterm, Eterm, screen (Debian #265784, Debian #55637). 
+	  konsole-base, mlterm, Eterm, screen (Debian #265784, Debian #55637).
 	  The xterm entries are left alone - old ones for compatibility, and
 	  the new ones do not require this change. -TD
 
@@ -8956,7 +9181,7 @@ it is not possible to add this information.
 	+ remove _nc_err_abort() calls when write_entry.c finds a directory but
 	  cannot write to it, e.g., when translating part/all of /etc/termcap
 	  (reported by Andreas Jaeger <aj@arthur.rhein-neckar.de>).
-	  (this dates back to 951102, in 1.9.7a).
+	  (this dates back to 951102 in 1.9.7a).
 	+ minor ifdef fixes to compile with atac and glibc 2.0.5c
 	+ add check for -lgen when configuring regexpr.h
 	+ modify Solaris shared-library option "-d y" to "-dy" to workaround
@@ -9425,7 +9650,7 @@ it is not possible to add this information.
 	+ modify tset to look in /etc/ttys or /etc/ttytype if the configuration
 	  does not have getttynam().
 	+ extend baudrate table in tset.c to match baudrate() function.
-	+ add table entries for 230400 and 460800 bd to baudrate() function.
+	+ add table entries for B230400 and B460800 to baudrate() function.
 	+ improve breakout logic by allowing it before the first line updated,
 	  which is what SVr4 curses does (patch by Alexander V. Lukyanov).
 	+ correct initialization of vcost in relative_move(), for cursor-down

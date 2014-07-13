@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright (c) 1998-2012,2013 Free Software Foundation, Inc.              *
+ * Copyright (c) 1998-2013,2014 Free Software Foundation, Inc.              *
  *                                                                          *
  * Permission is hereby granted, free of charge, to any person obtaining a  *
  * copy of this software and associated documentation files (the            *
@@ -84,7 +84,7 @@
 #define CUR SP_TERMTYPE
 #endif
 
-MODULE_ID("$Id: lib_mouse.c,v 1.141 2013/09/21 19:09:19 tom Exp $")
+MODULE_ID("$Id: lib_mouse.c,v 1.143 2014/04/26 18:47:20 juergen Exp $")
 
 #include <tic.h>
 
@@ -408,7 +408,7 @@ allow_gpm_mouse(SCREEN *sp)
     } else
 #endif
 	/* GPM does printf's without checking if stdout is a terminal */
-    if (isatty(fileno(stdout))) {
+    if (NC_ISATTY(fileno(stdout))) {
 	char *list = getenv("NCURSES_GPM_TERMS");
 	char *env = getenv("TERM");
 	if (list != 0) {
@@ -607,7 +607,7 @@ initialize_mousetype(SCREEN *sp)
 	struct mouse_info the_mouse;
 	char *the_device = 0;
 
-	if (isatty(sp->_ifd))
+	if (NC_ISATTY(sp->_ifd))
 	    the_device = ttyname(sp->_ifd);
 	if (the_device == 0)
 	    the_device = "/dev/tty";
@@ -668,7 +668,7 @@ initialize_mousetype(SCREEN *sp)
 #endif /* USE_SYSMOUSE */
 
 #ifdef USE_TERM_DRIVER
-    CallDriver(sp, initmouse);
+    CallDriver(sp, td_initmouse);
 #else
     /* we know how to recognize mouse events under "xterm" */
     if (key_mouse != 0) {

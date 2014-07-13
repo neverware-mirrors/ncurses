@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright (c) 2013 Free Software Foundation, Inc.                        *
+ * Copyright (c) 2013,2014 Free Software Foundation, Inc.                   *
  *                                                                          *
  * Permission is hereby granted, free of charge, to any person obtaining a  *
  * copy of this software and associated documentation files (the            *
@@ -31,7 +31,7 @@
  ****************************************************************************/
 
 /*
- * $Id: form_driver_w.c,v 1.9 2013/12/07 20:35:54 tom Exp $
+ * $Id: form_driver_w.c,v 1.12 2014/06/01 20:37:19 tom Exp $
  *
  * Test form_driver_w (int, int, wchar_t), a wide char aware
  * replacement of form_driver.
@@ -41,7 +41,7 @@
 
 #include <test.priv.h>
 
-#if USE_WIDEC_SUPPORT && USE_LIBFORM
+#if USE_WIDEC_SUPPORT && USE_LIBFORM && (defined(NCURSES_VERSION_PATCH) && NCURSES_VERSION_PATCH >= 20131207)
 
 #include <form.h>
 
@@ -86,7 +86,7 @@ main(void)
 	wint_t ch;
 	int ret = get_wch(&ch);
 
-	mvprintw(8, 10, "Got %d (%#x), type: %s", ch, ch,
+	mvprintw(8, 10, "Got %d (%#x), type: %s", (int) ch, (int) ch,
 		 (ret == KEY_CODE_YES)
 		 ? "KEY_CODE_YES"
 		 : ((ret == OK)
@@ -101,22 +101,17 @@ main(void)
 	    switch (ch) {
 	    case KEY_DOWN:
 		/* Go to next field */
-		form_driver(my_form, REQ_NEXT_FIELD);
+		form_driver_w(my_form, KEY_CODE_YES, REQ_NEXT_FIELD);
 		/* Go to the end of the present buffer */
 		/* Leaves nicely at the last character */
-		form_driver(my_form, REQ_END_LINE);
+		form_driver_w(my_form, KEY_CODE_YES, REQ_END_LINE);
 		break;
 	    case KEY_UP:
 		/* Go to previous field */
-		form_driver(my_form, REQ_PREV_FIELD);
-		form_driver(my_form, REQ_END_LINE);
+		form_driver_w(my_form, KEY_CODE_YES, REQ_PREV_FIELD);
+		form_driver_w(my_form, KEY_CODE_YES, REQ_END_LINE);
 		break;
 	    default:
-#if 0
-		/* If this is a normal character, it gets printed */
-		form_driver(my_form, ch);
-		wadd_wch(my_form->current->working, ch);
-#endif
 		break;
 	    }
 	    break;

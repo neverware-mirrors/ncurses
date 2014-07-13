@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright (c) 2008-2012,2013 Free Software Foundation, Inc.              *
+ * Copyright (c) 2008-2013,2014 Free Software Foundation, Inc.              *
  *                                                                          *
  * Permission is hereby granted, free of charge, to any person obtaining a  *
  * copy of this software and associated documentation files (the            *
@@ -50,7 +50,7 @@
 # endif
 #endif
 
-MODULE_ID("$Id: tinfo_driver.c,v 1.32 2013/08/31 15:22:46 tom Exp $")
+MODULE_ID("$Id: tinfo_driver.c,v 1.38 2014/04/26 18:47:20 juergen Exp $")
 
 /*
  * SCO defines TIOCGSIZE and the corresponding struct.  Other systems (SunOS,
@@ -106,6 +106,13 @@ drv_doupdate(TERMINAL_CONTROL_BLOCK * TCB)
     return TINFO_DOUPDATE(TCB->csp);
 }
 
+static const char *
+drv_Name(TERMINAL_CONTROL_BLOCK * TCB)
+{
+    (void) TCB;
+    return "tinfo";
+}
+
 static bool
 drv_CanHandle(TERMINAL_CONTROL_BLOCK * TCB, const char *tname, int *errret)
 {
@@ -113,6 +120,8 @@ drv_CanHandle(TERMINAL_CONTROL_BLOCK * TCB, const char *tname, int *errret)
     int status;
     TERMINAL *termp;
     SCREEN *sp;
+
+    T((T_CALLED("tinfo::drv_CanHandle(%p)"), TCB));
 
     assert(TCB != 0 && tname != 0);
     termp = (TERMINAL *) TCB;
@@ -169,7 +178,7 @@ drv_CanHandle(TERMINAL_CONTROL_BLOCK * TCB, const char *tname, int *errret)
 	ret_error1(TGETENT_YES, "I can't handle hardcopy terminals.\n", tname);
     }
 
-    return result;
+    returnBool(result);
 }
 
 static int
@@ -376,7 +385,7 @@ drv_size(TERMINAL_CONTROL_BLOCK * TCB, int *linep, int *colp)
 	/* try asking the OS */
 	{
 	    TERMINAL *termp = (TERMINAL *) TCB;
-	    if (isatty(termp->Filedes)) {
+	    if (NC_ISATTY(termp->Filedes)) {
 		STRUCT_WINSIZE size;
 
 		errno = 0;
@@ -537,7 +546,6 @@ drv_mode(TERMINAL_CONTROL_BLOCK * TCB, int progFlag, int defFlag)
 		if (sp) {
 		    if (sp->_keypad_on)
 			_nc_keypad(sp, TRUE);
-		    NC_BUFFERED(sp, TRUE);
 		}
 		code = OK;
 	    }
@@ -563,7 +571,6 @@ drv_mode(TERMINAL_CONTROL_BLOCK * TCB, int progFlag, int defFlag)
 	    if (sp) {
 		_nc_keypad(sp, FALSE);
 		NCURSES_SP_NAME(_nc_flush) (sp);
-		NC_BUFFERED(sp, FALSE);
 	    }
 	    code = drv_sgmode(TCB, TRUE, &(_term->Ottyb));
 	}
@@ -664,8 +671,8 @@ drv_init(TERMINAL_CONTROL_BLOCK * TCB)
      * _nc_setupscreen().  Do it now anyway, so we can initialize the
      * baudrate.
      */
-    if (isatty(trm->Filedes)) {
-	TCB->drv->mode(TCB, TRUE, TRUE);
+    if (NC_ISATTY(trm->Filedes)) {
+	TCB->drv->td_mode(TCB, TRUE, TRUE);
     }
 }
 
@@ -868,11 +875,11 @@ drv_testmouse(TERMINAL_CONTROL_BLOCK * TCB,
     } else
 #endif
     {
-	rc = TCBOf(sp)->drv->twait(TCBOf(sp),
-				   TWAIT_MASK,
-				   delay,
-				   (int *) 0
-				   EVENTLIST_2nd(evl));
+	rc = TCBOf(sp)->drv->td_twait(TCBOf(sp),
+				      TWAIT_MASK,
+				      delay,
+				      (int *) 0
+				      EVENTLIST_2nd(evl));
 #if USE_SYSMOUSE
 	if ((sp->_mouse_type == M_SYSMOUSE)
 	    && (sp->_sysmouse_head < sp->_sysmouse_tail)
@@ -1003,7 +1010,7 @@ drv_initacs(TERMINAL_CONTROL_BLOCK * TCB, chtype *real_map, chtype *fake_map)
 	size_t i;
 	for (i = 1; i < ACS_LEN; ++i) {
 	    if (real_map[i] == 0) {
-		real_map[i] = i;
+		real_map[i] = (chtype) i;
 		if (real_map != fake_map) {
 		    if (sp != 0)
 			sp->_screen_acs_map[i] = TRUE;
@@ -1305,6 +1312,7 @@ drv_kyExist(TERMINAL_CONTROL_BLOCK * TCB, int key)
 
 NCURSES_EXPORT_VAR (TERM_DRIVER) _nc_TINFO_DRIVER = {
     TRUE,
+	drv_Name,		/* Name */
 	drv_CanHandle,		/* CanHandle */
 	drv_init,		/* init */
 	drv_release,		/* release */

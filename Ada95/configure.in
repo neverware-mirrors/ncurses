@@ -1,5 +1,5 @@
 dnl***************************************************************************
-dnl Copyright (c) 2010-2012,2013 Free Software Foundation, Inc.              *
+dnl Copyright (c) 2010-2013,2014 Free Software Foundation, Inc.              *
 dnl                                                                          *
 dnl Permission is hereby granted, free of charge, to any person obtaining a  *
 dnl copy of this software and associated documentation files (the            *
@@ -28,14 +28,14 @@ dnl***************************************************************************
 dnl
 dnl Author: Thomas E. Dickey
 dnl
-dnl $Id: configure.in,v 1.49 2013/11/16 20:06:37 tom Exp $
+dnl $Id: configure.in,v 1.55 2014/06/01 16:40:55 tom Exp $
 dnl Process this file with autoconf to produce a configure script.
 dnl
 dnl See http://invisible-island.net/autoconf/ for additional information.
 dnl
 dnl ---------------------------------------------------------------------------
 AC_PREREQ(2.52.20030208)
-AC_REVISION($Revision: 1.49 $)
+AC_REVISION($Revision: 1.55 $)
 AC_INIT(gen/gen.c)
 AC_CONFIG_HEADER(include/ncurses_cfg.h:include/ncurses_cfg.hin)
 
@@ -67,7 +67,6 @@ AC_SYS_LONG_FILE_NAMES
 # if we find pkg-config, check if we should install the ".pc" files.
 CF_PKG_CONFIG
 CF_WITH_PKG_CONFIG_LIBDIR
-CF_ENABLE_PC_FILES
 
 AC_MSG_CHECKING(if you want to build test-programs)
 AC_ARG_WITH(tests,
@@ -432,6 +431,8 @@ fi
 
 AC_SUBST(ADA_TRACE)
 
+CF_DISABLE_GNAT_PROJECTS
+
 ###	Checks for libraries.
 case $cf_cv_system_name in #(vi
 *mingw32*) #(vi
@@ -478,7 +479,6 @@ if test "$cf_with_ada" != "no" ; then
 
 		CF_GNAT_GENERICS
 		CF_GNAT_SIGINT
-		CF_GNAT_PRAGMA_UNREF
 		CF_GNAT_PROJECTS
 
 		CF_WITH_ADA_COMPILER
@@ -546,17 +546,6 @@ AC_DEFINE_UNQUOTED(NCURSES_PATHSEP,'$PATH_SEPARATOR',[Define to override ':' as 
 
 ### Now that we're done running tests, add the compiler-warnings, if any
 CF_ADD_CFLAGS($EXTRA_CFLAGS)
-
-################################################################################
-
-if test x"$enable_pc_files" = xyes ; then \
-SUB_MAKEFILES="$SUB_MAKEFILES misc/gen-pkgconfig:misc/gen-pkgconfig.in"
-MAKE_PC_FILES=
-else
-MAKE_PC_FILES="#"
-fi
-AC_SUBST(MAKE_PC_FILES)
-AC_SUBST(cross_compiling)
 
 ################################################################################
 

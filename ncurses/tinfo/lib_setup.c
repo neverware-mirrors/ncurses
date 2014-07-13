@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright (c) 1998-2012,2013 Free Software Foundation, Inc.              *
+ * Copyright (c) 1998-2013,2014 Free Software Foundation, Inc.              *
  *                                                                          *
  * Permission is hereby granted, free of charge, to any person obtaining a  *
  * copy of this software and associated documentation files (the            *
@@ -48,7 +48,7 @@
 #include <locale.h>
 #endif
 
-MODULE_ID("$Id: lib_setup.c,v 1.158 2013/06/22 19:59:08 tom Exp $")
+MODULE_ID("$Id: lib_setup.c,v 1.160 2014/04/26 18:47:20 juergen Exp $")
 
 /****************************************************************************
  *
@@ -283,7 +283,7 @@ _nc_get_screensize(SCREEN *sp,
     TCB = (TERMINAL_CONTROL_BLOCK *) termp;
 
     my_tabsize = TCB->info.tabsize;
-    TCB->drv->size(TCB, linep, colp);
+    TCB->drv->td_size(TCB, linep, colp);
 
 #if USE_REENTRANT
     if (sp != 0) {
@@ -321,7 +321,7 @@ _nc_get_screensize(SCREEN *sp,
 #endif
 #if HAVE_SIZECHANGE
 	/* try asking the OS */
-	if (isatty(cur_term->Filedes)) {
+	if (NC_ISATTY(cur_term->Filedes)) {
 	    STRUCT_WINSIZE size;
 
 	    errno = 0;
@@ -423,7 +423,7 @@ _nc_update_screensize(SCREEN *sp)
 
     assert(sp != 0);
 
-    CallDriver_2(sp, getsize, &old_lines, &old_cols);
+    CallDriver_2(sp, td_getsize, &old_lines, &old_cols);
 
 #else
     TERMINAL *termp = cur_term;
@@ -655,7 +655,7 @@ TINFO_SETUP_TERM(TERMINAL ** tp,
      * Allow output redirection.  This is what SVr3 does.  If stdout is
      * directed to a file, screen updates go to standard error.
      */
-    if (Filedes == STDOUT_FILENO && !isatty(Filedes))
+    if (Filedes == STDOUT_FILENO && !NC_ISATTY(Filedes))
 	Filedes = STDERR_FILENO;
 
     /*
@@ -752,7 +752,7 @@ TINFO_SETUP_TERM(TERMINAL ** tp,
 	 * _nc_setupscreen().  Do it now anyway, so we can initialize the
 	 * baudrate.
 	 */
-	if (isatty(Filedes)) {
+	if (NC_ISATTY(Filedes)) {
 	    def_prog_mode();
 	    baudrate();
 	}
@@ -763,7 +763,7 @@ TINFO_SETUP_TERM(TERMINAL ** tp,
 #ifdef USE_TERM_DRIVER
     *tp = termp;
     NCURSES_SP_NAME(set_curterm) (sp, termp);
-    TCB->drv->init(TCB);
+    TCB->drv->td_init(TCB);
 #else
     sp = SP;
 #endif
