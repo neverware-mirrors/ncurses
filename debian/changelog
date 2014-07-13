@@ -1,5 +1,6 @@
-ncurses (5.9+20140118-2) UNRELEASED; urgency=low
+ncurses (5.9+20140712-1) UNRELEASED; urgency=low
 
+  * New upstream patchlevel.
   * Ship st and st-256color terminfo entries in ncurses-term, now that
     suckless-tools no longer includes them.
 
