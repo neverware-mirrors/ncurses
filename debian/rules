@@ -55,6 +55,7 @@ DEB_BUILD_GNU_TYPE ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
 DEB_HOST_GNU_TYPE ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
 DEB_HOST_GNU_SYSTEM ?= $(shell dpkg-architecture -qDEB_HOST_GNU_SYSTEM)
 DEB_HOST_ARCH ?= $(shell dpkg-architecture -qDEB_HOST_ARCH)
+DEB_HOST_ARCH_OS ?= $(shell dpkg-architecture -qDEB_HOST_ARCH_OS)
 DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 
 autogen-files := debian/libncurses5-dev.links debian/libtinfo-dev.links \
@@ -97,8 +98,8 @@ lib32 = /lib32
 usr_lib32 = /usr/lib32
 endif
 
-ifneq ($(findstring linux,$(DEB_HOST_GNU_SYSTEM)),)
-with_gpm = --with-gpm
+ifeq ($(DEB_HOST_ARCH_OS),linux)
+with_mouse = --with-gpm
 endif
 
 CONFARGS =	--prefix=/usr \
@@ -113,7 +114,7 @@ CONFARGS =	--prefix=/usr \
 		--without-ada \
 		--without-tests \
 		--without-progs \
-		$(with_gpm) \
+		$(with_mouse) \
 		--enable-symlinks \
 		--disable-lp64 \
 		--with-chtype='long' \
