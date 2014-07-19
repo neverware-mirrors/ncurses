@@ -1,8 +1,8 @@
-ncurses (5.9+20140712-2) UNRELEASED; urgency=low
+ncurses (5.9+20140712-2) unstable; urgency=low
 
   * Explicitly disable sysmouse support on kfreebsd (Closes: #755250).
 
- -- Sven Joachim <svenjoac@gmx.de>  Sat, 19 Jul 2014 09:51:58 +0200
+ -- Sven Joachim <svenjoac@gmx.de>  Sat, 19 Jul 2014 10:20:21 +0200
 
 ncurses (5.9+20140712-1) unstable; urgency=low
 
