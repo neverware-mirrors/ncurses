@@ -161,7 +161,11 @@ export cf_cv_working_poll=yes
 export cf_cv_gpm_soname=libgpm.so.2
 endif
 
-$(objdir)/config.status:
+config.guess-stamp:
+	dh_autotools-dev_updateconfig
+	touch $@
+
+$(objdir)/config.status: config.guess-stamp
 	test -d $(objdir) || mkdir $(objdir)
 	cd $(objdir) && CFLAGS="$(CFLAGS)" $(srcdir)/configure \
 		$(CONFARGS) \
@@ -169,7 +173,7 @@ $(objdir)/config.status:
 		--with-install-prefix=$(fulltempdir) \
 		--enable-overwrite --libdir=/usr/lib/$(DEB_HOST_MULTIARCH)
 
-$(objdir-static)/config.status:
+$(objdir-static)/config.status: config.guess-stamp
 	test -d $(objdir-static) || mkdir $(objdir-static)
 	cd $(objdir-static) && CFLAGS="$(CFLAGS)" $(srcdir)/configure \
 		$(CONFARGS) \
@@ -178,7 +182,7 @@ $(objdir-static)/config.status:
 		--with-install-prefix=$(fulltempdir) \
 		--enable-overwrite --libdir=/usr/lib/$(DEB_HOST_MULTIARCH)
 
-$(objdir-32)/config.status:
+$(objdir-32)/config.status: config.guess-stamp
 	test -d $(objdir-32) || mkdir $(objdir-32)
 
 	cf_cv_type_of_bool='unsigned char'; export cf_cv_type_of_bool; \
@@ -192,7 +196,7 @@ $(objdir-32)/config.status:
 		--with-install-prefix=$(fulltempdir) \
 		--enable-overwrite --libdir=$(usr_lib32)
 
-$(objdir-64)/config.status:
+$(objdir-64)/config.status: config.guess-stamp
 	test -d $(objdir-64) || mkdir $(objdir-64)
 
 	cf_cv_type_of_bool='unsigned char'; export cf_cv_type_of_bool; \
@@ -206,7 +210,7 @@ $(objdir-64)/config.status:
 		--with-install-prefix=$(fulltempdir) \
 		--enable-overwrite --libdir=/usr/lib64
 
-$(objdir-debug)/config.status:
+$(objdir-debug)/config.status: config.guess-stamp
 	test -d $(objdir-debug) || mkdir $(objdir-debug)
 	cd $(objdir-debug) && \
 		CFLAGS="$(CFLAGS) -DTRACE" $(srcdir)/configure \
@@ -214,7 +218,7 @@ $(objdir-debug)/config.status:
 		--with-install-prefix=$(fulltempdir) \
 		--enable-overwrite --libdir=/usr/lib/$(DEB_HOST_MULTIARCH)
 
-$(wobjdir)/config.status:
+$(wobjdir)/config.status: config.guess-stamp
 	test -d $(wobjdir) || mkdir $(wobjdir)
 	cd $(wobjdir) && CFLAGS="$(CFLAGS)" $(srcdir)/configure \
 		$(CONFARGS) \
@@ -222,7 +226,7 @@ $(wobjdir)/config.status:
 		--disable-overwrite --enable-widec \
 		--libdir=/usr/lib/$(DEB_HOST_MULTIARCH)
 
-$(wobjdir-static)/config.status:
+$(wobjdir-static)/config.status: config.guess-stamp
 	test -d $(wobjdir-static) || mkdir $(wobjdir-static)
 	cd $(wobjdir-static) && CFLAGS="$(CFLAGS)" $(srcdir)/configure \
 		$(CONFARGS) \
@@ -232,7 +236,7 @@ $(wobjdir-static)/config.status:
 		--disable-overwrite --enable-widec \
 		--libdir=/usr/lib/$(DEB_HOST_MULTIARCH)
 
-$(wobjdir-debug)/config.status:
+$(wobjdir-debug)/config.status: config.guess-stamp
 	test -d $(wobjdir-debug) || mkdir $(wobjdir-debug)
 	cd $(wobjdir-debug) && \
 		CFLAGS="$(CFLAGS) -DTRACE" $(srcdir)/configure \
@@ -241,7 +245,7 @@ $(wobjdir-debug)/config.status:
 		--disable-overwrite --enable-widec \
 		--libdir=/usr/lib/$(DEB_HOST_MULTIARCH)
 
-$(wobjdir-32)/config.status:
+$(wobjdir-32)/config.status: config.guess-stamp
 	test -d $(wobjdir-32) || mkdir $(wobjdir-32)
 
 	cf_cv_type_of_bool='unsigned char'; export cf_cv_type_of_bool; \
@@ -256,7 +260,7 @@ $(wobjdir-32)/config.status:
 		--disable-overwrite --enable-widec \
 		--libdir=$(usr_lib32)
 
-$(objdir-test)/config.status: build-wide
+$(objdir-test)/config.status: build-wide config.guess-stamp
 	test -d $(objdir-test) || mkdir $(objdir-test)
 	cd $(objdir-test) && CFLAGS="$(CFLAGS)" $(srcdir)/test/configure \
 		$(CONFARGS-TEST)
@@ -327,6 +331,7 @@ clean:
 	rm -rf $(wobjdir-debug)
 	rm -rf $(objdir-test)
 	rm -f $(autogen-files)
+	dh_autotools-dev_restoreconfig
 	dh_clean
 
 install: build

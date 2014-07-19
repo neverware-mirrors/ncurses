@@ -2,6 +2,7 @@ ncurses (5.9+20140712-1) UNRELEASED; urgency=low
 
   * New upstream patchlevel.
     - Update libncurses5 and libncursesw5 symbols files, bump shlibs.
+  * Build-depend on autotools-dev to update config.{guess,sub}.  
   * Ship st and st-256color terminfo entries in ncurses-term, now that
     suckless-tools no longer includes them.
   * Update xterm.ti from xterm 308.
