@@ -1,3 +1,9 @@
+ncurses (5.9+20140913-1) UNRELEASED; urgency=low
+
+  * New upstream patchlevel.
+
+ -- Sven Joachim <svenjoac@gmx.de>  Mon, 15 Sep 2014 19:47:25 +0200
+
 ncurses (5.9+20140712-2) unstable; urgency=low
 
   * Explicitly disable sysmouse support on kfreebsd (Closes: #755250).
