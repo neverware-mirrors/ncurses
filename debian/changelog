@@ -2,6 +2,9 @@ ncurses (5.9+20140913-1) UNRELEASED; urgency=low
 
   * New upstream patchlevel.
   * Compress the manpages in ncurses-doc with "gzip -9n".
+  * Remove the ada documentation from ncurses-doc, since it is also
+    shipped in the libncursesada-doc package.  Thanks to Nicolas
+    Boulenguez for the patch (Closes: #757991).
 
  -- Sven Joachim <svenjoac@gmx.de>  Mon, 15 Sep 2014 19:47:25 +0200
 
