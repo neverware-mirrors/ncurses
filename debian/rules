@@ -106,6 +106,11 @@ lib32 = /lib32
 usr_lib32 = /usr/lib32
 endif
 
+ifneq (,$(filter nobiarch,$(DEB_BUILD_PROFILES)))
+override build_32=
+override build_64=
+endif
+
 ifeq ($(DEB_HOST_ARCH_OS),linux)
 with_mouse = --with-gpm
 else
