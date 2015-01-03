@@ -294,11 +294,11 @@ build-static: $(objdir-static)/config.status
 	touch $@
 
 build-32: $(objdir-32)/config.status
-	cd $(objdir-32) && $(MAKE)
+	cd $(objdir-32) && $(MAKE) CC="$(HOST_CC) -m32" CXX="$(HOST_CXX) -m32"
 	touch $@
 
 build-64: $(objdir-64)/config.status
-	cd $(objdir-64) && $(MAKE)
+	cd $(objdir-64) && $(MAKE) CC="$(HOST_CC) -m64" CXX="$(HOST_CXX) -m64"
 	touch $@
 
 build-debug: $(objdir-debug)/config.status
@@ -317,7 +317,7 @@ build-wide-static: $(wobjdir-static)/config.status
 	touch $@
 
 build-wide-32: $(wobjdir-32)/config.status
-	cd $(wobjdir-32) && $(MAKE)
+	cd $(wobjdir-32) && $(MAKE) CC="$(HOST_CC) -m32" CXX="$(HOST_CXX) -m32"
 	touch $@
 
 build-wide-debug: $(wobjdir-debug)/config.status
