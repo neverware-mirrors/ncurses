@@ -18,7 +18,7 @@ Last-Update: 2012-07-15
 
 --- a/misc/ncurses-config.in
 +++ b/misc/ncurses-config.in
-@@ -109,7 +109,7 @@ while test $# -gt 0; do
+@@ -111,7 +111,7 @@ while test $# -gt 0; do
  ENDECHO
  		;;
  	--libs)
