@@ -1,6 +1,7 @@
 ncurses (5.9+20150425-1) UNRELEASED; urgency=low
 
   * New upstream patchlevel.
+    - Fix FTBFS with GCC 5 (Closes: #777461).
   * Refresh Debian patches.
 
  -- Sven Joachim <svenjoac@gmx.de>  Fri, 01 May 2015 14:01:28 +0200
