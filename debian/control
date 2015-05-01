@@ -29,7 +29,7 @@ Description: shared low-level terminfo library for terminal handling
 
 Package: libncurses5
 Architecture: any
-Pre-Depends: ${misc:Pre-Depends}, libtinfo5 (>= 5.9-3)
+Pre-Depends: ${misc:Pre-Depends}
 Multi-Arch: same
 Depends: libtinfo5 (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
 Recommends: libgpm2 [linux-any]

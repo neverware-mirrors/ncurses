@@ -5,6 +5,7 @@ ncurses (5.9+20150425-1) UNRELEASED; urgency=low
   * Refresh Debian patches.
   * Remove support for upgrades from versions prior to 5.9-10.
     - Drop the maintainer scripts.
+    - Drop Pre-Dependency of libncurses5 on libtinfo5.
   * Drop Conflicts of ncurses-base with ncurses and ncurses-runtime.
   * Update years in debian/copyright.
   * Upgrade Standards-Version to 3.9.6, no changes needed.
