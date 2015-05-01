@@ -322,7 +322,6 @@ Section: misc
 Essential: yes
 Multi-Arch: foreign
 Depends: ${misc:Depends}
-Conflicts: ncurses, ncurses-runtime
 Provides: ncurses-runtime
 Breaks: ncurses-term (<< 5.7+20100313-3)
 Description: basic terminal type definitions

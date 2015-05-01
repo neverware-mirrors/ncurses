@@ -3,6 +3,7 @@ ncurses (5.9+20150425-1) UNRELEASED; urgency=low
   * New upstream patchlevel.
     - Fix FTBFS with GCC 5 (Closes: #777461).
   * Refresh Debian patches.
+  * Drop Conflicts of ncurses-base with ncurses and ncurses-runtime.
   * Update years in debian/copyright.
   * Upgrade Standards-Version to 3.9.6, no changes needed.
 
