@@ -4,6 +4,7 @@ ncurses (5.9+20150425-1) UNRELEASED; urgency=low
     - Fix FTBFS with GCC 5 (Closes: #777461).
   * Refresh Debian patches.
   * Update years in debian/copyright.
+  * Upgrade Standards-Version to 3.9.6, no changes needed.
 
  -- Sven Joachim <svenjoac@gmx.de>  Fri, 01 May 2015 14:01:28 +0200
 
