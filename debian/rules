@@ -110,6 +110,7 @@ CONFARGS =	--prefix=/usr \
 		--build=$(DEB_BUILD_GNU_TYPE) \
 		--with-shared \
 		--mandir=/usr/share/man \
+		--with-manpage-format=normal \
 		--without-profile --without-debug \
 		--disable-rpath --enable-echo \
 		--enable-const \
@@ -355,7 +356,7 @@ install: build
 	done
 
 	# Install non -DTRACE versions.
-	GZIP='-9n' $(MAKE) -C $(objdir) install
+	$(MAKE) -C $(objdir) install
 	$(MAKE) -C $(wobjdir) install.libs
 
 	install -m 644 -t $(fulltempdir)/usr/lib/$(DEB_HOST_MULTIARCH) $(objdir-static)/lib/*.a

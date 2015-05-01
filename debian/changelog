@@ -7,6 +7,8 @@ ncurses (5.9+20150425-1) UNRELEASED; urgency=low
     - Drop the maintainer scripts.
     - Drop Pre-Dependency of libncurses5 on libtinfo5.
   * Drop Conflicts of ncurses-base with ncurses and ncurses-runtime.
+  * Configure with "--with-manpage-format=normal" to avoid having to
+    set GZIP in debian/rules.
   * Update years in debian/copyright.
   * Upgrade Standards-Version to 3.9.6, no changes needed.
 
