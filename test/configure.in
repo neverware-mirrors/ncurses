@@ -1,5 +1,5 @@
 dnl***************************************************************************
-dnl Copyright (c) 1998-2013,2014 Free Software Foundation, Inc.              *
+dnl Copyright (c) 1998-2014,2015 Free Software Foundation, Inc.              *
 dnl                                                                          *
 dnl Permission is hereby granted, free of charge, to any person obtaining a  *
 dnl copy of this software and associated documentation files (the            *
@@ -28,7 +28,7 @@ dnl***************************************************************************
 dnl
 dnl Author: Thomas E. Dickey 1996, etc.
 dnl
-dnl $Id: configure.in,v 1.116 2014/09/05 08:43:30 tom Exp $
+dnl $Id: configure.in,v 1.122 2015/04/25 11:39:47 tom Exp $
 dnl This is a simple configuration-script for the ncurses test programs that
 dnl allows the test-directory to be separately configured against a reference
 dnl system (i.e., sysvr4 curses)
@@ -73,11 +73,13 @@ LDFLAGS_STATIC=""				AC_SUBST(LDFLAGS_STATIC)
 LD_MODEL=""						AC_SUBST(LD_MODEL)
 LD_SHARED_OPTS=""				AC_SUBST(LD_SHARED_OPTS)
 LIBTOOL=""						AC_SUBST(LIBTOOL)
+LIBTOOL_OPTS=""					AC_SUBST(LIBTOOL_OPTS)
 LIB_CLEAN=""					AC_SUBST(LIB_CLEAN)
 LIB_COMPILE=""					AC_SUBST(LIB_COMPILE)
 LIB_LINK='${CC}'				AC_SUBST(LIB_LINK)
 LINK_TESTS=""					AC_SUBST(LINK_TESTS)
 LOCAL_LDFLAGS=""				AC_SUBST(LOCAL_LDFLAGS)
+PACKAGE="ncurses-examples"		AC_SUBST(PACKAGE)
 PTHREAD="-lm"					AC_SUBST(PTHREAD)
 TEST_ARGS=""					AC_SUBST(TEST_ARGS)
 TEST_DEPS=""					AC_SUBST(TEST_DEPS)
@@ -120,12 +122,12 @@ CF_HELP_MESSAGE(Curses Version-dependent Options:)
 CF_WITH_NCURSES_ETC
 
 case $cf_cv_screen in
-curses|curses_*)
+(ncurses*)
+	cf_cv_libtype=`echo "$cf_cv_screen" | sed -e 's/^ncurses//'`
+	;;
+(curses|curses_*)
 	CF_NETBSD_FORM_H
 	CF_NETBSD_MENU_H
-	;;
-ncursesw)
-	cf_cv_libtype=w
 	;;
 esac
 
@@ -134,17 +136,14 @@ dnl installed conventionally (e.g., SunOS 5.x - solaris).
 
 dnl Autoconf builds up the $LIBS in reverse order
 
-case $cf_cv_screen in #(vi
-pdcurses) #(vi
+case $cf_cv_screen in
+(pdcurses)
 	;;
-*)
+(*)
 	# look for curses-related libraries
-	: ${cf_panel_lib:=panel}
-	: ${cf_menu_lib:=menu}
-	: ${cf_form_lib:=form}
-	AC_CHECK_LIB($cf_panel_lib$cf_cv_libtype,new_panel)
-	AC_CHECK_LIB($cf_menu_lib$cf_cv_libtype,menu_driver)
-	AC_CHECK_LIB($cf_form_lib$cf_cv_libtype,form_driver)
+	CF_CHECK_CURSES_LIB(panel,$cf_cv_libtype,new_panel)
+	CF_CHECK_CURSES_LIB(menu,$cf_cv_libtype,menu_driver)
+	CF_CHECK_CURSES_LIB(form,$cf_cv_libtype,form_driver)
 
 	# look for curses-related headers
 	AC_CHECK_HEADERS( \
@@ -175,8 +174,13 @@ unistd.h \
 CF_GETOPT_HEADER
 
 AC_CHECK_FUNCS( \
+getopt \
 gettimeofday \
 )
+
+if test "x$ac_cv_func_getopt" = xno; then
+	AC_MSG_ERROR(getopt is required for building programs)
+fi
 
 if test "$cf_enable_widec" = yes; then
 AC_CHECK_FUNCS( \
