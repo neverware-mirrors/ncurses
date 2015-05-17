@@ -1,8 +1,10 @@
-ncurses (5.9+20150425-1) UNRELEASED; urgency=low
+ncurses (5.9+20150516-1) UNRELEASED; urgency=low
 
   [ Sven Joachim ]
   * New upstream patchlevel.
     - Fix FTBFS with GCC 5 (Closes: #777461).
+    - Add xon, ich1, il1 to ibm3161 (patch by Stephen Powell,
+      Closes: #783806).
   * Refresh Debian patches.
   * Remove support for upgrades from versions prior to 5.9-10.
     - Drop the maintainer scripts.
