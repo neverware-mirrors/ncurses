@@ -5,7 +5,8 @@ ncurses (5.9+20150516-1) UNRELEASED; urgency=low
     - Fix FTBFS with GCC 5 (Closes: #777461).
     - Add xon, ich1, il1 to ibm3161 (patch by Stephen Powell,
       Closes: #783806).
-  * Refresh Debian patches.
+  * Refresh patch 02-debian-backspace.diff after upstream changes to
+    the screen terminfo description.
   * Move the ncurses{w,}5-config scripts to their respective -dev
     packages (Closes: #745479).
     - Enhance patch 03-debian-ncursesconfig-omit-L.diff to suppress
