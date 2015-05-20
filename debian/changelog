@@ -1,4 +1,4 @@
-ncurses (5.9+20150516-1) UNRELEASED; urgency=low
+ncurses (5.9+20150516-1) unstable; urgency=low
 
   [ Sven Joachim ]
   * New upstream patchlevel.
@@ -26,7 +26,7 @@ ncurses (5.9+20150516-1) UNRELEASED; urgency=low
   [ Helmut Grohne ]
   * Use correct compiler for multilib cross builds. (Closes: #774404)
 
- -- Sven Joachim <svenjoac@gmx.de>  Fri, 01 May 2015 14:01:28 +0200
+ -- Sven Joachim <svenjoac@gmx.de>  Wed, 20 May 2015 18:01:10 +0200
 
 ncurses (5.9+20140913-1) unstable; urgency=low
 
