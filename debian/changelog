@@ -1,3 +1,11 @@
+ncurses (5.9+20150516-2) UNRELEASED; urgency=low
+
+  * Move the ncurses{w,}5-config scripts back to ncurses-bin
+    (Closes: #786436, reopens: #745479).
+    - Readd the dependency of the -dev packages on ncurses-bin.
+
+ -- Sven Joachim <svenjoac@gmx.de>  Thu, 21 May 2015 22:46:19 +0200
+
 ncurses (5.9+20150516-1) unstable; urgency=low
 
   [ Sven Joachim ]
