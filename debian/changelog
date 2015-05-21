@@ -3,6 +3,8 @@ ncurses (5.9+20150516-2) UNRELEASED; urgency=low
   * Move the ncurses{w,}5-config scripts back to ncurses-bin
     (Closes: #786436, reopens: #745479).
     - Readd the dependency of the -dev packages on ncurses-bin.
+    - Temporarily add a build-dependency on libncursesw5-dev to
+      avoid the FTBFS problem in #786436.
 
  -- Sven Joachim <svenjoac@gmx.de>  Thu, 21 May 2015 22:46:19 +0200
 
