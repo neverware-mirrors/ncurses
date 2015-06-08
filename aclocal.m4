@@ -28,7 +28,7 @@ dnl***************************************************************************
 dnl
 dnl Author: Thomas E. Dickey 1995-on
 dnl
-dnl $Id: aclocal.m4,v 1.748 2015/05/02 21:22:41 tom Exp $
+dnl $Id: aclocal.m4,v 1.758 2015/06/06 23:27:44 tom Exp $
 dnl Macros used in NCURSES auto-configuration script.
 dnl
 dnl These macros are maintained separately from NCURSES.  The copyright on
@@ -62,22 +62,24 @@ AC_CACHE_CHECK([for nl_langinfo and CODESET], am_cv_langinfo_codeset,
 	fi
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_ABI_DEFAULTS version: 1 updated: 2015/05/02 17:21:13
+dnl CF_ABI_DEFAULTS version: 2 updated: 2015/06/06 13:49:58
 dnl ---------------
 dnl Provide configure-script defaults for different ncurses ABIs.
 AC_DEFUN([CF_ABI_DEFAULTS],[
-AC_REQUIRE([CF_WITH_ABI_VERSION])
+AC_REQUIRE([CF_NCURSES_WITH_ABI_VERSION])
 case x$cf_cv_abi_version in
-(x6)
+(x[[6789]])
 	cf_dft_ext_colors=yes
 	cf_dft_ext_const=yes
 	cf_dft_ext_mouse=yes
 	cf_dft_ext_putwin=yes
 	cf_dft_ext_spfuncs=yes
+	cf_dft_filter_syms=yes
 	cf_dft_chtype=uint32_t
 	cf_dft_mmask_t=uint32_t
 	cf_dft_interop=yes
 	cf_dft_tparm_arg=intptr_t
+	cf_dft_with_lp64=yes
 	;;
 (*)
 	cf_dft_ext_colors=no
@@ -85,10 +87,12 @@ case x$cf_cv_abi_version in
 	cf_dft_ext_mouse=no
 	cf_dft_ext_putwin=no
 	cf_dft_ext_spfuncs=no
+	cf_dft_filter_syms=no
 	cf_dft_chtype=auto
 	cf_dft_mmask_t=auto
 	cf_dft_interop=no
 	cf_dft_tparm_arg=long
+	cf_dft_with_lp64=no
 	;;
 esac
 ])dnl
@@ -239,7 +243,7 @@ AC_SUBST(EXTRA_CPPFLAGS)
 
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_ADD_INCDIR version: 13 updated: 2010/05/26 16:44:57
+dnl CF_ADD_INCDIR version: 14 updated: 2015/05/25 20:53:04
 dnl -------------
 dnl Add an include-directory to $CPPFLAGS.  Don't add /usr/include, since it's
 dnl redundant.  We don't normally need to add -I/usr/local/include for gcc,
@@ -290,6 +294,8 @@ if test -n "$1" ; then
 		else
 		  break
 		fi
+	  else
+		break
 	  fi
 	done
   done
@@ -394,7 +400,7 @@ dnl Allow user to disable a normally-on option.
 AC_DEFUN([CF_ARG_DISABLE],
 [CF_ARG_OPTION($1,[$2],[$3],[$4],yes)])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_ARG_OPTION version: 4 updated: 2010/05/26 05:38:42
+dnl CF_ARG_OPTION version: 5 updated: 2015/05/10 19:52:14
 dnl -------------
 dnl Restricted form of AC_ARG_ENABLE that ensures user doesn't give bogus
 dnl values.
@@ -407,15 +413,15 @@ dnl $4 = action if perform if option is default
 dnl $5 = default option value (either 'yes' or 'no')
 AC_DEFUN([CF_ARG_OPTION],
 [AC_ARG_ENABLE([$1],[$2],[test "$enableval" != ifelse([$5],no,yes,no) && enableval=ifelse([$5],no,no,yes)
-  if test "$enableval" != "$5" ; then
+	if test "$enableval" != "$5" ; then
 ifelse([$3],,[    :]dnl
 ,[    $3]) ifelse([$4],,,[
-  else
-    $4])
-  fi],[enableval=$5 ifelse([$4],,,[
-  $4
+	else
+		$4])
+	fi],[enableval=$5 ifelse([$4],,,[
+	$4
 ])dnl
-  ])])dnl
+])])dnl
 dnl ---------------------------------------------------------------------------
 dnl CF_AR_FLAGS version: 5 updated: 2010/05/20 20:24:29
 dnl -----------
@@ -4789,7 +4795,7 @@ AC_DEFUN([CF_MSG_LOG],[
 echo "${as_me:-configure}:__oline__: testing $* ..." 1>&AC_FD_CC
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_NCURSES_ABI_6 version: 2 updated: 2015/04/17 21:13:04
+dnl CF_NCURSES_ABI_6 version: 3 updated: 2015/06/06 16:10:11
 dnl ----------------
 dnl Set ncurses' ABI to 6 unless overridden by explicit configure option, and
 dnl warn about this.
@@ -4799,7 +4805,7 @@ if test "${with_abi_version+set}" != set; then
 	(5.*)
 		cf_cv_rel_version=6.0
 		cf_cv_abi_version=6
-		AC_MSG_WARN(Overriding ABI version to $cf_cv_abi_version)
+		AC_MSG_WARN(overriding ABI version to $cf_cv_abi_version)
 		;;
 	esac
 fi
@@ -6800,7 +6806,7 @@ weak_symbol(fopen);
 ])
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_WITH_ABI_VERSION version: 1 updated: 2003/09/20 18:12:49
+dnl CF_WITH_ABI_VERSION version: 3 updated: 2015/06/06 16:10:11
 dnl -------------------
 dnl Allow library's ABI to be overridden.  Generally this happens when a
 dnl packager has incremented the ABI past that used in the original package,
@@ -6811,13 +6817,46 @@ dnl symbol.
 AC_DEFUN([CF_WITH_ABI_VERSION],[
 test -z "$cf_cv_abi_version" && cf_cv_abi_version=0
 AC_ARG_WITH(abi-version,
-[  --with-abi-version=XXX  override derived ABI version],
-[AC_MSG_WARN(overriding ABI version $cf_cv_abi_version to $withval)
- cf_cv_abi_version=$withval])
- CF_NUMBER_SYNTAX($cf_cv_abi_version,ABI version)
+[  --with-abi-version=XXX  override derived ABI version],[
+	if test "x$cf_cv_abi_version" != "x$withval"
+	then
+		AC_MSG_WARN(overriding ABI version $cf_cv_abi_version to $withval)
+		case $cf_cv_rel_version in
+		(5.*)
+			cf_cv_rel_version=$withval.0
+			;;
+		(6.*)
+			cf_cv_rel_version=$withval.9	# FIXME: should be 10 as of 6.0 release
+			;;
+		esac
+	fi
+	cf_cv_abi_version=$withval])
+	CF_NUMBER_SYNTAX($cf_cv_abi_version,ABI version)
 ifelse($1,,,[
 $1_ABI=$cf_cv_abi_version
 ])
+])dnl
+dnl ---------------------------------------------------------------------------
+dnl CF_NCURSES_WITH_ABI_VERSION version: 1 updated: 2015/06/06 13:49:58
+dnl ---------------------------
+dnl CF_WITH_ABI_VERSION version: 1 updated: 2003/09/20 18:12:49
+dnl -------------------
+dnl Allow ncurses's ABI to be overridden.  Generally this happens when a
+dnl packager has incremented the ABI past that used in the original package,
+dnl and wishes to keep doing this.
+dnl
+dnl $1 is the package name, if any, to derive a corresponding {package}_ABI
+dnl symbol.
+AC_DEFUN([CF_NCURSES_WITH_ABI_VERSION],[
+CF_WITH_ABI_VERSION($1)
+if test "x$cf_cv_abi_version" != "x$with_abi_version"
+then
+	case $cf_cv_rel_version in
+	(5.*)
+		cf_cv_rel_version=$with_abi_version.0
+		;;
+	esac
+fi
 ])dnl
 dnl ---------------------------------------------------------------------------
 dnl CF_WITH_ADA_COMPILER version: 2 updated: 2010/06/26 17:35:58
@@ -7241,14 +7280,14 @@ AC_SUBST($3)dnl
 
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_WITH_PKG_CONFIG_LIBDIR version: 7 updated: 2015/04/26 18:06:58
+dnl CF_WITH_PKG_CONFIG_LIBDIR version: 9 updated: 2015/06/06 19:26:44
 dnl -------------------------
 dnl Allow the choice of the pkg-config library directory to be overridden.
 AC_DEFUN([CF_WITH_PKG_CONFIG_LIBDIR],[
-AC_MSG_CHECKING(for $PKG_CONFIG library directory)
 if test "x$PKG_CONFIG" = xnone ; then
-	PKG_CONFIG_LIBDIR=none
+	PKG_CONFIG_LIBDIR=no
 else
+	AC_MSG_CHECKING(for $PKG_CONFIG library directory)
 	AC_ARG_WITH(pkg-config-libdir,
 		[  --with-pkg-config-libdir=XXX use given directory for installing pc-files],
 		[PKG_CONFIG_LIBDIR=$withval],

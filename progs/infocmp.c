@@ -42,7 +42,7 @@
 
 #include <dump_entry.h>
 
-MODULE_ID("$Id: infocmp.c,v 1.131 2015/04/04 16:22:19 tom Exp $")
+MODULE_ID("$Id: infocmp.c,v 1.133 2015/05/27 00:57:41 tom Exp $")
 
 #define L_CURL "{"
 #define R_CURL "}"
@@ -989,7 +989,7 @@ file_comparison(int argc, char *argv[])
     int i, n;
 
     memset(heads, 0, sizeof(heads));
-    dump_init((char *) 0, F_LITERAL, S_TERMINFO, 0, 65535, itrace, FALSE);
+    dump_init((char *) 0, F_LITERAL, S_TERMINFO, 0, 65535, itrace, FALSE, FALSE);
 
     for (n = 0; n < argc && n < MAXCOMPARE; n++) {
 	if (freopen(argv[n], "r", stdin) == 0)
@@ -1750,7 +1750,8 @@ main(int argc, char *argv[])
     }
 
     /* set up for display */
-    dump_init(tversion, outform, sortmode, mwidth, mheight, itrace, formatted);
+    dump_init(tversion, outform, sortmode, mwidth, mheight, itrace,
+	      formatted, FALSE);
 
     if (!filecompare) {
 	/* grab the entries */
@@ -1836,6 +1837,8 @@ main(int argc, char *argv[])
 	    analyze_string("rs3", reset_3string, &entries[0].tterm);
 	    analyze_string("smcup", enter_ca_mode, &entries[0].tterm);
 	    analyze_string("rmcup", exit_ca_mode, &entries[0].tterm);
+	    analyze_string("smkx", keypad_xmit, &entries[0].tterm);
+	    analyze_string("rmkx", keypad_local, &entries[0].tterm);
 #undef CUR
 	} else {
 
