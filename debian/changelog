@@ -5,6 +5,7 @@ ncurses (6.0~20150606-1) UNRELEASED; urgency=medium
   * After building the wide library, install it into a temporary
     scratchdir so that test/configure can find the necessary auxiliary
     files (see #786436).
+  * Drop the libncursesw5-dev build-dependency.
 
  -- Sven Joachim <svenjoac@gmx.de>  Mon, 08 Jun 2015 19:59:44 +0200
 
