@@ -1,3 +1,9 @@
+ncurses (6.0~20150606-1) UNRELEASED; urgency=medium
+
+  * New upstream prerelease.
+
+ -- Sven Joachim <svenjoac@gmx.de>  Mon, 08 Jun 2015 19:59:44 +0200
+
 ncurses (5.9+20150516-2) unstable; urgency=low
 
   * Move the ncurses{w,}5-config scripts back to ncurses-bin
