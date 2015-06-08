@@ -116,6 +116,7 @@ endif
 
 CONFARGS =	--prefix=/usr \
 		--build=$(DEB_BUILD_GNU_TYPE) \
+		--with-abi-version=5 \
 		--with-shared \
 		--mandir=/usr/share/man \
 		--with-manpage-format=normal \
