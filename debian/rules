@@ -276,8 +276,9 @@ $(wobjdir-32)/config.status: config.guess-stamp
 
 $(objdir-test)/config.status: build-wide config.guess-stamp
 	test -d $(objdir-test) || mkdir $(objdir-test)
-	cd $(objdir-test) && CFLAGS="$(CFLAGS)" $(srcdir)/test/configure \
-		$(CONFARGS-TEST)
+	cd $(objdir-test) && CFLAGS="$(CFLAGS)" \
+		PKG_CONFIG_LIBDIR=$(wobjdir)/usr/lib/$(DEB_HOST_MULTIARCH)/pkgconfig \
+		$(srcdir)/test/configure $(CONFARGS-TEST)
 
 build-arch build-indep: build
 
@@ -309,8 +310,7 @@ build-debug: $(objdir-debug)/config.status
 build-wide: $(wobjdir)/config.status
 	cd $(wobjdir) && $(MAKE)
 	# needed for building the examples
-	mv $(wobjdir)/lib/libncursesw.so $(wobjdir)/lib/libncursesw.so.saved
-	echo "INPUT(libncursesw.so.5 -ltinfo)" > $(wobjdir)/lib/libncursesw.so
+	$(MAKE) -C $(wobjdir) DESTDIR=$(wobjdir) install.libs
 	touch $@
 
 build-wide-static: $(wobjdir-static)/config.status
