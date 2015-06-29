@@ -365,8 +365,8 @@ install: build
 	done
 
 	# Install non -DTRACE versions.
-	$(MAKE) -C $(objdir) install
 	$(MAKE) -C $(wobjdir) install.libs
+	$(MAKE) -C $(objdir) install
 
 	install -m 644 -t $(fulltempdir)/usr/lib/$(DEB_HOST_MULTIARCH) $(objdir-static)/lib/*.a
 	install -m 644 -t $(fulltempdir)/usr/lib/$(DEB_HOST_MULTIARCH) $(wobjdir-static)/lib/*.a
