@@ -1,4 +1,4 @@
-ncurses (6.0~20150606-1) UNRELEASED; urgency=medium
+ncurses (6.0~20150627-1) UNRELEASED; urgency=medium
 
   * New upstream prerelease.
   * Configure with "--with-abi-version=5", upstream defaults to abi 6 now.
