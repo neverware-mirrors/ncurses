@@ -17,7 +17,7 @@ endif
 
 # These are important since this is a library package
 soname=5
-sodepver = (>= 5.9+20140712)
+sodepver = (>= 6)
 
 # Name our packages
 package-base=ncurses-base
@@ -138,6 +138,7 @@ CONFARGS =	--prefix=/usr \
 		--with-terminfo-dirs="/etc/terminfo:/lib/terminfo:/usr/share/terminfo" \
 		--with-ticlib=tic \
 		--with-termlib=tinfo \
+		--with-versioned-syms \
 		--with-xterm-kbs=del
 
 CONFARGS-TEST =	--prefix=/usr \

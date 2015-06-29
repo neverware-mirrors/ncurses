@@ -2,6 +2,8 @@ ncurses (6.0~20150627-1) UNRELEASED; urgency=medium
 
   * New upstream prerelease.
   * Configure with "--with-abi-version=5", upstream defaults to abi 6 now.
+  * Configure with "--with-versioned-syms" (Closes: #788610).
+    - Bump minimal versions of all symbols as well as shlibs to 6.
   * After building the wide library, install it into a temporary
     scratchdir so that test/configure can find the necessary auxiliary
     files (see #786436).
