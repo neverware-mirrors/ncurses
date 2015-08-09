@@ -1,6 +1,6 @@
-ncurses (6.0~20150627-1) UNRELEASED; urgency=medium
+ncurses (6.0-1) UNRELEASED; urgency=medium
 
-  * New upstream prerelease.
+  * New upstream release.
   * Configure with "--with-abi-version=5", upstream defaults to abi 6 now.
   * Configure with "--with-versioned-syms" (Closes: #788610).
     - Bump minimal versions of all symbols as well as shlibs to 6.
