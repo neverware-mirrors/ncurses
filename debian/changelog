@@ -10,8 +10,6 @@ ncurses (6.0-1) UNRELEASED; urgency=medium
     scratchdir so that test/configure can find the necessary auxiliary
     files (see #786436).
   * Drop the libncursesw5-dev build-dependency.
-  * Change uversionmangle in debian/watch.patchlevel to use a tilde,
-    suited for downloading further 6.0 prereleases.
 
  -- Sven Joachim <svenjoac@gmx.de>  Mon, 08 Jun 2015 19:59:44 +0200
 
