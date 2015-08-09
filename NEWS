@@ -25,7 +25,7 @@
 -- sale, use or other dealings in this Software without prior written        --
 -- authorization.                                                            --
 -------------------------------------------------------------------------------
--- $Id: NEWS,v 1.2448 2015/06/27 23:12:23 tom Exp $
+-- $Id: NEWS,v 1.2476 2015/08/08 23:29:51 tom Exp $
 -------------------------------------------------------------------------------
 
 This is a log of changes that ncurses has gone through since Zeyd started
@@ -44,6 +44,54 @@ See the AUTHORS file for the corresponding full names.
 
 Changes through 1.9.9e did not credit all contributions;
 it is not possible to add this information.
+
+20150808 6.0 release for upload to ftp.gnu.org
+
+20150808
+	+ build-fix for Ada95 on older platforms without stdint.h
+	+ build-fix for Solaris, whose /bin/sh and /usr/bin/sed are non-POSIX.
+	+ update release announcement, summarizing more than 800 changes across
+	  more than 200 snapshots.
+	+ minor fixes to manpages, etc., to simplify linking from announcement
+	  page.
+
+20150725
+	+ updated llib-* files.
+	+ build-fixes for ncurses library "test_progs" rule.
+	+ use alternate workaround for gcc 5.x feature (adapted from patch by
+	  Mikhail Peselnik).
+	+ add status line to tmux via xterm+sl (patch by Nicholas Marriott).
+	+ fixes for st 0.5 from testing with tack -TD
+	+ review/improve several manual pages to break up wall-of-text:
+	  curs_add_wch.3x, curs_attr.3x, curs_bkgd.3x, curs_bkgrnd.3x,
+	  curs_getcchar.3x, curs_getch.3x, curs_kernel.3x, curs_mouse.3x,
+	  curs_outopts.3x, curs_overlay.3x, curs_pad.3x, curs_termattrs.3x
+	  curs_trace.3x, and curs_window.3x
+
+20150719
+	+ correct an old logic error for %A and %O in tparm (report by "zreed").
+	+ improve documentation for signal handlers by adding section in the
+	  curs_initscr.3x page.
+	+ modify logic in make_keys.c to not assume anything about the size
+	  of strnames and strfnames variables, since those may be functions
+	  in the thread- or broken-linker configurations (problem found by
+	  Coverity).
+	+ modify test/configure script to check for pthreads configuration,
+	  e.g., ncursestw library.
+
+20150711
+	+ modify scripts to build/use test-packages for the pthreads
+	  configuration of ncurses6.
+	+ add references to ttytype and termcap symbols in demo_terminfo.c and
+	  demo_termcap.c to ensure that when building ncursest.map, etc., that
+	  the corresponding names such as _nc_ttytype are added to the list of
+	  versioned symbols (report by Werner Fink)
+	+ fix regression from 20150704 (report/patch by Werner Fink).
+
+20150704
+	+ fix a few problems reported by Coverity.
+	+ fix comparison against "/usr/include" in misc/gen-pkgconfig.in
+	  (report by Daiki Ueno, Debian #790548, cf:  20141213).
 
 20150627
 	+ modify configure script to remove deprecated ABI 5 symbols when
@@ -741,8 +789,6 @@ it is not possible to add this information.
 	  together initialization- or reset-strings.  The problem dates to
 	  1.9.7a, but was overlooked until changes in -Wlogical-op warnings for
 	  gcc 4.8 (report by David Binderman).
-	+ updated CF_GCC_WARNINGS to documented options for gcc 4.9.0, adding
-	  checks for -Wextra, -Wignored-qualifiers and -Wlogical-op
 	+ updated CF_GCC_WARNINGS to documented options for gcc 4.9.0, moving
 	  checks for -Wextra and -Wdeclaration-after-statement into the macro,
 	  and adding checks for -Wignored-qualifiers, -Wlogical-op and
