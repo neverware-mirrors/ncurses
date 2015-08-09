@@ -1,6 +1,8 @@
 ncurses (6.0-1) UNRELEASED; urgency=medium
 
   * New upstream release.
+    - Fix comparison against "/usr/include" in misc/gen-pkgconfig.in
+      (Closes: #790548).
   * Configure with "--with-abi-version=5", upstream defaults to abi 6 now.
   * Configure with "--with-versioned-syms" (Closes: #788610).
     - Bump minimal versions of all symbols as well as shlibs to 6.
