@@ -1,4 +1,4 @@
-ncurses (6.0-1) UNRELEASED; urgency=medium
+ncurses (6.0+20150810-1) UNRELEASED; urgency=medium
 
   * New upstream release.
     - Fix comparison against "/usr/include" in misc/gen-pkgconfig.in
