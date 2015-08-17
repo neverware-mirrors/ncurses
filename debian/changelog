@@ -1,4 +1,4 @@
-ncurses (6.0+20150810-1) UNRELEASED; urgency=medium
+ncurses (6.0+20150810-1) unstable; urgency=medium
 
   * New upstream release.
     - Fix comparison against "/usr/include" in misc/gen-pkgconfig.in
@@ -11,7 +11,7 @@ ncurses (6.0+20150810-1) UNRELEASED; urgency=medium
     files (see #786436).
   * Drop the libncursesw5-dev build-dependency.
 
- -- Sven Joachim <svenjoac@gmx.de>  Mon, 08 Jun 2015 19:59:44 +0200
+ -- Sven Joachim <svenjoac@gmx.de>  Mon, 17 Aug 2015 18:01:53 +0200
 
 ncurses (5.9+20150516-2) unstable; urgency=low
 
