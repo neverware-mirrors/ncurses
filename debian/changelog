@@ -4,6 +4,8 @@ ncurses (6.0+20151017-1) UNRELEASED; urgency=low
     - Improve check for working poll() by using posix_openpt() as a
       fallback in case there is no valid terminal on the standard input
       (Closes: #676461).
+    - Modify ncurses/Makefile.in to sort keys.list in POSIX locale
+      (Closes: #801864).
   * Update symbols files for new symbol _nc_write_object.
 
  -- Sven Joachim <svenjoac@gmx.de>  Sun, 18 Oct 2015 09:04:02 +0200
