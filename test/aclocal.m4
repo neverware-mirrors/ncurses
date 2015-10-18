@@ -26,7 +26,7 @@ dnl sale, use or other dealings in this Software without prior written       *
 dnl authorization.                                                           *
 dnl***************************************************************************
 dnl
-dnl $Id: aclocal.m4,v 1.120 2015/08/08 14:27:27 tom Exp $
+dnl $Id: aclocal.m4,v 1.122 2015/10/17 23:06:10 tom Exp $
 dnl
 dnl Author: Thomas E. Dickey
 dnl
@@ -1296,6 +1296,34 @@ int main()
 rm -f core])
 test "$cf_cv_func_curses_version" = yes && AC_DEFINE(HAVE_CURSES_VERSION,1,[Define to 1 if we have curses_version function])
 ])
+dnl ---------------------------------------------------------------------------
+dnl CF_FUNC_OPENPTY version: 5 updated: 2015/09/12 14:46:50
+dnl ---------------
+dnl Check for openpty() function, along with <pty.h> header.  It may need the
+dnl "util" library as well.
+AC_DEFUN([CF_FUNC_OPENPTY],
+[
+AC_CHECK_LIB(util,openpty,cf_cv_lib_util=yes,cf_cv_lib_util=no)
+AC_CACHE_CHECK(for openpty header,cf_cv_func_openpty,[
+	cf_save_LIBS="$LIBS"
+	test $cf_cv_lib_util = yes && { CF_ADD_LIB(util) }
+	for cf_header in pty.h libutil.h util.h
+	do
+	AC_TRY_LINK([
+#include <$cf_header>
+],[
+	int x = openpty((int *)0, (int *)0, (char *)0,
+				   (struct termios *)0, (struct winsize *)0);
+],[
+		cf_cv_func_openpty=$cf_header
+		break
+],[
+		cf_cv_func_openpty=no
+])
+	done
+	LIBS="$cf_save_LIBS"
+])
+])dnl
 dnl ---------------------------------------------------------------------------
 dnl CF_GCC_ATTRIBUTES version: 17 updated: 2015/04/12 15:39:00
 dnl -----------------
@@ -3278,7 +3306,7 @@ AC_TRY_LINK([
 test $cf_cv_need_xopen_extension = yes && CPPFLAGS="$CPPFLAGS -D_XOPEN_SOURCE_EXTENDED"
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_XOPEN_SOURCE version: 49 updated: 2015/04/12 15:39:00
+dnl CF_XOPEN_SOURCE version: 50 updated: 2015/10/17 19:03:33
 dnl ---------------
 dnl Try to get _XOPEN_SOURCE defined properly that we can use POSIX functions,
 dnl or adapt to the vendor's definitions to get equivalent functionality,
@@ -3347,6 +3375,9 @@ case $host_os in
 	;;
 (openbsd*)
 	# setting _XOPEN_SOURCE breaks xterm on OpenBSD 2.8, is not needed for ncursesw
+	;;
+(os2*)
+	cf_XOPEN_SOURCE=
 	;;
 (osf[[45]]*)
 	cf_xopen_source="-D_OSF_SOURCE"

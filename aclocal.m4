@@ -28,7 +28,7 @@ dnl***************************************************************************
 dnl
 dnl Author: Thomas E. Dickey 1995-on
 dnl
-dnl $Id: aclocal.m4,v 1.761 2015/08/06 00:46:34 tom Exp $
+dnl $Id: aclocal.m4,v 1.774 2015/10/17 23:05:09 tom Exp $
 dnl Macros used in NCURSES auto-configuration script.
 dnl
 dnl These macros are maintained separately from NCURSES.  The copyright on
@@ -423,15 +423,19 @@ ifelse([$3],,[    :]dnl
 ])dnl
 ])])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_AR_FLAGS version: 5 updated: 2010/05/20 20:24:29
+dnl CF_AR_FLAGS version: 6 updated: 2015/10/10 15:25:05
 dnl -----------
 dnl Check for suitable "ar" (archiver) options for updating an archive.
+dnl
+dnl In particular, handle some obsolete cases where the "-" might be omitted,
+dnl as well as a workaround for breakage of make's archive rules by the GNU
+dnl binutils "ar" program.
 AC_DEFUN([CF_AR_FLAGS],[
 AC_REQUIRE([CF_PROG_AR])
 
 AC_CACHE_CHECK(for options to update archives, cf_cv_ar_flags,[
 	cf_cv_ar_flags=unknown
-	for cf_ar_flags in -curv curv -crv crv -cqv cqv -rv rv
+	for cf_ar_flags in -curvU -curv curv -crv crv -cqv cqv -rv rv
 	do
 
 		# check if $ARFLAGS already contains this choice
@@ -1693,7 +1697,7 @@ unset ac_ct_$1
 unset $1
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_FUNC_DLSYM version: 3 updated: 2012/10/06 11:17:15
+dnl CF_FUNC_DLSYM version: 4 updated: 2015/09/12 14:46:44
 dnl -------------
 dnl Test for dlsym() and related functions, as well as libdl.
 dnl
@@ -1710,7 +1714,7 @@ AC_CHECK_LIB(dl,dlsym,[
 	cf_have_libdl=yes])])
 
 if test "$cf_have_dlsym" = yes ; then
-	test "$cf_have_libdl" = yes && CF_ADD_LIB(dl)
+	test "$cf_have_libdl" = yes && { CF_ADD_LIB(dl) }
 
 	AC_MSG_CHECKING(whether able to link to dl*() functions)
 	AC_TRY_LINK([#include <dlfcn.h>],[
@@ -1793,7 +1797,7 @@ int main() {
 test "$cf_cv_func_nanosleep" = "yes" && AC_DEFINE(HAVE_NANOSLEEP,1,[Define to 1 if we have nanosleep()])
 ])
 dnl ---------------------------------------------------------------------------
-dnl CF_FUNC_OPENPTY version: 4 updated: 2015/04/18 08:56:57
+dnl CF_FUNC_OPENPTY version: 5 updated: 2015/09/12 14:46:50
 dnl ---------------
 dnl Check for openpty() function, along with <pty.h> header.  It may need the
 dnl "util" library as well.
@@ -1802,7 +1806,7 @@ AC_DEFUN([CF_FUNC_OPENPTY],
 AC_CHECK_LIB(util,openpty,cf_cv_lib_util=yes,cf_cv_lib_util=no)
 AC_CACHE_CHECK(for openpty header,cf_cv_func_openpty,[
 	cf_save_LIBS="$LIBS"
-	test $cf_cv_lib_util = yes && CF_ADD_LIB(util)
+	test $cf_cv_lib_util = yes && { CF_ADD_LIB(util) }
 	for cf_header in pty.h libutil.h util.h
 	do
 	AC_TRY_LINK([
@@ -1821,11 +1825,12 @@ AC_CACHE_CHECK(for openpty header,cf_cv_func_openpty,[
 ])
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_FUNC_POLL version: 8 updated: 2012/10/04 05:24:07
+dnl CF_FUNC_POLL version: 9 updated: 2015/10/10 13:27:32
 dnl ------------
 dnl See if the poll function really works.  Some platforms have poll(), but
 dnl it does not work for terminals or files.
 AC_DEFUN([CF_FUNC_POLL],[
+tty 2>&1 >/dev/null || { AC_CHECK_FUNCS(posix_openpt) }
 AC_CACHE_CHECK(if poll really works,cf_cv_working_poll,[
 AC_TRY_RUN([
 #include <stdlib.h>
@@ -1837,7 +1842,7 @@ AC_TRY_RUN([
 #else
 #include <sys/poll.h>
 #endif
-int main() {
+int main(void) {
 	struct pollfd myfds;
 	int ret;
 
@@ -1857,6 +1862,11 @@ int main() {
 		if (!isatty(fd)) {
 			fd = open("/dev/tty", 2);	/* O_RDWR */
 		}
+#ifdef HAVE_POSIX_OPENPT
+		if (fd < 0) {
+			fd = posix_openpt(O_RDWR);
+		}
+#endif
 
 		if (fd >= 0) {
 			/* also check with standard input */
@@ -3211,7 +3221,7 @@ fi
 test -z "$cf_cv_libtool_version" && unset cf_cv_libtool_version
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_LIB_PREFIX version: 11 updated: 2015/04/18 08:56:57
+dnl CF_LIB_PREFIX version: 12 updated: 2015/10/17 19:03:33
 dnl -------------
 dnl Compute the library-prefix for the given host system
 dnl $1 = variable to set
@@ -3219,7 +3229,11 @@ define([CF_LIB_PREFIX],
 [
 	case $cf_cv_system_name in
 	(OS/2*|os2*)
-		LIB_PREFIX=''
+		if test "$DFT_LWR_MODEL" = libtool; then
+			LIB_PREFIX='lib'
+		else
+			LIB_PREFIX=''
+		fi
 		;;
 	(*)	LIB_PREFIX='lib'
 		;;
@@ -3228,7 +3242,7 @@ ifelse($1,,,[$1=$LIB_PREFIX])
 	AC_SUBST(LIB_PREFIX)
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_LIB_RULES version: 83 updated: 2015/08/05 20:44:28
+dnl CF_LIB_RULES version: 84 updated: 2015/09/26 17:54:46
 dnl ------------
 dnl Append definitions and rules for the given models to the subdirectory
 dnl Makefiles, and the recursion rule for the top-level Makefile.  If the
@@ -3301,7 +3315,7 @@ do
 resulting.map: $UNALTERED_SYMS
 	sed $cf_sed_options < $UNALTERED_SYMS >\[$]@
 
-clean::
+distclean::
 	rm -f resulting.map
 CF_EOF
 		fi
@@ -5511,7 +5525,7 @@ CF_VERBOSE(...checked $1 [$]$1)
 AC_SUBST(EXTRA_LDFLAGS)
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_SHARED_OPTS version: 88 updated: 2015/08/05 20:44:28
+dnl CF_SHARED_OPTS version: 89 updated: 2015/08/15 18:38:59
 dnl --------------
 dnl --------------
 dnl Attempt to determine the appropriate CC/LD options for creating a shared
@@ -5564,11 +5578,12 @@ AC_DEFUN([CF_SHARED_OPTS],
 	(yes)
 		cf_cv_shlib_version=auto
 		;;
-	(rel|abi|auto|no)
+	(rel|abi|auto)
 		cf_cv_shlib_version=$withval
 		;;
 	(*)
-		AC_MSG_ERROR([option value must be one of: rel, abi, auto or no])
+		AC_MSG_RESULT($withval)
+		AC_MSG_ERROR([option value must be one of: rel, abi, or auto])
 		;;
 	esac
 	],[cf_cv_shlib_version=auto])
@@ -6246,33 +6261,55 @@ if test -n "$ADA_SUBDIRS"; then
 fi
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_STDCPP_LIBRARY version: 8 updated: 2015/04/17 21:13:04
+dnl CF_STDCPP_LIBRARY version: 11 updated: 2015/10/17 19:03:33
 dnl -----------------
 dnl Check for -lstdc++, which is GNU's standard C++ library.
+dnl If $CXXLIBS is set, add that to the libraries used for test-linking.
+dnl If -lstdc++ was not already added to $LIBS or $CXXLIBS, and is needed,
+dnl add it to $CXXLIBS.
 AC_DEFUN([CF_STDCPP_LIBRARY],
 [
 if test -n "$GXX" ; then
-case $cf_cv_system_name in
-(os2*)
-	cf_stdcpp_libname=stdcpp
-	;;
-(*)
-	cf_stdcpp_libname=stdc++
-	;;
-esac
-AC_CACHE_CHECK(for library $cf_stdcpp_libname,cf_cv_libstdcpp,[
+
 	cf_save="$LIBS"
-	CF_ADD_LIB($cf_stdcpp_libname)
-AC_TRY_LINK([
-#include <strstream.h>],[
-char buf[80];
-strstreambuf foo(buf, sizeof(buf))
-],
-	[cf_cv_libstdcpp=yes],
-	[cf_cv_libstdcpp=no])
+	LIBS="$LIBS $CXXLIBS"
+	AC_MSG_CHECKING(if we already have C++ library)
+	AC_TRY_LINK([
+			#include <iostream>],[
+			std::cout << "Hello World!" << std::endl;],
+		[cf_have_libstdcpp=yes],
+		[cf_have_libstdcpp=no])
+	AC_MSG_RESULT($cf_have_libstdcpp)
 	LIBS="$cf_save"
-])
-test "$cf_cv_libstdcpp" = yes && CF_ADD_LIB($cf_stdcpp_libname,CXXLIBS)
+
+	if test $cf_have_libstdcpp != yes
+	then
+		case $cf_cv_system_name in
+		(os2*)
+			if test -z "`g++ -dM -E - < /dev/null | grep __KLIBC__`"; then
+				cf_stdcpp_libname=stdcpp
+			else
+				cf_stdcpp_libname=stdc++
+			fi
+			;;
+		(*)
+			cf_stdcpp_libname=stdc++
+			;;
+		esac
+
+		AC_CACHE_CHECK(for library $cf_stdcpp_libname,cf_cv_libstdcpp,[
+			cf_save="$LIBS"
+			LIBS="$LIBS $CXXLIBS"
+			CF_ADD_LIB($cf_stdcpp_libname)
+		AC_TRY_LINK([
+				#include <iostream>],[
+				std::cout << "Hello World!" << std::endl;],
+			[cf_cv_libstdcpp=yes],
+			[cf_cv_libstdcpp=no])
+			LIBS="$cf_save"
+		])
+		test "$cf_cv_libstdcpp" = yes && { CF_ADD_LIB($cf_stdcpp_libname,CXXLIBS) }
+	fi
 fi
 ])dnl
 dnl ---------------------------------------------------------------------------
@@ -7018,7 +7055,7 @@ if test "$with_gpm" != no ; then
 fi
 ])
 dnl ---------------------------------------------------------------------------
-dnl CF_WITH_LIBTOOL version: 32 updated: 2015/04/17 21:13:04
+dnl CF_WITH_LIBTOOL version: 33 updated: 2015/10/17 19:03:33
 dnl ---------------
 dnl Provide a configure option to incorporate libtool.  Define several useful
 dnl symbols for the makefile rules.
@@ -7116,7 +7153,7 @@ ifdef([AC_PROG_LIBTOOL],[
 	# special hack to add -no-undefined (which libtool should do for itself)
 	LT_UNDEF=
 	case "$cf_cv_system_name" in
-	(cygwin*|msys*|mingw32*|uwin*|aix[[4-7]])
+	(cygwin*|msys*|mingw32*|os2*|uwin*|aix[[4-7]])
 		LT_UNDEF=-no-undefined
 		;;
 	esac
@@ -7281,19 +7318,25 @@ AC_SUBST($3)dnl
 
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_WITH_PKG_CONFIG_LIBDIR version: 9 updated: 2015/06/06 19:26:44
+dnl CF_WITH_PKG_CONFIG_LIBDIR version: 10 updated: 2015/08/22 17:10:56
 dnl -------------------------
 dnl Allow the choice of the pkg-config library directory to be overridden.
 AC_DEFUN([CF_WITH_PKG_CONFIG_LIBDIR],[
-if test "x$PKG_CONFIG" = xnone ; then
-	PKG_CONFIG_LIBDIR=no
-else
+
+case $PKG_CONFIG in
+(no|none|yes)
+	AC_MSG_CHECKING(for pkg-config library directory)
+	;;
+(*)
 	AC_MSG_CHECKING(for $PKG_CONFIG library directory)
-	AC_ARG_WITH(pkg-config-libdir,
-		[  --with-pkg-config-libdir=XXX use given directory for installing pc-files],
-		[PKG_CONFIG_LIBDIR=$withval],
-		[PKG_CONFIG_LIBDIR=yes])
-fi
+	;;
+esac
+
+PKG_CONFIG_LIBDIR=no
+AC_ARG_WITH(pkg-config-libdir,
+	[  --with-pkg-config-libdir=XXX use given directory for installing pc-files],
+	[PKG_CONFIG_LIBDIR=$withval],
+	[test "x$PKG_CONFIG" != xnone && PKG_CONFIG_LIBDIR=yes])
 
 case x$PKG_CONFIG_LIBDIR in
 (x/*)
@@ -7349,7 +7392,7 @@ case x$PKG_CONFIG_LIBDIR in
 	;;
 esac
 
-if test "x$PKG_CONFIG" != xnone ; then
+if test "x$PKG_CONFIG_LIBDIR" != xno ; then
 	AC_MSG_RESULT($PKG_CONFIG_LIBDIR)
 fi
 
@@ -7608,7 +7651,7 @@ AC_SUBST(VERSIONED_SYMS)
 AC_SUBST(WILDCARD_SYMS)
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_XOPEN_SOURCE version: 49 updated: 2015/04/12 15:39:00
+dnl CF_XOPEN_SOURCE version: 50 updated: 2015/10/17 19:03:33
 dnl ---------------
 dnl Try to get _XOPEN_SOURCE defined properly that we can use POSIX functions,
 dnl or adapt to the vendor's definitions to get equivalent functionality,
@@ -7677,6 +7720,9 @@ case $host_os in
 	;;
 (openbsd*)
 	# setting _XOPEN_SOURCE breaks xterm on OpenBSD 2.8, is not needed for ncursesw
+	;;
+(os2*)
+	cf_XOPEN_SOURCE=
 	;;
 (osf[[45]]*)
 	cf_xopen_source="-D_OSF_SOURCE"

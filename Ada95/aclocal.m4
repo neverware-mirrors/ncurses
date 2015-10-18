@@ -28,7 +28,7 @@ dnl***************************************************************************
 dnl
 dnl Author: Thomas E. Dickey
 dnl
-dnl $Id: aclocal.m4,v 1.105 2015/08/08 14:25:40 tom Exp $
+dnl $Id: aclocal.m4,v 1.108 2015/10/17 23:07:06 tom Exp $
 dnl Macros used in NCURSES Ada95 auto-configuration script.
 dnl
 dnl These macros are maintained separately from NCURSES.  The copyright on
@@ -365,15 +365,19 @@ ifelse([$3],,[    :]dnl
 ])dnl
 ])])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_AR_FLAGS version: 5 updated: 2010/05/20 20:24:29
+dnl CF_AR_FLAGS version: 6 updated: 2015/10/10 15:25:05
 dnl -----------
 dnl Check for suitable "ar" (archiver) options for updating an archive.
+dnl
+dnl In particular, handle some obsolete cases where the "-" might be omitted,
+dnl as well as a workaround for breakage of make's archive rules by the GNU
+dnl binutils "ar" program.
 AC_DEFUN([CF_AR_FLAGS],[
 AC_REQUIRE([CF_PROG_AR])
 
 AC_CACHE_CHECK(for options to update archives, cf_cv_ar_flags,[
 	cf_cv_ar_flags=unknown
-	for cf_ar_flags in -curv curv -crv crv -cqv cqv -rv rv
+	for cf_ar_flags in -curvU -curv curv -crv crv -cqv cqv -rv rv
 	do
 
 		# check if $ARFLAGS already contains this choice
@@ -1751,7 +1755,7 @@ CF_SUBDIR_PATH($1,$2,lib)
 $1="$cf_library_path_list [$]$1"
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_LIB_PREFIX version: 11 updated: 2015/04/18 08:56:57
+dnl CF_LIB_PREFIX version: 12 updated: 2015/10/17 19:03:33
 dnl -------------
 dnl Compute the library-prefix for the given host system
 dnl $1 = variable to set
@@ -1759,7 +1763,11 @@ define([CF_LIB_PREFIX],
 [
 	case $cf_cv_system_name in
 	(OS/2*|os2*)
-		LIB_PREFIX=''
+		if test "$DFT_LWR_MODEL" = libtool; then
+			LIB_PREFIX='lib'
+		else
+			LIB_PREFIX=''
+		fi
 		;;
 	(*)	LIB_PREFIX='lib'
 		;;
@@ -2921,7 +2929,7 @@ define([CF_REMOVE_LIB],
 $1=`echo "$2" | sed -e 's/-l$3[[ 	]]//g' -e 's/-l$3[$]//'`
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_SHARED_OPTS version: 88 updated: 2015/08/05 20:44:28
+dnl CF_SHARED_OPTS version: 89 updated: 2015/08/15 18:38:59
 dnl --------------
 dnl --------------
 dnl Attempt to determine the appropriate CC/LD options for creating a shared
@@ -2974,11 +2982,12 @@ AC_DEFUN([CF_SHARED_OPTS],
 	(yes)
 		cf_cv_shlib_version=auto
 		;;
-	(rel|abi|auto|no)
+	(rel|abi|auto)
 		cf_cv_shlib_version=$withval
 		;;
 	(*)
-		AC_MSG_ERROR([option value must be one of: rel, abi, auto or no])
+		AC_MSG_RESULT($withval)
+		AC_MSG_ERROR([option value must be one of: rel, abi, or auto])
 		;;
 	esac
 	],[cf_cv_shlib_version=auto])
@@ -3701,19 +3710,25 @@ eval $3="$withval"
 AC_SUBST($3)dnl
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_WITH_PKG_CONFIG_LIBDIR version: 9 updated: 2015/06/06 19:26:44
+dnl CF_WITH_PKG_CONFIG_LIBDIR version: 10 updated: 2015/08/22 17:10:56
 dnl -------------------------
 dnl Allow the choice of the pkg-config library directory to be overridden.
 AC_DEFUN([CF_WITH_PKG_CONFIG_LIBDIR],[
-if test "x$PKG_CONFIG" = xnone ; then
-	PKG_CONFIG_LIBDIR=no
-else
+
+case $PKG_CONFIG in
+(no|none|yes)
+	AC_MSG_CHECKING(for pkg-config library directory)
+	;;
+(*)
 	AC_MSG_CHECKING(for $PKG_CONFIG library directory)
-	AC_ARG_WITH(pkg-config-libdir,
-		[  --with-pkg-config-libdir=XXX use given directory for installing pc-files],
-		[PKG_CONFIG_LIBDIR=$withval],
-		[PKG_CONFIG_LIBDIR=yes])
-fi
+	;;
+esac
+
+PKG_CONFIG_LIBDIR=no
+AC_ARG_WITH(pkg-config-libdir,
+	[  --with-pkg-config-libdir=XXX use given directory for installing pc-files],
+	[PKG_CONFIG_LIBDIR=$withval],
+	[test "x$PKG_CONFIG" != xnone && PKG_CONFIG_LIBDIR=yes])
 
 case x$PKG_CONFIG_LIBDIR in
 (x/*)
@@ -3769,7 +3784,7 @@ case x$PKG_CONFIG_LIBDIR in
 	;;
 esac
 
-if test "x$PKG_CONFIG" != xnone ; then
+if test "x$PKG_CONFIG_LIBDIR" != xno ; then
 	AC_MSG_RESULT($PKG_CONFIG_LIBDIR)
 fi
 
@@ -3838,7 +3853,7 @@ AC_ARG_WITH(system-type,
 ])
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_XOPEN_SOURCE version: 49 updated: 2015/04/12 15:39:00
+dnl CF_XOPEN_SOURCE version: 50 updated: 2015/10/17 19:03:33
 dnl ---------------
 dnl Try to get _XOPEN_SOURCE defined properly that we can use POSIX functions,
 dnl or adapt to the vendor's definitions to get equivalent functionality,
@@ -3907,6 +3922,9 @@ case $host_os in
 	;;
 (openbsd*)
 	# setting _XOPEN_SOURCE breaks xterm on OpenBSD 2.8, is not needed for ncursesw
+	;;
+(os2*)
+	cf_XOPEN_SOURCE=
 	;;
 (osf[[45]]*)
 	cf_xopen_source="-D_OSF_SOURCE"
