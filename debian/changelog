@@ -7,6 +7,7 @@ ncurses (6.0+20151017-1) UNRELEASED; urgency=low
     - Modify ncurses/Makefile.in to sort keys.list in POSIX locale
       (Closes: #801864).
   * Update symbols files for new symbol _nc_write_object.
+  * Drop pkg-config build dependency, no longer necessary.
 
  -- Sven Joachim <svenjoac@gmx.de>  Sun, 18 Oct 2015 09:04:02 +0200
 
