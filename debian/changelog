@@ -8,7 +8,6 @@ ncurses (6.0+20151017-1) UNRELEASED; urgency=low
     - Modify ncurses/Makefile.in to sort keys.list in POSIX locale
       (Closes: #801864).
   * Update symbols files for new symbol _nc_write_object.
-  * Drop pkg-config build dependency, no longer necessary.
   * Bump build dependencies on debhelper (>= 9.20141010) and
     dpkg-dev (>= 1.17.14) for build profiles support.
   * Update rxvt-unicode terminfo description from upstream CVS Rev 1.35
