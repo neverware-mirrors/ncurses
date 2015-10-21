@@ -446,7 +446,8 @@ binary:	binary-arch binary-indep
 binary-arch: build install $(autogen-files)
 	dh_testdir
 	dh_testroot
-	dh_install -s --fail-missing
+	dh_install -p$(package-bin) -Xncurses5-config -Xncursesw5-config
+	dh_install -s -N$(package-bin) --fail-missing
 	dh_installman -s
 	dh_installdocs -p$(package-bin) -p$(package-ti) -p$(package-examples) debian/FAQ
 	dh_installdocs -s -N$(package-bin) -N$(package-ti) -N$(package-examples) \

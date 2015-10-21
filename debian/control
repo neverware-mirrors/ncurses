@@ -77,10 +77,10 @@ Section: libdevel
 Priority: optional
 Multi-Arch: same
 Depends: libtinfo5 (= ${binary:Version}), libncurses5 (= ${binary:Version}),
-         libtinfo-dev (= ${binary:Version}), ncurses-bin (= ${binary:Version}),
+         libtinfo-dev (= ${binary:Version}),
          libc6-dev | libc-dev, ${misc:Depends}
 Conflicts: ncurses-dev, libncurses-dev
-Replaces: ncurses-dev, libncurses-dev
+Replaces: ncurses-dev, libncurses-dev, ncurses-bin (<< 6.0+20151017)
 Provides: libncurses-dev, ncurses-dev
 Suggests: ncurses-doc
 Description: developer's libraries for ncurses
@@ -124,8 +124,9 @@ Section: libdevel
 Priority: optional
 Multi-Arch: same
 Depends: libtinfo5 (= ${binary:Version}), libncursesw5 (= ${binary:Version}),
-         libtinfo-dev (= ${binary:Version}), ncurses-bin (= ${binary:Version}),
+         libtinfo-dev (= ${binary:Version}),
          libc6-dev | libc-dev, ${misc:Depends}
+Replaces: ncurses-bin (<< 6.0+20151017)
 Suggests: ncurses-doc
 Description: developer's libraries for ncursesw
  The ncurses library routines are a terminal-independent method of
@@ -316,8 +317,6 @@ Section: utils
 Essential: yes
 Pre-Depends: ${shlibs:Depends}, ${misc:Depends}
 Multi-Arch: foreign
-Replaces: libncurses5-dev (= 5.9+20150516-1), libncursesw5-dev (= 5.9+20150516-1)
-Breaks: libncurses5-dev (= 5.9+20150516-1), libncursesw5-dev (= 5.9+20150516-1)
 Description: terminal-related programs and man pages
  The ncurses library routines are a terminal-independent method of
  updating character screens with reasonable optimization.

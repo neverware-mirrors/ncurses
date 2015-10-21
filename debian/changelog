@@ -13,6 +13,8 @@ ncurses (6.0+20151017-1) UNRELEASED; urgency=low
     dpkg-dev (>= 1.17.14) for build profiles support.
   * Update rxvt-unicode terminfo description from upstream CVS Rev 1.35
     (Closes: #801709).
+  * Move the ncurses{w,}5-config scripts to their respective -dev
+    packages again (Closes: #745479).
 
   [ Johannes Schauer ]
   * Support the nobiarch build profile for avoiding multilib. (Closes: #737946)
