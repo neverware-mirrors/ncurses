@@ -1,4 +1,4 @@
-ncurses (6.0+20151017-1) UNRELEASED; urgency=low
+ncurses (6.0+20151017-1) unstable; urgency=low
 
   [ Sven Joachim ]
   * New upstream patchlevel.
@@ -18,7 +18,7 @@ ncurses (6.0+20151017-1) UNRELEASED; urgency=low
   [ Johannes Schauer ]
   * Support the nobiarch build profile for avoiding multilib. (Closes: #737946)
 
- -- Sven Joachim <svenjoac@gmx.de>  Sun, 18 Oct 2015 09:04:02 +0200
+ -- Sven Joachim <svenjoac@gmx.de>  Fri, 23 Oct 2015 17:01:49 +0200
 
 ncurses (6.0+20150810-1) unstable; urgency=medium
 
