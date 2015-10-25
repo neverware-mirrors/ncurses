@@ -1,6 +1,9 @@
 ncurses (6.0+20151024-1) UNRELEASED; urgency=low
 
   * New upstream patchlevel.
+    - Improve configure check for setting WILDCARD_SYMS variable; on ppc64
+      the variable is in the Data section rather than Text (patch by Michel
+      Normand, Closes: #802810).
 
  -- Sven Joachim <svenjoac@gmx.de>  Sun, 25 Oct 2015 09:19:49 +0100
 
