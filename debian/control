@@ -60,7 +60,7 @@ Package: libtinfo5-dbg
 Architecture: any
 Section: debug
 Priority: extra
-Depends: libtinfo5 (= ${binary:Version}), libtinfo-dev (= ${binary:Version}),
+Depends: libtinfo5 (= ${binary:Version}),
          ${shlibs:Depends}, ${misc:Depends}
 Replaces: libncurses5-dbg (<< 5.9+20130608)
 Breaks: libncurses5-dbg (<< 5.9-3)
@@ -95,7 +95,7 @@ Package: libncurses5-dbg
 Architecture: any
 Section: debug
 Priority: extra
-Depends: libtinfo5 (= ${binary:Version}), libncurses5-dev (= ${binary:Version}),
+Depends: libtinfo5 (= ${binary:Version}), libncurses5 (= ${binary:Version}),
          libtinfo5-dbg (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
 Description: debugging/profiling libraries for ncurses
  The ncurses library routines are a terminal-independent method of
@@ -143,7 +143,7 @@ Architecture: any
 Section: debug
 Priority: extra
 Depends: libtinfo5 (= ${binary:Version}), libtinfo5-dbg (= ${binary:Version}),
-         libncursesw5-dev (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+         libncursesw5 (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
 Description: debugging/profiling libraries for ncursesw
  The ncurses library routines are a terminal-independent method of
  updating character screens with reasonable optimization.
