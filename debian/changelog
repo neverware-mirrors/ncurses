@@ -1,3 +1,9 @@
+ncurses (6.0+20151024-2) UNRELEASED; urgency=low
+
+  * Drop the static debug libraries (Closes: #803482).
+
+ -- Sven Joachim <svenjoac@gmx.de>  Sat, 31 Oct 2015 10:43:18 +0100
+
 ncurses (6.0+20151024-1) unstable; urgency=low
 
   * New upstream patchlevel.

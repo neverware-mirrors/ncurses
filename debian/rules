@@ -235,6 +235,7 @@ $(objdir-debug)/config.status: config.guess-stamp
 	cd $(objdir-debug) && \
 		CFLAGS="$(CFLAGS) -DTRACE" $(srcdir)/configure \
 		$(CONFARGS) \
+		--without-normal \
 		--with-install-prefix=$(fulltempdir) \
 		--enable-overwrite --libdir=/usr/lib/$(DEB_HOST_MULTIARCH)
 
@@ -261,6 +262,7 @@ $(wobjdir-debug)/config.status: config.guess-stamp
 	cd $(wobjdir-debug) && \
 		CFLAGS="$(CFLAGS) -DTRACE" $(srcdir)/configure \
 		$(CONFARGS) \
+		--without-normal \
 		--with-install-prefix=$(fulltempdir) \
 		--disable-overwrite --enable-widec \
 		--libdir=/usr/lib/$(DEB_HOST_MULTIARCH)
@@ -359,16 +361,6 @@ install: build
 	dh_testdir
 	dh_testroot
 	dh_prep
-
-	# Static debug libraries need _g suffix to avoid file clashes
-	set -e; \
-	for lib in $(objdir-debug)/lib/*.a; do \
-	  cp -p $$lib `echo $$lib | sed 's/\.a$$/_g.a/'`; \
-	done
-	set -e;	\
-	for lib in $(wobjdir-debug)/lib/*.a; do \
-	  cp -p $$lib `echo $$lib | sed 's/\.a$$/_g.a/'`; \
-	done
 
 	# Install non -DTRACE versions.
 	$(MAKE) -C $(wobjdir) install.libs
