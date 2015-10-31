@@ -10,7 +10,7 @@ Build-Depends: debhelper (>= 9.20141010),
                pkg-config,
                autotools-dev,
 Standards-Version: 3.9.6
-Vcs-Browser: http://anonscm.debian.org/gitweb/?p=collab-maint/ncurses.git
+Vcs-Browser: https://anonscm.debian.org/cgit/collab-maint/ncurses.git
 Vcs-Git: git://anonscm.debian.org/collab-maint/ncurses.git
 Homepage: http://invisible-island.net/ncurses/
 

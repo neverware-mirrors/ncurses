@@ -3,6 +3,7 @@ ncurses (6.0+20151024-2) UNRELEASED; urgency=low
   * Drop the static debug libraries (Closes: #803482).
   * Remove the dependency of the -dbg packages on their -dev counterparts,
     let them depend on the libraries instead.
+  * Update Vcs-Browser field to use cgit and https.
 
  -- Sven Joachim <svenjoac@gmx.de>  Sat, 31 Oct 2015 10:43:18 +0100
 
