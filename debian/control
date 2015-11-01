@@ -45,7 +45,8 @@ Architecture: any
 Section: libdevel
 Priority: optional
 Multi-Arch: same
-Depends: libtinfo5 (= ${binary:Version}), ${misc:Depends}
+Depends: libtinfo5 (= ${binary:Version}), ${misc:Depends},
+         ncurses-bin (>= 6.0+20151017)
 Replaces: libncurses5-dev (<< 5.9-3)
 Breaks: binutils-gold (<< 2.21.53.20110910)
 Description: developer's library for the low-level terminfo library
