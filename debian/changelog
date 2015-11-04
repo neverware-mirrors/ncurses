@@ -5,6 +5,8 @@ ncurses (6.0+20151024-2) UNRELEASED; urgency=low
     let them depend on the libraries instead.
   * Add a dependency on ncurses-bin (>= 6.0+20151017) to libtinfo-dev,
     making piuparts happy (Closes: #803563).
+  * Add an empty /usr/share/terminfo to ncurses-base to work around
+    FTBFS in jed and slrn (see #804083, #804084).
   * Update Vcs-Browser field to use cgit and https.
 
  -- Sven Joachim <svenjoac@gmx.de>  Sat, 31 Oct 2015 10:43:18 +0100

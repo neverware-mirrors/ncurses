@@ -495,6 +495,7 @@ binary-indep: build install $(autogen-files)
 	dh_installdocs -i -Xhtml/Ada95.html -Xhtml/ada/
 	dh_installchangelogs -i NEWS
 	dh_install -i --fail-missing
+	dh_installdirs -i
 	dh_lintian -i
 	dh_compress -i
 	dh_fixperms -i
