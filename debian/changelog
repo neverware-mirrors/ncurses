@@ -1,6 +1,9 @@
 ncurses (6.0+20160213-1) UNRELEASED; urgency=low
 
   * New upstream patchlevel.
+  * Only include debug symbols for the libraries in the -dbg packages,
+    use automatic -dbgsym packages for ncurses-{bin,examples} and the
+    multilib packages.
 
  -- Sven Joachim <svenjoac@gmx.de>  Sun, 14 Feb 2016 12:11:10 +0100
 

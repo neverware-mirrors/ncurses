@@ -462,7 +462,8 @@ endif
 	dh_installdirs -s
 
 	# Strip the packages, shipping detached debugging symbols.
-	dh_strip -s -N$(package-libw) -N$(package-ti) --dbg-package=$(package-dbg)
+	dh_strip -s -N$(package-lib) -N$(package-libw) -N$(package-ti)
+	dh_strip -p$(package-lib) --dbg-package=$(package-dbg)
 	dh_strip -p$(package-libw) --dbg-package=$(package-dbgw)
 	dh_strip -p$(package-ti) --dbg-package=$(package-dbgti)
 	dh_lintian -s
