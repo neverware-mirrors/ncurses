@@ -6,6 +6,7 @@ ncurses (6.0+20160213-1) UNRELEASED; urgency=low
     multilib packages.
   * Bump debhelper compatibility level to 9.
   * Update years in debian/copyright.
+  * Use https in Vcs-Git URL.
 
  -- Sven Joachim <svenjoac@gmx.de>  Sun, 14 Feb 2016 12:11:10 +0100
 
