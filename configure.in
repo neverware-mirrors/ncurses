@@ -1,5 +1,5 @@
 dnl***************************************************************************
-dnl Copyright (c) 1998-2014,2015 Free Software Foundation, Inc.              *
+dnl Copyright (c) 1998-2015,2016 Free Software Foundation, Inc.              *
 dnl                                                                          *
 dnl Permission is hereby granted, free of charge, to any person obtaining a  *
 dnl copy of this software and associated documentation files (the            *
@@ -28,14 +28,14 @@ dnl***************************************************************************
 dnl
 dnl Author: Thomas E. Dickey 1995-on
 dnl
-dnl $Id: configure.in,v 1.621 2015/10/24 17:57:55 Tomas.Cech Exp $
+dnl $Id: configure.in,v 1.626 2016/02/06 21:59:17 tom Exp $
 dnl Process this file with autoconf to produce a configure script.
 dnl
 dnl See http://invisible-island.net/autoconf/ for additional information.
 dnl
 dnl ---------------------------------------------------------------------------
 AC_PREREQ(2.52.20030208)
-AC_REVISION($Revision: 1.621 $)
+AC_REVISION($Revision: 1.626 $)
 AC_INIT(ncurses/base/lib_initscr.c)
 AC_CONFIG_HEADER(include/ncurses_cfg.h:include/ncurses_cfg.hin)
 
@@ -830,6 +830,10 @@ AC_ARG_ENABLE(widec,
 	[with_widec=$enableval],
 	[with_widec=no])
 AC_MSG_RESULT($with_widec)
+
+NCURSES_WCWIDTH_GRAPHICS=1
+AC_SUBST(NCURSES_WCWIDTH_GRAPHICS)
+
 if test "x$with_widec" = xyes ; then
 	if test "x$disable_lib_suffixes" = xno ; then
 		LIB_SUFFIX="w${LIB_SUFFIX}"
@@ -838,6 +842,8 @@ if test "x$with_widec" = xyes ; then
 	AC_DEFINE(NCURSES_WIDECHAR,1,[Define to 1 to compile with wide-char/UTF-8 code])
 
 	CF_CHECK_WCHAR_H
+	CF_CHECK_WCWIDTH_GRAPHICS
+	test "$cf_cv_wcwidth_graphics" = no && NCURSES_WCWIDTH_GRAPHICS=0
 
 	# with_overwrite=no
 	NCURSES_CH_T=cchar_t
@@ -1443,7 +1449,7 @@ CF_DISABLE_GNAT_PROJECTS
 ###	Checks for libraries.
 case $cf_cv_system_name in
 (*mingw32*|*mingw64*)
-	CPPFLAGS="$CPPFLAGS -DWINVER=0x0501"
+	CPPFLAGS="$CPPFLAGS -DWINVER=0x0501 -DWIN32_LEAN_AND_MEAN"
 	LIBS=" -lpsapi $LIBS"
 	;;
 (*)
@@ -1859,17 +1865,20 @@ if test "$with_ticlib" != no ; then
 
 	if test "x$with_ticlib" != xyes ; then
 		TICS_NAME=$with_ticlib
+		TICS_SUFFIX="`echo ${DFT_LIB_SUFFIX}|sed -e "s/^${USE_LIB_SUFFIX}//"`"
 		TICS_ARG_SUFFIX="${with_ticlib}`echo ${USE_ARG_SUFFIX}|sed -e "s/^${LIB_SUFFIX}//"`"
 		TICS_DEP_SUFFIX="${with_ticlib}`echo ${DFT_DEP_SUFFIX}|sed -e "s/^${LIB_SUFFIX}//"`"
 		TICS_LIB_SUFFIX="${with_ticlib}"
 	else
+		TICS_SUFFIX=${DFT_LIB_SUFFIX}
 		TICS_ARG_SUFFIX="${TICS_NAME}${USE_ARG_SUFFIX}"
 		TICS_DEP_SUFFIX="${TICS_NAME}${DFT_DEP_SUFFIX}"
 		TICS_LIB_SUFFIX="${TICS_NAME}${USE_LIB_SUFFIX}"
 	fi
 	TICS_LDFLAGS="-L${LIB_DIR}"
-	TICS_LIBS="-l${TICS_LIB_SUFFIX}"
+	TICS_LIBS="-l${TICS_ARG_SUFFIX}"
 else
+	TICS_SUFFIX=${DFT_LIB_SUFFIX}
 	TICS_LDFLAGS="-L${LIB_DIR}"
 	TICS_LIBS="-l${LIB_NAME}${USE_ARG_SUFFIX}"
 fi
@@ -2035,13 +2044,9 @@ SUB_MAKEFILES="$SUB_MAKEFILES misc/run_tic.sh:misc/run_tic.in"
 SUB_MAKEFILES="$SUB_MAKEFILES misc/ncurses-config:misc/ncurses-config.in"
 SUB_MAKEFILES="$SUB_MAKEFILES man/ncurses${USE_CFG_SUFFIX}-config.1:man/MKncu_config.in"
 
-if test "x$enable_pc_files" = xyes ; then \
+if test "x$enable_pc_files" = xyes && test -z "$MAKE_PC_FILES" ; then
 SUB_MAKEFILES="$SUB_MAKEFILES misc/gen-pkgconfig:misc/gen-pkgconfig.in"
-MAKE_PC_FILES=
-else
-MAKE_PC_FILES="#"
 fi
-AC_SUBST(MAKE_PC_FILES)
 AC_SUBST(cross_compiling)
 
 AC_PATH_PROG(TIC_PATH,tic,unknown,$PATH:/usr/local/ncurses/bin)
@@ -2240,6 +2245,7 @@ TERMINFO="$TERMINFO"
 TICS_ARG_SUFFIX="$TICS_ARG_SUFFIX"
 TICS_LIB_SUFFIX="$TICS_LIB_SUFFIX"
 TICS_NAME="$TICS_NAME"
+TICS_SUFFIX="$TICS_SUFFIX"
 TIC_PATH="$TIC_PATH"
 TINFO_ARG_SUFFIX="$TINFO_ARG_SUFFIX"
 TINFO_LIB_SUFFIX="$TINFO_LIB_SUFFIX"

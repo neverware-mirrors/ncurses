@@ -27,7 +27,7 @@
 .\" authorization.                                                           *
 .\"***************************************************************************
 .\"
-.\" $Id: curs_attr.3x,v 1.42 2015/10/24 19:10:42 Sven.Joachim Exp $
+.\" $Id: curs_attr.3x,v 1.44 2015/12/13 21:54:05 tom Exp $
 .TH curs_attr 3X ""
 .na
 .hy 0
@@ -116,6 +116,8 @@
 \fBint mvwchgat(WINDOW *\fP\fIwin, int \fP\fIy, int \fP\fIx, int \fP\fIn,\fR
       \fBattr_t \fP\fIattr\fP\fB, short \fP\fIcolor\fP\fB, const void *\fP\fIopts\fP\fB);\fR
 .br
+\fBPAIR_NUMBER(\fR\fIattrs\fR\fB);\fP
+.br
 .SH DESCRIPTION
 These routines manipulate the current attributes of the named window.
 The
@@ -188,7 +190,7 @@ presently used, but is reserved for the future (leave it \fBNULL\fR).
 .SS Attributes
 The following video attributes, defined in \fB<curses.h>\fR, can be passed to
 the routines \fBattron\fR, \fBattroff\fR, and \fBattrset\fR, or OR'd with the
-characters passed to \fBaddch\fR (see curs_addch(3X)).
+characters passed to \fBaddch\fR (see \fBcurs_addch\fR(3X)).
 .PP
 .RS
 .TS

@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright (c) 1998-2014,2015 Free Software Foundation, Inc.              *
+ * Copyright (c) 1998-2015,2016 Free Software Foundation, Inc.              *
  *                                                                          *
  * Permission is hereby granted, free of charge, to any person obtaining a  *
  * copy of this software and associated documentation files (the            *
@@ -34,7 +34,7 @@
  ****************************************************************************/
 
 /*
- * $Id: curses.priv.h,v 1.547 2015/06/27 01:22:16 tom Exp $
+ * $Id: curses.priv.h,v 1.552 2016/02/13 16:37:24 tom Exp $
  *
  *	curses.priv.h
  *
@@ -1428,11 +1428,11 @@ extern NCURSES_EXPORT_VAR(SIG_ATOMIC_T) _nc_have_sigwinch;
 			    NCURSES_OUTC_FUNC (NCURSES_SP_ARGx CharOf(ch)); \
 			    COUNT_OUTCHARS(1);					    \
 			} else {						    \
-			    PUTC_INIT;						    \
 			    for (PUTC_i = 0; PUTC_i < CCHARW_MAX; ++PUTC_i) {	    \
 				PUTC_ch = (ch).chars[PUTC_i];			    \
 				if (PUTC_ch == L'\0')				    \
 				    break;					    \
+				PUTC_INIT;						    \
 				PUTC_n = (int) wcrtomb(PUTC_buf,		    \
 						       (ch).chars[PUTC_i], &PUT_st); \
 				if (PUTC_n <= 0) {				    \
@@ -1630,7 +1630,10 @@ extern NCURSES_EXPORT(void)	_nc_locked_tracef (const char *, ...) GCC_PRINTFLIKE
 #define TRACE_RETURN2(value,dst,src) return _nc_retrace_##dst##_##src(value)
 #define TRACE_RETURN_SP(value,type)  return _nc_retrace_##type(SP_PARM, value)
 
-#define NonNull(s)	((s) != 0 ? s : "<null>")
+typedef void VoidFunc(void);
+
+#define TR_FUNC(value)          ((const char*) &(value))
+#define NonNull(s)	        ((s) != 0 ? s : "<null>")
 
 #define returnAttr(code)	TRACE_RETURN(code,attr_t)
 #define returnBits(code)	TRACE_RETURN(code,unsigned)
@@ -1680,6 +1683,10 @@ extern NCURSES_EXPORT_VAR(long)         _nc_outchars;
 #endif
 
 extern NCURSES_EXPORT_VAR(unsigned)     _nc_tracing;
+
+extern NCURSES_EXPORT(char *) _nc_tracebits (void);
+extern NCURSES_EXPORT(char *) _tracemouse (const MEVENT *);
+extern NCURSES_EXPORT(void) _tracedump (const char *, WINDOW *);
 
 #if USE_WIDEC_SUPPORT
 extern NCURSES_EXPORT(const char *) _nc_viswbuf2 (int, const wchar_t *);

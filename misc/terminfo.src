@@ -6,8 +6,8 @@
 # Report bugs and new terminal descriptions to
 #	bug-ncurses@gnu.org
 #
-#	$Revision: 1.554 $
-#	$Date: 2015/10/24 16:00:04 $
+#	$Revision: 1.561 $
+#	$Date: 2016/01/17 00:25:26 $
 #
 # The original header is preserved below for reference.  It is noted that there
 # is a "newer" version which differs in some cosmetic details (but actually
@@ -1277,7 +1277,7 @@ nsterm-build343|Terminal.app in OS X 10.10,
 # + kLFT5/kRIT5 work, but not up/down with control-modifier
 # + kLFT/kRIT work, but not up/down with shift-modifier
 # + there are a few predefined bindings with Alt, but no clear pattern.
-# + uses alt-key as UTF-8 "meta" something like xterm altSendsEscape 
+# + uses alt-key as UTF-8 "meta" something like xterm altSendsEscape
 # Using ncurses test-program with xterm-new:
 # + no italics
 # Using xterm's scripts:
@@ -2211,37 +2211,52 @@ iris-color|xwsh|IRIX ANSI with color,
 # Added several capabilities to pccon+base, reading wsemul_vt100_subr.c -TD
 # Changed kbs to DEL and removed keys that duplicate stty settings -TD
 #
+# Notes from testing with vttest:
+#	fails wrapping test
+#	no 8-bit controls
+#	identifies as vt200 with selective erase, but does not implement DECSCA
+#	no vt52 mode
+#	also lacks these:
+# 		ESC # 8   DEC Screen Alignment Test (DECALN).
+# 		CSI ? 5 h Reverse Video (DECSCNM).
+#
 pccon+keys|OpenBSD PC keyboard keys,
 	kbs=\177, kcub1=\E[D, kcud1=\E[B, kcuf1=\E[C, kcuu1=\E[A,
 	kdch1=\E[3~, kend=\E[8~, kent=^M, kf1=\E[11~, kf10=\E[21~,
-	kf11=\E[23~, kf12=\E[24~, kf2=\E[12~, kf3=\E[13~,
+	kf11=\E[23~, kf12=\E[24~, kf13=\E[25~, kf14=\E[26~,
+	kf15=\E[28~, kf16=\E[29~, kf17=\E[31~, kf18=\E[32~,
+	kf19=\E[33~, kf2=\E[12~, kf20=\E[34~, kf21=\E[35~,
+	kf22=\E[36~, kf23=\E[37~, kf24=\E[38~, kf3=\E[13~,
 	kf4=\E[14~, kf5=\E[15~, kf6=\E[17~, kf7=\E[18~, kf8=\E[19~,
 	kf9=\E[20~, khome=\E[7~, kich1=\E[2~, knp=\E[6~, kpp=\E[5~,
 	krfr=^R,
 pccon+sgr+acs0|sgr and simple ASCII pseudographics for OpenBSD PC console,
 	acsc=+>\,<-\^.v0#`+a\:f\\h#i#j+k+l+m+n+o~p-q-r-s_t+u+v+w+x|y#z#{*|!}#~o,
-	sgr=\E[0%?%p1%p3%|%t;7%;m, sgr0=\E[m,
+	sgr=\E[0%?%p1%p3%|%t;7%;%?%p6%t;1%;%?%p2%t;4%;m,
+	sgr0=\E[m,
 pccon+sgr+acs|sgr and default ASCII pseudographics for OpenBSD PC console,
 	acsc=++\,\,--..00``aaffgghhiijjkkllmmnnooppqqrrssttuuvvwwxxyyzz{{||}}~~,
 	enacs=\E)0$<5>, rmacs=\E(B$<5>,
-	sgr=\E[0%?%p1%p3%|%t;7%;m%?%p9%t\E(0%e\E(B%;$<5>,
+	sgr=\E[0%?%p6%t;1%;%?%p2%t;4%;%?%p1%p3%|%t;7%;m%?%p9%t\E(0%e\E(B%;$<2>,
 	sgr0=\E[m\E(B$<5>, smacs=\E(0$<5>,
+# underline renders as color
 pccon+colors|ANSI colors for OpenBSD PC console,
 	bce,
-	colors#8, pairs#64,
-	op=\E[m, setab=\E[4%p1%dm, setaf=\E[3%p1%dm,
+	colors#8, ncv#2, pairs#64,
+	op=\E[47;30m, setab=\E[4%p1%dm, setaf=\E[3%p1%dm,
 pccon+base|base capabilities for OpenBSD PC console,
 	am, km, mc5i, msgr, npc, nxon, xenl, xon,
 	cols#80, it#8, lines#24,
-	bel=^G, clear=\E[H\E[J, cr=^M, cub1=^H, cud1=^J, cuf1=\E[C,
-	cup=\E[%i%p1%d;%p2%dH, cuu1=\E[A, dch=\E[%p1%dP,
-	dch1=\E[P, dl1=\E[M, ech=\E[%p1%dX, ed=\E[J, el=\E[K,
-	el1=\E[1K, home=\E[H, ht=^I, hts=\EH, ich=\E[%p1%d@,
+	bel=^G, bold=\E[1m, clear=\E[H\E[J, cr=^M, cub1=^H, cud1=^J,
+	cuf1=\E[C, cup=\E[%i%p1%d;%p2%dH, cuu1=\E[A,
+	dch=\E[%p1%dP, dch1=\E[P, dl1=\E[M, ech=\E[%p1%dX, ed=\E[J,
+	el=\E[K, el1=\E[1K, home=\E[H, ht=^I, hts=\EH, ich=\E[%p1%d@,
 	il1=\E[L, ind=\ED, nel=\EE, rev=\E[7m, ri=\EM, rmam=\E[?7l,
-	rmso=\E[m, rs2=\Ec$<50>, smam=\E[?7h, smso=\E[7m,
-	tbc=\E[3g, u6=\E[%i%d;%dR, u7=\E[6n,
+	rmso=\E[27m, rmul=\E[24m, rs2=\Ec$<50>, smam=\E[?7h,
+	smso=\E[7m, smul=\E[4m, tbc=\E[3g, u6=\E[%i%d;%dR,
+	u7=\E[6n,
 pccon0-m|OpenBSD PC console without colors & with simple ASCII pseudographics,
-	use=pccon+base, use=pccon+sgr+acs0, use=pccon+keys,
+	use=pccon+sgr+acs0, use=pccon+base, use=pccon+keys,
 pccon0|OpenBSD PC console with simple ASCII pseudographics,
 	use=pccon0-m, use=pccon+colors,
 pccon-m|OpenBSD PC console without colors,
@@ -3565,28 +3580,31 @@ putty|PuTTY terminal emulator,
 	ind=^J, indn=\E[%p1%dS,
 	initc=\E]P%p1%x%p2%{255}%*%{1000}%/%02x%p3%{255}%*%{1000}%/%02x%p4%{255}%*%{1000}%/%02x,
 	is2=\E7\E[r\E[m\E[?7h\E[?1;4;6l\E[4l\E8\E>\E]R,
-	kLFT=\EOD, kRIT=\EOC, kb2=\E[G, kbs=\177, kcbt=\E[Z,
-	kcub1=\E[D, kcud1=\E[B, kcuf1=\E[C, kcuu1=\E[A,
+	kLFT=\E[D, kRIT=\E[C, kb2=\E[G, kbs=\177, kcbt=\E[Z,
+	kcub1=\EOD, kcud1=\EOB, kcuf1=\EOC, kcuu1=\EOA,
 	kdch1=\E[3~, kend=\E[4~, khome=\E[1~, kich1=\E[2~,
-	kind=\EOB, kmous=\E[M, knp=\E[6~, kpp=\E[5~, kri=\EOA,
+	kind=\E[B, kmous=\E[M, knp=\E[6~, kpp=\E[5~, kri=\E[A,
 	kspd=^Z, nel=^M^J, oc=\E]R, op=\E[39;49m, rc=\E8, rev=\E[7m,
 	ri=\EM, rin=\E[%p1%dT, rmacs=^O, rmam=\E[?7l,
-	rmcup=\E[2J\E[?47l, rmir=\E[4l, rmpch=\E[10m,
-	rmso=\E[27m, rmul=\E[24m,
+	rmcup=\E[2J\E[?47l, rmir=\E[4l, rmkx=\E[?1l\E>,
+	rmpch=\E[10m, rmso=\E[27m, rmul=\E[24m,
 	rs2=\E<\E["p\E[50;6"p\Ec\E[?3l\E]R\E[?1000l,
 	s0ds=\E[10m, s1ds=\E[11m, s2ds=\E[12m, sc=\E7,
 	setab=\E[4%p1%dm, setaf=\E[3%p1%dm,
 	sgr=\E[0%?%p1%p6%|%t;1%;%?%p2%t;4%;%?%p1%p3%|%t;7%;%?%p4%t;5%;m%?%p9%t\016%e\017%;,
 	sgr0=\E[m\017, smacs=^N, smam=\E[?7h, smcup=\E[?47h,
-	smir=\E[4h, smpch=\E[11m, smso=\E[7m, smul=\E[4m,
-	tbc=\E[3g, vpa=\E[%i%p1%dd, E3=\E[3J, use=putty+fnkeys,
-	use=vt102+enq, use=xterm+sl,
+	smir=\E[4h, smkx=\E[?1h\E=, smpch=\E[11m, smso=\E[7m,
+	smul=\E[4m, tbc=\E[3g, vpa=\E[%i%p1%dd, E3=\E[3J,
+	use=putty+fnkeys, use=vt102+enq, use=xterm+sl,
 vt100-putty|Reset PuTTY to pure vt100,
 	rs2=\E<\E["p\Ec\E[?3l\E]R\E[40"p\E[61"p\E[50;1;2"p,
 	use=vt100,
-# palette is hardcoded...
 putty-256color|PuTTY 0.58 with xterm 256-colors,
 	use=xterm+256setaf, use=putty,
+putty-noapp|putty with cursor keys in normal mode,
+	kLFT=\EOD, kRIT=\EOC, kcub1=\E[D, kcud1=\E[B, kcuf1=\E[C,
+	kcuu1=\E[A, kind=\EOB, kri=\EOA, rmkx=\E>, smkx=\E=,
+	use=putty,
 
 # One of the keyboard selections is "VT100+".
 # pterm (the X11 port) uses shifted F1-F10 as F11-F20
@@ -4220,6 +4238,7 @@ xterm+256color|xterm 256-color feature,
 	setaf=\E[%?%p1%{8}%<%t3%p1%d%e%p1%{16}%<%t9%p1%{8}%-%d%e38;5;%p1%d%;m,
 	setb@, setf@,
 
+# palette is hardcoded...
 xterm+256setaf|xterm 256-color (set-only),
 	ccc@,
 	colors#256, pairs#32767,
@@ -4861,7 +4880,6 @@ vte-2014|VTE 0.35.1,
 vte|VTE aka GNOME Terminal,
 	use=vte-2014,
 
-# palette is hardcoded...
 vte-256color|VTE with xterm 256-colors,
 	use=xterm+256color, use=vte,
 gnome-256color|GNOME Terminal with xterm 256-colors,
@@ -4981,7 +4999,6 @@ konsole-16color|klone of xterm-16color,
 konsole|KDE console window,
 	use=konsole-xf4x,
 
-# palette is hardcoded...
 konsole-256color|KDE console window with xterm 256-colors,
 	use=xterm+256setaf, use=konsole,
 
@@ -9750,7 +9767,7 @@ vi603|visual603|visual 603,
 # (800)-800-WYSE (option 5 gets you a human).  There's a Web page at the
 # obvious address, <http://www.wyse.com>.  They keep terminfo entries at
 # https://web.archive.org/web/19970712022641/http://www.wyse.co.uk/support/appnotes/idxappnt.htm
-# 
+#
 #
 # Wyse bought out Link Technology, Inc. in 1990 and closed it down in 1995.
 # They now own the Qume and Amdek brands, too.  So these are the people to
@@ -18738,6 +18755,25 @@ minitel1b-nb|minitel 1b (40cols) noir & blanc sans couleurs avec bold et dim ...
 	sgr0=\EI\E\\\EB, smacs=^N, .invis=\E@, .rs2=^L\EB,
 	.u8=\001Cu|\004, use=minitel1b,
 
+# From: Alexandre Montaron, 19 Nov 2015
+#
+# He comments:
+# viewdata lacks a true cup capabilitie,
+# so I achieved it with home and cud1/cuf1 sequences only !
+viewdata|prestel/viewdata terminals,
+	am, bw, eslok, hz,
+	cols#40, lines#24,
+	bel=^G, civis=^T, clear=^L, cnorm=^Q, cr=^M, cub1=^H, cud1=^J,
+	cuf1=^I,
+	cup=\036%?%p1%{07}%>%t\n\n\n\n\n\n\n\n%;%?%p1%{15}%>%t\n\n\n\n\n\n\n\n%;%?%p1%{4}%&%t\n\n\n\n%;%?%p1%{2}%&%t\n\n%;%?%p1%{1}%&%t\n%;%?%p2%{07}%>%t\011\011\011\011\011\011\011\011%;%?%p2%{15}%>%t\011\011\011\011\011\011\011\011%;%?%p2%{23}%>%t\011\011\011\011\011\011\011\011%;%?%p2%{31}%>%t\011\011\011\011\011\011\011\011%;%?%p2%{4}%&%t\011\011\011\011%;%?%p2%{2}%&%t\011\011%;%?%p2%{1}%&%t\011%;,
+	cuu1=^K, home=^^, nel=^M^J, .el=^X, .ind=^J,
+	.rep=%p1%c\022%p2%'?'%+%c, .ri=^K,
+# Also:
+# viewdata-rv works with some applications (e.g. emacs, xemacs) but fails with vim.
+viewdata-rv|prestel/viewdata terminals with reverse capabilitie (as green),
+	xmc#1,
+	rmso=\EG, smso=\EB, use=viewdata,
+
 ######## OBSOLETE VDT TYPES
 #
 # These terminals are *long* dead -- these entries are retained for
@@ -23767,7 +23803,24 @@ v3220|LANPAR Vision II model 3220/3221/3222,
 #	+ updated minitel entries to fix kel problem with emacs, and add
 #	  minitel1b-nb (Alexandre Montaron).
 #	+ reviewed/updated nsterm entry Terminal.app in OSX -TD
-#	+ replace some dead URLs in comments with equivalents from the
+#	+ replace some dead URLs in commands with equivalents from the
 #	  Internet Archive -TD
+#
+# 2015-11-14
+#	+ add bold to pccon+sgr+acs and pccon-base (Tati Chevron).
+#	+ add keys f12-f124 to pccon+keys (Tati Chevron).
+#
+# 2015-11-21
+#	+ fix some inconsistencies in the pccon* entries -TD
+#
+# 2015-11-28
+#	+ add viewdata (Alexandre Montaron).
+#
+# 2016-01-16
+#	+ tidy up comments about hardcoded 256color palette (report by
+#	  Leonardo Brondani Schenkel) -TD
+#	+ add putty-noapp entry, and amend putty entry to use application mode
+#	  for better consistency with xterm (report by Leonardo Brondani
+#	  Schenkel) -TD
 #
 ######## SHANTIH!  SHANTIH!  SHANTIH!

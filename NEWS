@@ -1,5 +1,5 @@
 -------------------------------------------------------------------------------
--- Copyright (c) 1998-2014,2015 Free Software Foundation, Inc.               --
+-- Copyright (c) 1998-2015,2016 Free Software Foundation, Inc.               --
 --                                                                           --
 -- Permission is hereby granted, free of charge, to any person obtaining a   --
 -- copy of this software and associated documentation files (the             --
@@ -25,7 +25,7 @@
 -- sale, use or other dealings in this Software without prior written        --
 -- authorization.                                                            --
 -------------------------------------------------------------------------------
--- $Id: NEWS,v 1.2516 2015/10/25 00:17:28 tom Exp $
+-- $Id: NEWS,v 1.2571 2016/02/13 21:16:08 tom Exp $
 -------------------------------------------------------------------------------
 
 This is a log of changes that ncurses has gone through since Zeyd started
@@ -45,6 +45,122 @@ See the AUTHORS file for the corresponding full names.
 Changes through 1.9.9e did not credit all contributions;
 it is not possible to add this information.
 
+20160213
+	+ amend fix for _nc_ripoffline from 20091031 to make test/ditto.c work
+	  in threaded configuration.
+	+ move _nc_tracebits, _tracedump and _tracemouse to curses.priv.h,
+	  since they are not part of the suggested ABI6.
+
+20160206
+	+ define WIN32_LEAN_AND_MEAN for MinGW port, making builds faster.
+	+ modify test/ditto.c to allow $XTERM_PROG environment variable to
+	  override "xterm" as the name of the program to run in the threaded
+	  configuration.
+
+20160130
+	+ improve formatting of man/curs_refresh.3x and man/tset.1 manpages
+	+ regenerate HTML manpages using newer man2html to eliminate some
+	  unwanted blank lines.
+
+20160123
+	+ ifdef'd header-file definition of mouse_trafo() with NCURSES_NOMACROS
+	  (report by Corey Minyard).
+	+ fix some strict compiler-warnings in traces.
+
+20160116
+	+ tidy up comments about hardcoded 256color palette (report by
+	  Leonardo Brondani Schenkel) -TD
+	+ add putty-noapp entry, and amend putty entry to use application mode
+	  for better consistency with xterm (report by Leonardo Brondani
+	  Schenkel) -TD
+	+ modify _nc_viscbuf2() and _tracecchar_t2() to trace wide-characters
+	  as a whole rather than their multibyte equivalents.
+	+ minor fix in wadd_wchnstr() to ensure that each cell has nonzero
+	  width.
+	+ move PUTC_INIT calls next to wcrtomb calls, to avoid carry-over of
+	  error status when processing Unicode values which are not mapped.
+
+20160102
+	+ modify ncurses c/C color test-screens to take advantage of wide
+	  screens, reducing the number of lines used for 88- and 256-colors.
+	+ minor refinement to check versus ncv to ignore two parameters of
+	  SGR 38 and 48 when those come from color-capabilities.
+
+20151226
+	+ add check in tic for use of bold, etc., video attributes in the
+	  color capabilities, accounting whether the feature is listed in ncv.
+	+ add check in tic for conflict between ritm, rmso, rmul versus sgr0.
+
+20151219
+	+ add a paragraph to curs_getch.3x discussing key naming (discussion
+	  with James Crippen).
+	+ amend workaround for Solaris vs line-drawing to take the configure
+	  check into account.
+	+ add a configure check for wcwidth() versus the ncurses line-drawing
+	  characters, to use in special-casing systems such as Solaris.
+
+20151212
+	+ improve CF_XOPEN_CURSES macro used in test/configure, to define as
+	  needed NCURSES_WIDECHAR for platforms where _XOPEN_SOURCE_EXTENDED
+	  does not work.  Also modified the test program to ensure that if
+	  building with ncurses, that the cchar_t type is checked, since that
+	  normally is since 20111030 ifdef'd depending on this test.
+	+ improve 20121222 workaround for broken acs, letting Solaris "work"
+	  in spite of its misconfigured wcwidth which marks all of the line
+	  drawing characters as double-width.
+
+20151205
+	+ update form_cursor.3x, form_post.3x, menu_attributes.3x to list
+	  function names in NAME section (patch by Jason McIntyre).
+	+ minor fixes to manpage NAME/SYNOPSIS sections to consistently use
+	  rule that either all functions which are prototyped in SYNOPSIS are
+	  listed in the NAME section, or the manual-page name is the sole item
+	  listed in the NAME section.  The latter is used to reduce clutter,
+	  e.g., for the top-level library manual pages as well as for certain
+	  feature-pages such as SP-funcs and threading (prompted by patches by
+	  Jason McIntyre).
+
+20151128
+	+ add option to preserve leading whitespace in form fields (patch by
+	  Leon Winter).
+	+ add missing assignment in lib_getch.c to make notimeout() work
+	  (Debian #805618).
+	+ add 't' toggle for notimeout() function in test/ncurses.c a/A screens
+	+ add viewdata terminal description (Alexandre Montaron).
+	+ fix a case in tic/infocmp for formatting capabilities where a
+	  backslash at the end of a string was mishandled.
+	+ fix some typos in curs_inopts.3x (Benno Schulenberg).
+
+20151121
+	+ fix some inconsistencies in the pccon* entries -TD
+	+ add bold to pccon+sgr+acs and pccon-base (Tati Chevron).
+	+ add keys f12-f124 to pccon+keys (Tati Chevron).
+	+ add test/test_sgr.c program to exercise all combinations of sgr.
+
+20151107
+	+ modify tset's assignment to TERM in its output to reflect the name by
+	  which the terminal description is found, rather than the primary
+	  name.  That was an unnecessary part from the initial conversion of
+	  tset from termcap to terminfo.  The termcap program in 4.3BSD did
+	  this to avoid using the short 2-character name (report by Rich
+	  Burridge).
+	+ minor fix to configure script to ensure that rules for resulting.map
+	  are only generated when needed (cf: 20151101).
+	+ modify configure script to handle the case where tic-library is
+	  renamed, but the --with-debug option is used by itself without
+	  normal or shared libraries (prompted by comment in Debian #803482).
+
+20151101
+	+ amend change for pkg-config which allows build of pc-files when no
+	  valid pkg-config library directory was configured to suppress the
+	  actual install if it is not overridden to a valid directory at
+	  install time (cf: 20150822).
+	+ modify editing script which generates resulting.map to work with the
+	  clang configuration on recent FreeBSD, which gives an error on an
+	  empty "local" section.
+	+ fix a spurious "(Part)" message in test/ncurses.c b/B tests due
+	  to incorrect attribute-masking.
+
 20151024
 	+ modify MKexpanded.c to update the expansion of a temporary filename
 	  to "expanded.c", for use in trace statements.
@@ -55,7 +171,7 @@ it is not possible to add this information.
 	+ fix typo in INSTALL (patch by Tomas Cech).
 	+ improve configure check for setting WILDCARD_SYMS variable; on ppc64
 	  the variable is in the Data section rather than Text (patch by Michel
-	  Normand).
+	  Normand, Novell #946048).
 	+ using configure option "--without-fallbacks" incorrectly caused
 	  FALLBACK_LIST to be set to "no" (patch by Tomas Cech).
 	+ updated minitel entries to fix kel problem with emacs, and add
