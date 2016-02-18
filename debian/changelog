@@ -1,4 +1,4 @@
-ncurses (6.0+20160213-1) UNRELEASED; urgency=low
+ncurses (6.0+20160213-1) unstable; urgency=low
 
   * New upstream patchlevel.
   * Only include debug symbols for the libraries in the -dbg packages,
@@ -8,7 +8,7 @@ ncurses (6.0+20160213-1) UNRELEASED; urgency=low
   * Update years in debian/copyright.
   * Use https in Vcs-Git URL.
 
- -- Sven Joachim <svenjoac@gmx.de>  Sun, 14 Feb 2016 12:11:10 +0100
+ -- Sven Joachim <svenjoac@gmx.de>  Thu, 18 Feb 2016 18:29:28 +0100
 
 ncurses (6.0+20151024-2) unstable; urgency=medium
 
