@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright (c) 2002-2010,2011 Free Software Foundation, Inc.              *
+ * Copyright (c) 2002-2011,2016 Free Software Foundation, Inc.              *
  *                                                                          *
  * Permission is hereby granted, free of charge, to any person obtaining a  *
  * copy of this software and associated documentation files (the            *
@@ -39,7 +39,7 @@
 
 #include <curses.priv.h>
 
-MODULE_ID("$Id: lib_ins_wch.c,v 1.17 2011/10/22 16:34:50 tom Exp $")
+MODULE_ID("$Id: lib_ins_wch.c,v 1.20 2016/03/13 00:42:34 tom Exp $")
 
 /*
  * Insert the given character, updating the current location to simplify
@@ -73,7 +73,7 @@ _nc_insert_wch(WINDOW *win, const cchar_t *wch)
 		SetWidecExt(temp1[cell], cell);
 	    }
 
-	    win->_curx++;
+	    win->_curx = (NCURSES_SIZE_T) (win->_curx + cells);
 	}
     }
     return code;
