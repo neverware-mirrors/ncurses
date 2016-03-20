@@ -4,6 +4,7 @@ ncurses (6.0+20160319-1) UNRELEASED; urgency=medium
     - Amend workaround for Solaris line-drawing to restore a special case
       that maps Unicode line-drawing characters into the acsc string for
       non-Unicode locales (Closes: #816888).
+  * Upgrade Standards-Version to 3.9.7, no changes needed.
 
  -- Sven Joachim <svenjoac@gmx.de>  Sun, 20 Mar 2016 10:25:01 +0100
 
