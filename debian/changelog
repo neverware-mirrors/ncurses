@@ -1,4 +1,4 @@
-ncurses (6.0+20160319-1) UNRELEASED; urgency=medium
+ncurses (6.0+20160319-1) unstable; urgency=medium
 
   * New upstream patchlevel.
     - Amend workaround for Solaris line-drawing to restore a special case
@@ -6,7 +6,7 @@ ncurses (6.0+20160319-1) UNRELEASED; urgency=medium
       non-Unicode locales (Closes: #816888).
   * Upgrade Standards-Version to 3.9.7, no changes needed.
 
- -- Sven Joachim <svenjoac@gmx.de>  Sun, 20 Mar 2016 10:25:01 +0100
+ -- Sven Joachim <svenjoac@gmx.de>  Fri, 25 Mar 2016 09:48:16 +0100
 
 ncurses (6.0+20160213-1) unstable; urgency=low
 
