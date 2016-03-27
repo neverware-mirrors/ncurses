@@ -471,7 +471,7 @@ endif
 	dh_compress -s -N$(package-examples)
 	dh_fixperms -s
 	dh_link -s
-	dh_makeshlibs -p$(package-ti) -V "$(package-ti) $(sodepver)" -- -c4
+	dh_makeshlibs -p$(package-ti) -V "$(package-ti) $(sodepver)" --add-udeb=$(package-ti)-udeb -- -c4
 	dh_makeshlibs -p$(package-lib) -V "$(package-lib) $(sodepver)" -- -c4
 	dh_makeshlibs -p$(package-libw) -V "$(package-libw) $(sodepver)" -- -c4
 ifneq ($(build_32),)

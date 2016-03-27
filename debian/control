@@ -27,6 +27,19 @@ Description: shared low-level terminfo library for terminal handling
  .
  This package contains the shared low-level terminfo library.
 
+Package: libtinfo5-udeb
+Package-Type: udeb
+Section: debian-installer
+Architecture: any
+Priority: extra
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: shared low-level terminfo library for terminal handling - udeb
+ The ncurses library routines are a terminal-independent method of
+ updating character screens with reasonable optimization.
+ .
+ This package contains the stripped-down udeb version of shared low-level
+ terminfo library.
+
 Package: libncurses5
 Architecture: any
 Pre-Depends: ${misc:Pre-Depends}
