@@ -486,6 +486,8 @@ endif
 	dh_shlibdeps -s
 	dh_gencontrol -s
 	dh_installdeb -s
+	# We don't install the tic library in the libtinfo5 udeb, adjust the shlibs file
+	sed -i '/^udeb: libtic /d' debian/$(package-ti)/DEBIAN/shlibs
 	dh_md5sums -s
 	dh_builddeb -s
 
