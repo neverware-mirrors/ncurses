@@ -6,6 +6,9 @@ ncurses (6.0+20160319-2) UNRELEASED; urgency=medium
   [ Sven Joachim ]
   * Do not include the tic library in the libtinfo5-udeb package.
 
+  [ Axel Beckert ]
+  * Declare compliance with Debian Policy 3.9.8. (No changes needed.)
+
  -- Roger Shimizu <rogershimizu@gmail.com>  Sat, 26 Mar 2016 18:22:36 +0900
 
 ncurses (6.0+20160319-1) unstable; urgency=medium
