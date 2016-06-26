@@ -2,6 +2,8 @@ ncurses (6.0+20160625-1) UNRELEASED; urgency=low
 
   * New upstream patchlevel.
     - Make linux3.0 entry the default linux entry (Closes: #823658, #515609).
+    - Improve manual pages for wgetch and wget_wch to point out that they
+      might return values without names in curses.h (Closes: #822426).
 
  -- Sven Joachim <svenjoac@gmx.de>  Sun, 26 Jun 2016 20:32:27 +0200
 
