@@ -1,6 +1,7 @@
 ncurses (6.0+20160625-1) UNRELEASED; urgency=low
 
   * New upstream patchlevel.
+    - Make linux3.0 entry the default linux entry (Closes: #823658, #515609).
 
  -- Sven Joachim <svenjoac@gmx.de>  Sun, 26 Jun 2016 20:32:27 +0200
 
