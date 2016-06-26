@@ -25,7 +25,7 @@
 -- sale, use or other dealings in this Software without prior written        --
 -- authorization.                                                            --
 -------------------------------------------------------------------------------
--- $Id: NEWS,v 1.2583 2016/03/19 23:00:31 tom Exp $
+-- $Id: NEWS,v 1.2624 2016/06/25 21:23:38 tom Exp $
 -------------------------------------------------------------------------------
 
 This is a log of changes that ncurses has gone through since Zeyd started
@@ -44,6 +44,98 @@ See the AUTHORS file for the corresponding full names.
 
 Changes through 1.9.9e did not credit all contributions;
 it is not possible to add this information.
+
+20160625
+	+ build-fixes for ncurses "test_progs" rule.
+	+ amend change to CF_CC_ENV_FLAGS in 20160521 to make multilib build
+	  work (report by Sven Joachim).
+
+20160618
+	+ build-fixes for ncurses-examples with NetBSD curses.
+	+ improve test/list_keys.c, fixing column-widths and sorting the list
+	  to make it more readable.
+
+20160611
+	+ revise fix for Debian #805618 (report by Vlado Potisk, cf: 20151128).
+	+ modify test/ncurses.c a/A screens to make exiting on an escape
+	  character depend on the start of keypad and timeout modes, to allow
+	  better testing of function-keys.
+	+ modify rs1 for xterm-16color, xterm-88color and xterm-256color to
+	  reset palette using "oc" string as in linux -TD
+	+ use ANSI reply for u8 in xterm-new, to reflect vt220-style responses
+	  that could be returned -TD
+	+ added a few capabilities fixed in recent vte -TD
+
+20160604
+	+ correct logic for -f option in test/demo_terminfo.c
+	+ add test/list_keys.c
+
+20160528
+	+ further workaround for PIE/PIC breakage which causes gpm to not link.
+	+ fix most cppcheck warnings, mostly style, in ncurses library.
+
+20160521
+	+ improved manual page description of tset/reset versus window-size.
+	+ fixes to work with a slightly broken compiler configuration which
+	  cannot compile "Hello World!" without adding compiler options
+	  (report by Ola x Nilsson):
+	  + pass appropriate compiler options to the CF_PROG_CC_C_O macro.
+	  + when separating compiler and options in CF_CC_ENV_FLAGS, ensure
+	    that all options are split-off into CFLAGS or CPPFLAGS
+	  + restore some -I options removed in 20140726 because they appeared
+	    to be redundant.  In fact, they are needed for a compiler that
+	    cannot combine -c and -o options.
+
+20160514
+	+ regenerate HTML manpages.
+	+ improve manual pages for wgetch and wget_wch to point out that they
+	  might return values without names in curses.h (Debian #822426).
+	+ make linux3.0 entry the default linux entry (Debian #823658) -TD
+	+ modify linux2.6 entry to improve line-drawing so that the linux3.0
+	  entry can be used in non-UTF-8 mode -TD
+	+ document return value of use_extended_names (report by Mike Gran).
+
+20160507
+	+ amend change to _nc_do_color to restore the early return for the
+	  special case used in _nc_screen_wrap (report by Dick Streefland,
+	  cf: 20151017).
+	+ modify test/ncurses.c:
+	  + check return-value of putwin
+	  + correct ifdef which made the 'g' test's legend not reflect changes
+	    to keypad- and scroll-modes.
+	+ correct return-value of extended putwin (report by Mike Gran).
+
+20160423
+	+ modify test/ncurses.c 'd' edit-color menu to optionally read xterm
+	  color palette directly from terminal, as well as handling KEY_RESIZE
+	  and screen-repainting with control/L and control/R.
+	+ add 'oc' capability to xterm+256color, allowing palette reset for
+	  xterm -TD
+
+20160416
+	+ add workaround in configure script for inept transition to PIE vs
+	  PIC builds documented in
+		  https://fedoraproject.org/wiki/Changes/Harden_All_Packages
+	+ add "reset" to list of programs whose names might change in manpages
+	  due to program-transformation configure options.
+	+ drop long-obsolete "-n" option from tset.
+
+20160409
+	+ modify test/blue.c to use Unicode values for card-glyphs when
+	  available, as well as improving the check for CP437 and CP850.
+
+20160402
+	+ regenerate HTML manpages.
+	+ improve manual pages for utilities with respect to POSIX versus
+	  X/Open Curses.
+
+20160326
+	+ regenerate HTML manpages.
+	+ improve test/demo_menus.c, allowing mouse-click on the menu-headers
+	  to switch the active menu.  This requires a new extension option
+	  O_MOUSE_MENU to tell the menu driver to put mouse events which do not
+	  apply to the active menu back into the queue so that the application
+	  can handle the event.
 
 20160319
 	+ improve description of tgoto parameters (report by Steffen Nurpmeso).

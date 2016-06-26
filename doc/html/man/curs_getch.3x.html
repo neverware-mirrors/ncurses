@@ -1,7 +1,7 @@
 <!-- 
   * t
   ****************************************************************************
-  * Copyright (c) 1998-2014,2015 Free Software Foundation, Inc.              *
+  * Copyright (c) 1998-2015,2016 Free Software Foundation, Inc.              *
   *                                                                          *
   * Permission is hereby granted, free of charge, to any person obtaining a  *
   * copy of this software and associated documentation files (the            *
@@ -27,7 +27,7 @@
   * sale, use or other dealings in this Software without prior written       *
   * authorization.                                                           *
   ****************************************************************************
-  * @Id: curs_getch.3x,v 1.44 2015/12/20 01:43:03 tom Exp @
+  * @Id: curs_getch.3x,v 1.47 2016/06/11 22:56:33 tom Exp @
 -->
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
 <HTML>
@@ -102,11 +102,19 @@
 </PRE><H3><a name="h3-Keypad-mode">Keypad mode</a></H3><PRE>
        If  <STRONG>keypad</STRONG> is <STRONG>TRUE</STRONG>, and a function key is pressed, the to-
        ken for that function key is returned instead of  the  raw
-       characters.   Possible function keys are defined in <STRONG>&lt;curs-</STRONG>
-       <STRONG>es.h&gt;</STRONG> as macros with values outside  the  range  of  8-bit
-       characters  whose names begin with <STRONG>KEY_</STRONG>.  Thus, a variable
-       intended to hold the return value of a function  key  must
-       be of short size or larger.
+       characters:
+
+       <STRONG>o</STRONG>   The  predefined function keys are listed in <STRONG>&lt;curses.h&gt;</STRONG>
+           as macros with values outside the range of 8-bit char-
+           acters.  Their names begin with <STRONG>KEY_</STRONG>.
+
+       <STRONG>o</STRONG>   Other  (user-defined)  function  keys which may be de-
+           fined using <STRONG><A HREF="define_key.3x.html">define_key(3x)</A></STRONG> have no names, but also are
+           expected  to  have  values  outside the range of 8-bit
+           characters.
+
+       Thus, a variable intended to hold the return  value  of  a
+       function key must be of short size or larger.
 
        When a character that could be the beginning of a function
        key is received (which, on modern terminals, means an  es-
@@ -116,6 +124,14 @@
        key value is returned.  For this  reason,  many  terminals
        experience a delay between the time a user presses the es-
        cape key and the escape is returned to the program.
+
+       In <STRONG>ncurses</STRONG>, the timer normally expires after the value  in
+       <STRONG>ESCDELAY</STRONG>  (see <STRONG><A HREF="curs_variables.3x.html">curs_variables(3x)</A></STRONG>).  If <STRONG>notimeout</STRONG> is <STRONG>TRUE</STRONG>,
+       the timer does not expire; it  is  an  infinite  (or  very
+       large) value.  Because function keys usually begin with an
+       escape character, the terminal may appear to hang  in  no-
+       timeout  mode  after pressing the escape key until another
+       key is pressed.
 
 
 </PRE><H3><a name="h3-Ungetting-characters">Ungetting characters</a></H3><PRE>
@@ -163,6 +179,7 @@
             KEY_SR          Scroll 1 line backward (reverse)
             KEY_NPAGE       Next page
             KEY_PPAGE       Previous page
+
             KEY_STAB        Set tab
             KEY_CTAB        Clear tab
             KEY_CATAB       Clear all tabs
@@ -179,7 +196,6 @@
             KEY_BTAB        Back tab key
             KEY_BEG         Beg(inning) key
             KEY_CANCEL      Cancel key
-
             KEY_CLOSE       Close key
             KEY_COMMAND     Cmd (command) key
             KEY_COPY        Copy key
@@ -229,6 +245,7 @@
             KEY_SREDO       Shifted redo key
             KEY_SREPLACE    Shifted replace key
             KEY_SRIGHT      Shifted right arrow
+
             KEY_SRSUME      Shifted resume key
             KEY_SSAVE       Shifted save key
             KEY_SSUSPEND    Shifted suspend key
@@ -384,8 +401,8 @@
 
 </PRE><H2><a name="h2-SEE-ALSO">SEE ALSO</a></H2><PRE>
        <STRONG><A HREF="ncurses.3x.html">curses(3x)</A></STRONG>,       <STRONG><A HREF="curs_inopts.3x.html">curs_inopts(3x)</A></STRONG>,       <STRONG><A HREF="curs_outopts.3x.html">curs_outopts(3x)</A></STRONG>,
-       <STRONG><A HREF="curs_mouse.3x.html">curs_mouse(3x)</A></STRONG>,   <STRONG><A HREF="curs_move.3x.html">curs_move(3x)</A></STRONG>,   <STRONG><A HREF="curs_refresh.3x.html">curs_refresh(3x)</A></STRONG>,   <STRONG>re-</STRONG>
-       <STRONG><A HREF="resizeterm.3x.html">sizeterm(3x)</A></STRONG>.
+       <STRONG><A HREF="curs_mouse.3x.html">curs_mouse(3x)</A></STRONG>,      <STRONG><A HREF="curs_move.3x.html">curs_move(3x)</A></STRONG>,      <STRONG><A HREF="curs_refresh.3x.html">curs_refresh(3x)</A></STRONG>,
+       <STRONG><A HREF="curs_variables.3x.html">curs_variables(3x)</A></STRONG>, <STRONG><A HREF="resizeterm.3x.html">resizeterm(3x)</A></STRONG>.
 
        Comparable  functions in the wide-character (ncursesw) li-
        brary are described in <STRONG><A HREF="curs_get_wch.3x.html">curs_get_wch(3x)</A></STRONG>.

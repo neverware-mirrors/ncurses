@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright (c) 1998-2014,2015 Free Software Foundation, Inc.              *
+ * Copyright (c) 1998-2015,2016 Free Software Foundation, Inc.              *
  *                                                                          *
  * Permission is hereby granted, free of charge, to any person obtaining a  *
  * copy of this software and associated documentation files (the            *
@@ -159,7 +159,7 @@
 #define CUR SP_TERMTYPE
 #endif
 
-MODULE_ID("$Id: lib_mvcur.c,v 1.136 2015/07/25 20:14:57 tom Exp $")
+MODULE_ID("$Id: lib_mvcur.c,v 1.138 2016/06/25 20:49:00 tom Exp $")
 
 #define WANT_CHAR(sp, y, x) NewScreen(sp)->_line[y].text[x]	/* desired state */
 
@@ -992,10 +992,10 @@ _nc_real_mvcur(NCURSES_SP_DCLx
 	}
 
 	if (xold >= screen_columns(SP_PARM)) {
-	    int l;
 
 	    if (SP_PARM->_nl) {
-		l = (xold + 1) / screen_columns(SP_PARM);
+		int l = (xold + 1) / screen_columns(SP_PARM);
+
 		yold += l;
 		if (yold >= screen_lines(SP_PARM))
 		    l -= (yold - screen_lines(SP_PARM) - 1);
@@ -1278,7 +1278,7 @@ main(int argc GCC_UNUSED, char *argv[]GCC_UNUSED)
 		}
 	    }
 	} else if (buf[0] == 'i') {
-	    dump_init(NULL, F_TERMINFO, S_TERMINFO, 70, 0, 0, FALSE, FALSE);
+	    dump_init(NULL, F_TERMINFO, S_TERMINFO, 70, 0, 0, FALSE, FALSE, 0);
 	    dump_entry(&cur_term->type, FALSE, TRUE, 0, 0);
 	    putchar('\n');
 	} else if (buf[0] == 'o') {

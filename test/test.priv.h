@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright (c) 1998-2013,2014 Free Software Foundation, Inc.              *
+ * Copyright (c) 1998-2014,2016 Free Software Foundation, Inc.              *
  *                                                                          *
  * Permission is hereby granted, free of charge, to any person obtaining a  *
  * copy of this software and associated documentation files (the            *
@@ -29,7 +29,7 @@
 /****************************************************************************
  *  Author: Thomas E. Dickey                    1996-on                     *
  ****************************************************************************/
-/* $Id: test.priv.h,v 1.131 2014/10/25 01:20:34 tom Exp $ */
+/* $Id: test.priv.h,v 1.133 2016/06/19 00:04:02 tom Exp $ */
 
 #ifndef __TEST_PRIV_H
 #define __TEST_PRIV_H 1
@@ -118,6 +118,10 @@
 #define HAVE_LIBPANEL 0
 #endif
 
+#ifndef HAVE_LANGINFO_CODESET
+#define HAVE_LANGINFO_CODESET 0
+#endif
+
 #ifndef HAVE_LOCALE_H
 #define HAVE_LOCALE_H 0
 #endif
@@ -156,6 +160,10 @@
 
 #ifndef HAVE_RESIZE_TERM
 #define HAVE_RESIZE_TERM 0
+#endif
+
+#ifndef HAVE_RESTARTTERM
+#define HAVE_RESTARTTERM 0
 #endif
 
 #ifndef HAVE_RIPOFFLINE
@@ -543,6 +551,10 @@ extern int optind;
 extern char *boolnames[], *boolcodes[], *boolfnames[];
 extern char *numnames[], *numcodes[], *numfnames[];
 extern char *strnames[], *strcodes[], *strfnames[];
+#endif
+
+#ifdef DECL_CURSES_DATA_TTYTYPE
+#define ttytype termname()
 #endif
 
 #define colored_chtype(ch, attr, pair) \

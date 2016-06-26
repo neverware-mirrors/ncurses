@@ -40,7 +40,7 @@ AUTHOR
    Author: Eric S. Raymond <esr@snark.thyrsus.com> 1993
            Thomas E. Dickey (beginning revision 1.27 in 1996).
 
-$Id: ncurses.c,v 1.429 2016/01/03 01:50:10 tom Exp $
+$Id: ncurses.c,v 1.438 2016/06/11 21:05:48 tom Exp $
 
 ***************************************************************************/
 
@@ -200,9 +200,9 @@ Repaint(void)
 }
 
 static bool
-isQuit(int c)
+isQuit(int c, bool escape)
 {
-    return ((c) == QUIT || (c) == ESCAPE);
+    return ((c) == QUIT || (escape && ((c) == ESCAPE)));
 }
 #define case_QUIT	QUIT: case ESCAPE
 
@@ -652,6 +652,8 @@ blocking_getch(GetchFlags flags, int delay)
     return ((delay < 0) && flags['t']);
 }
 
+#define ExitOnEscape() (flags[UChar('k')] && flags[UChar('t')])
+
 static void
 wgetch_help(WINDOW *win, GetchFlags flags)
 {
@@ -678,13 +680,16 @@ wgetch_help(WINDOW *win, GetchFlags flags)
     printw("Type any key to see its %s value.  Also:\n",
 	   flags['k'] ? "keypad" : "literal");
     for (n = 0; n < SIZEOF(help); ++n) {
+	const char *msg = help[n];
 	int row = 1 + (int) (n % chk);
 	int col = (n >= chk) ? COLS / 2 : 0;
-	int flg = ((strstr(help[n], "toggle") != 0)
-		   && (flags[UChar(*help[n])] != FALSE));
+	int flg = ((strstr(msg, "toggle") != 0)
+		   && (flags[UChar(*msg)] != FALSE));
+	if (*msg == '^' && ExitOnEscape())
+	    msg = "^[,^q -- quit";
 	if (flg)
 	    (void) standout();
-	MvPrintw(row, col, "%s", help[n]);
+	MvPrintw(row, col, "%s", msg);
 	if (col == 0)
 	    clrtoeol();
 	if (flg)
@@ -842,7 +847,7 @@ wgetch_test(unsigned level, WINDOW *win, int delay)
 	if (c == ERR && blocking_getch(flags, delay)) {
 	    wprintw(win, "ERR");
 	    wgetch_wrap(win, first_y);
-	} else if (isQuit(c)) {
+	} else if (isQuit(c, ExitOnEscape())) {
 	    break;
 	} else if (c == 'e') {
 	    flags[UChar('e')] = !flags[UChar('e')];
@@ -1098,7 +1103,7 @@ wget_wch_test(unsigned level, WINDOW *win, int delay)
 	if (code == ERR && blocking_getch(flags, delay)) {
 	    wprintw(win, "ERR");
 	    wgetch_wrap(win, first_y);
-	} else if (isQuit((int) c)) {
+	} else if (isQuit((int) c, ExitOnEscape())) {
 	    break;
 	} else if (c == 'e') {
 	    flags[UChar('e')] = !flags[UChar('e')];
@@ -2652,7 +2657,7 @@ change_color(NCURSES_PAIRS_T current, int field, int value, int usebase)
 }
 
 static void
-init_all_colors(void)
+reset_all_colors(void)
 {
     NCURSES_PAIRS_T c;
 
@@ -2663,6 +2668,85 @@ init_all_colors(void)
 		   all_colors[c].blue);
 }
 
+#define okCOLOR(n) ((n) >= 0 && (n) < max_colors)
+#define okRGB(n)   ((n) >= 0 && (n) <= 1000)
+#define DecodeRGB(n) (NCURSES_COLOR_T) ((n * 1000) / 0xffff)
+
+static void
+init_all_colors(bool xterm_colors, char *palette_file)
+{
+    NCURSES_PAIRS_T cp;
+    all_colors = typeMalloc(RGB_DATA, (unsigned) max_colors);
+    if (!all_colors)
+	failed("all_colors");
+    for (cp = 0; cp < max_colors; ++cp) {
+	color_content(cp,
+		      &all_colors[cp].red,
+		      &all_colors[cp].green,
+		      &all_colors[cp].blue);
+    }
+    /* xterm and compatible terminals can read results of an OSC string
+     * asking for the current color palette.
+     */
+    if (xterm_colors) {
+	int n;
+	int got;
+	char result[BUFSIZ];
+	int check_n, check_r, check_g, check_b;
+
+	raw();
+	noecho();
+	for (n = 0; n < max_colors; ++n) {
+	    fprintf(stderr, "\033]4;%d;?\007", n);
+	    got = (int) read(0, result, sizeof(result) - 1);
+	    if (got < 0)
+		break;
+	    result[got] = '\0';
+	    if (sscanf(result, "\033]4;%d;rgb:%x/%x/%x\007",
+		       &check_n,
+		       &check_r,
+		       &check_g,
+		       &check_b) == 4 &&
+		check_n == n) {
+		all_colors[n].red = DecodeRGB(check_r);
+		all_colors[n].green = DecodeRGB(check_g);
+		all_colors[n].blue = DecodeRGB(check_b);
+	    } else {
+		break;
+	    }
+	}
+	reset_prog_mode();
+    }
+    if (palette_file != 0) {
+	FILE *fp = fopen(palette_file, "r");
+	if (fp != 0) {
+	    char buffer[BUFSIZ];
+	    int red, green, blue;
+	    int scale = 1000;
+	    int c;
+	    while (fgets(buffer, sizeof(buffer), fp) != 0) {
+		if (sscanf(buffer, "scale:%d", &c) == 1) {
+		    scale = c;
+		} else if (sscanf(buffer, "%d:%d %d %d",
+				  &c,
+				  &red,
+				  &green,
+				  &blue) == 4
+			   && okCOLOR(c)
+			   && okRGB(red)
+			   && okRGB(green)
+			   && okRGB(blue)) {
+#define Scaled(n) (NCURSES_COLOR_T) (((n) * 1000) / scale)
+		    all_colors[c].red = Scaled(red);
+		    all_colors[c].green = Scaled(green);
+		    all_colors[c].blue = Scaled(blue);
+		}
+	    }
+	    fclose(fp);
+	}
+    }
+}
+
 #define scaled_rgb(n) ((255 * (n)) / 1000)
 
 static void
@@ -2670,14 +2754,23 @@ color_edit(void)
 /* display the color test pattern, without trying to edit colors */
 {
     int i;
-    int current = 0;
-    int this_c = 0, value = 0, field = 0;
+    int current;
+    int this_c, value, field;
     int last_c;
-    int top_color = 0;
-    int page_size = (LINES - 6);
+    int top_color;
+    int page_size;
 
-    init_all_colors();
-    refresh();
+    reset_all_colors();
+#ifdef KEY_RESIZE
+  retry:
+#endif
+    current = 0;
+    this_c = 0;
+    value = 0;
+    field = 0;
+    top_color = 0;
+    page_size = (LINES - 6);
+    erase();
 
     for (i = 0; i < max_colors; i++)
 	init_pair((NCURSES_PAIRS_T) i,
@@ -2746,6 +2839,21 @@ color_edit(void)
 	    value = 0;
 
 	switch (this_c) {
+#ifdef KEY_RESIZE
+	case KEY_RESIZE:
+	    move(0, 0);
+	    goto retry;
+#endif
+	case '!':
+	    ShellOut(FALSE);
+	    /* FALLTHRU */
+	case CTRL('r'):
+	    endwin();
+	    refresh();
+	    break;
+	case CTRL('l'):
+	    refresh();
+	    break;
 	case CTRL('b'):
 	case KEY_PPAGE:
 	    if (current > 0)
@@ -2772,10 +2880,12 @@ color_edit(void)
 	    current = (current == (max_colors - 1) ? 0 : current + 1);
 	    break;
 
+	case '\t':
 	case KEY_RIGHT:
 	    field = (field == 2 ? 0 : field + 1);
 	    break;
 
+	case KEY_BTAB:
 	case KEY_LEFT:
 	    field = (field == 0 ? 2 : field - 1);
 	    break;
@@ -2818,6 +2928,8 @@ color_edit(void)
 	    P("To increment or decrement a value, use the same procedure, but finish");
 	    P("with a `+' or `-'.");
 	    P("");
+	    P("Use `!' to shell-out, ^R or ^L to repaint the screen.");
+	    P("");
 	    P("Press 'm' to invoke the top-level menu with the current color settings.");
 	    P("To quit, do ESC");
 
@@ -2855,14 +2967,14 @@ color_edit(void)
 	MvPrintw(LINES - 1, 0, "Number: %d", value);
 	clrtoeol();
     } while
-	(!isQuit(this_c));
+	(!isQuit(this_c, TRUE));
 
     erase();
 
     /*
      * ncurses does not reset each color individually when calling endwin().
      */
-    init_all_colors();
+    reset_all_colors();
 
     endwin();
 }
@@ -3115,7 +3227,7 @@ slk_test(void)
 	    beep();
 	    break;
 	}
-    } while (!isQuit(c = Getchar()));
+    } while (!isQuit(c = Getchar(), TRUE));
 
   done:
     slk_clear();
@@ -3269,7 +3381,7 @@ wide_slk_test(void)
 	    beep();
 	    break;
 	}
-    } while (!isQuit(c = Getchar()));
+    } while (!isQuit(c = Getchar(), TRUE));
 
   done:
     slk_clear();
@@ -3609,7 +3721,7 @@ acs_display(void)
 		     my_list[at_code].name);
 	}
 	refresh();
-    } while (!isQuit(c = Getchar()));
+    } while (!isQuit(c = Getchar(), TRUE));
 
     Pause();
     erase();
@@ -4144,7 +4256,7 @@ wide_acs_display(void)
 		     my_list[at_code].name);
 	}
 	refresh();
-    } while (!isQuit(c = Getchar()));
+    } while (!isQuit(c = Getchar(), TRUE));
 
     Pause();
     erase();
@@ -4254,13 +4366,10 @@ FRAME
     WINDOW *wind;
 };
 
-#if defined(NCURSES_VERSION)
-#if (NCURSES_VERSION_PATCH < 20070331) && NCURSES_EXT_FUNCS
+#if defined(NCURSES_VERSION) && NCURSES_EXT_FUNCS
+#if (NCURSES_VERSION_PATCH < 20070331)
 #define is_keypad(win)   (win)->_use_keypad
 #define is_scrollok(win) (win)->_scroll
-#elif !defined(is_keypad)
-#define is_keypad(win)   FALSE
-#define is_scrollok(win) FALSE
 #endif
 #else
 #define is_keypad(win)   FALSE
@@ -4296,46 +4405,26 @@ HaveScroll(FRAME * curp)
 static void
 newwin_legend(FRAME * curp)
 {
+#define DATA(num, name) { name, num }
     static const struct {
 	const char *msg;
 	int code;
     } legend[] = {
-	{
-	    "^C = create window", 0
-	},
-	{
-	    "^N = next window", 0
-	},
-	{
-	    "^P = previous window", 0
-	},
-	{
-	    "^F = scroll forward", 0
-	},
-	{
-	    "^B = scroll backward", 0
-	},
-	{
-	    "^K = keypad(%s)", 1
-	},
-	{
-	    "^S = scrollok(%s)", 2
-	},
-	{
-	    "^W = save window to file", 0
-	},
-	{
-	    "^R = restore window", 0
-	},
+	DATA(0, "^C = create window"),
+	    DATA(0, "^N = next window"),
+	    DATA(0, "^P = previous window"),
+	    DATA(0, "^F = scroll forward"),
+	    DATA(0, "^B = scroll backward"),
+	    DATA(1, "^K = keypad(%s)"),
+	    DATA(2, "^S = scrollok(%s)"),
+	    DATA(0, "^W = save window"),
+	    DATA(0, "^R = restore window"),
 #if HAVE_WRESIZE
-	{
-	    "^X = resize", 0
-	},
+	    DATA(0, "^X = resize"),
 #endif
-	{
-	    "^Q%s = exit", 3
-	}
+	    DATA(3, "^Q%s = exit")
     };
+#undef DATA
     size_t n;
     int x;
     bool do_keypad = HaveKeypad(curp);
@@ -4645,10 +4734,14 @@ acs_and_scroll(void)
 	    } else if ((fp = fopen(DUMPFILE, "w")) == (FILE *) 0) {
 		transient(current, "Can't open screen dump file");
 	    } else {
-		(void) putwin(frame_win(current), fp);
+		int rc = putwin(frame_win(current), fp);
 		(void) fclose(fp);
 
-		current = delete_framed(current, TRUE);
+		if (rc == OK) {
+		    current = delete_framed(current, TRUE);
+		} else {
+		    transient(current, "Can't write screen dump file");
+		}
 	    }
 	    break;
 
@@ -4734,12 +4827,6 @@ acs_and_scroll(void)
 	    break;
 #endif /* HAVE_WRESIZE */
 
-	case KEY_F(10):	/* undocumented --- use this to test area clears */
-	    selectcell(0, 0, LINES - 1, COLS - 1);
-	    clrtobot();
-	    refresh();
-	    break;
-
 	case KEY_UP:
 	    newwin_move(current, -1, 0);
 	    break;
@@ -4783,7 +4870,7 @@ acs_and_scroll(void)
 	usescr = frame_win(current);
 	wrefresh(usescr);
     } while
-	(!isQuit(c = wGetchar(usescr))
+	(!isQuit(c = wGetchar(usescr), TRUE)
 	 && (c != ERR));
 
   breakout:
@@ -6675,7 +6762,7 @@ overlap_test(void)
     memset(flavor, 0, sizeof(flavor));
     state = overlap_help(0, flavor);
 
-    while (!isQuit(ch = Getchar()))
+    while (!isQuit(ch = Getchar(), TRUE))
 	switch (ch) {
 	case 'a':		/* refresh window A first, then B */
 	    overlap_test_0(win1, win2);
@@ -6923,6 +7010,7 @@ usage(void)
 #ifdef TRACE
 	,"  -t mask  specify default trace-level (may toggle with ^T)"
 #endif
+	,"  -x       use xterm-compatible control for reading color palette"
     };
     size_t n;
     for (n = 0; n < SIZEOF(tbl); n++)
@@ -7088,9 +7176,6 @@ main_menu(bool top)
 	main(argc,argv)
 --------------------------------------------------------------------------*/
 
-#define okCOLOR(n) ((n) >= 0 && (n) < max_colors)
-#define okRGB(n)   ((n) >= 0 && (n) <= 1000)
-
 int
 main(int argc, char *argv[])
 {
@@ -7104,10 +7189,11 @@ main(int argc, char *argv[])
 #endif
     char *palette_file = 0;
     bool monochrome = FALSE;
+    bool xterm_colors = FALSE;
 
     setlocale(LC_ALL, "");
 
-    while ((c = getopt(argc, argv, "a:dEe:fhmp:s:Tt:")) != -1) {
+    while ((c = getopt(argc, argv, "a:dEe:fhmp:s:Tt:x")) != -1) {
 	switch (c) {
 #ifdef NCURSES_VERSION
 	case 'a':
@@ -7169,6 +7255,9 @@ main(int argc, char *argv[])
 	    save_trace = (unsigned) strtol(optarg, 0, 0);
 	    break;
 #endif
+	case 'x':
+	    xterm_colors = TRUE;
+	    break;
 	default:
 	    usage();
 	}
@@ -7203,6 +7292,9 @@ main(int argc, char *argv[])
     initscr();
     bkgdset(BLANK);
 
+    set_terminal_modes();
+    def_prog_mode();
+
     /* tests, in general, will want these modes */
     use_colors = (bool) (monochrome ? FALSE : has_colors());
 
@@ -7226,47 +7318,9 @@ main(int argc, char *argv[])
 	max_pairs = COLOR_PAIRS;	/* was > 256 ? 256 : COLOR_PAIRS */
 
 	if (can_change_color()) {
-	    NCURSES_PAIRS_T cp;
-	    all_colors = typeMalloc(RGB_DATA, (unsigned) max_colors);
-	    if (!all_colors)
-		failed("all_colors");
-	    for (cp = 0; cp < max_colors; ++cp) {
-		color_content(cp,
-			      &all_colors[cp].red,
-			      &all_colors[cp].green,
-			      &all_colors[cp].blue);
-	    }
-	    if (palette_file != 0) {
-		FILE *fp = fopen(palette_file, "r");
-		if (fp != 0) {
-		    char buffer[BUFSIZ];
-		    int red, green, blue;
-		    int scale = 1000;
-		    while (fgets(buffer, sizeof(buffer), fp) != 0) {
-			if (sscanf(buffer, "scale:%d", &c) == 1) {
-			    scale = c;
-			} else if (sscanf(buffer, "%d:%d %d %d",
-					  &c,
-					  &red,
-					  &green,
-					  &blue) == 4
-				   && okCOLOR(c)
-				   && okRGB(red)
-				   && okRGB(green)
-				   && okRGB(blue)) {
-#define Scaled(n) (NCURSES_COLOR_T) (((n) * 1000) / scale)
-			    all_colors[c].red = Scaled(red);
-			    all_colors[c].green = Scaled(green);
-			    all_colors[c].blue = Scaled(blue);
-			}
-		    }
-		    fclose(fp);
-		}
-	    }
+	    init_all_colors(xterm_colors, palette_file);
 	}
     }
-    set_terminal_modes();
-    def_prog_mode();
 
     /*
      * Return to terminal mode, so we're guaranteed of being able to

@@ -29,7 +29,7 @@
 /*
  * Author:  Thomas E. Dickey 1998
  *
- * $Id: filter.c,v 1.22 2016/03/13 00:41:43 tom Exp $
+ * $Id: filter.c,v 1.24 2016/04/16 22:11:03 tom Exp $
  *
  * An example of the 'filter()' function in ncurses, this program prompts
  * for commands and executes them (like a command shell).  It illustrates
