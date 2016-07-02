@@ -8,6 +8,7 @@ ncurses (6.0+20160625-1) UNRELEASED; urgency=low
       special case used in _nc_screen_wrap (report by Dick Streefland,
       Closes: #816887).
   * Update xterm.ti from xterm 325.
+  * Enable the bindnow hardening flag.
 
  -- Sven Joachim <svenjoac@gmx.de>  Sun, 26 Jun 2016 20:32:27 +0200
 
