@@ -441,7 +441,7 @@ binary-arch: build install $(autogen-files)
 	dh_install -p$(package-bin) -Xncurses5-config -Xncursesw5-config
 	dh_install -a -N$(package-bin) --fail-missing
 	dh_installman -a
-	dh_installdocs -p$(package-bin) -p$(package-ti) -p$(package-examples) debian/FAQ
+	dh_installdocs -p$(package-ti) -p$(package-bin) -p$(package-examples) debian/FAQ
 	dh_installdocs -a -N$(package-bin) -N$(package-ti) -N$(package-examples) \
 		       -N$(package-lib-32) -N$(package-libw-32) -N$(package-dev-32) \
 		       -N$(package-devw-32) -N$(package-devti-32) -N$(package-ti-32) \
