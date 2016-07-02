@@ -10,6 +10,7 @@ ncurses (6.0+20160625-1) UNRELEASED; urgency=low
   * Update xterm.ti from xterm 325.
   * Enable the bindnow hardening flag.
   * Really install the Debian FAQ into the libtinfo5 package.
+  * Update links in the Debian FAQ.
 
  -- Sven Joachim <svenjoac@gmx.de>  Sun, 26 Jun 2016 20:32:27 +0200
 
