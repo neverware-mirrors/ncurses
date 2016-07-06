@@ -1,4 +1,4 @@
-ncurses (6.0+20160625-1) UNRELEASED; urgency=low
+ncurses (6.0+20160625-1) unstable; urgency=low
 
   * New upstream patchlevel.
     - Make linux3.0 entry the default linux entry (Closes: #823658, #515609).
@@ -12,7 +12,7 @@ ncurses (6.0+20160625-1) UNRELEASED; urgency=low
   * Really install the Debian FAQ into the libtinfo5 package.
   * Update links in the Debian FAQ.
 
- -- Sven Joachim <svenjoac@gmx.de>  Sun, 26 Jun 2016 20:32:27 +0200
+ -- Sven Joachim <svenjoac@gmx.de>  Wed, 06 Jul 2016 18:00:26 +0200
 
 ncurses (6.0+20160319-2) unstable; urgency=low
 
