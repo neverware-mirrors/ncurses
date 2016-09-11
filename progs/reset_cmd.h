@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright (c) 2011-2012,2016 Free Software Foundation, Inc.              *
+ * Copyright (c) 2016 Free Software Foundation, Inc.                        *
  *                                                                          *
  * Permission is hereby granted, free of charge, to any person obtaining a  *
  * copy of this software and associated documentation files (the            *
@@ -25,79 +25,44 @@
  * sale, use or other dealings in this Software without prior written       *
  * authorization.                                                           *
  ****************************************************************************/
+
+/****************************************************************************
+ *  Author: Thomas E Dickey                                                 *
+ ****************************************************************************/
+
 /*
- * $Id: color_name.h,v 1.5 2016/09/04 20:11:36 tom Exp $
+ * $Id: reset_cmd.h,v 1.5 2016/08/06 20:09:34 tom Exp $
+ *
+ * Utility functions for resetting terminal.
  */
+#ifndef RESET_CMD_H
+#define RESET_CMD_H 1
+/* *INDENT-OFF* */
 
-#ifndef __COLORNAME_H
-#define __COLORNAME_H 1
+#define USE_LIBTINFO
+#define __INTERNAL_CAPS_VISIBLE	/* we need to see has_hardware_tabs */
+#include <progs.priv.h>
 
-#ifndef __TEST_PRIV_H
-#include <test.priv.h>
+#undef CTRL
+#define CTRL(x)	((x) & 0x1f)
+
+extern bool send_init_strings(TTY * /* old_settings */);
+extern int save_tty_settings(TTY * /* tty_settings */);
+extern void print_tty_chars(TTY * /* old_settings */, TTY * /* new_settings */);
+extern void reset_flush(void);
+extern void reset_start(FILE * /* fp */, bool /* is_reset */, bool /* is_init */ );
+extern void reset_tty_settings(TTY * /* tty_settings */);
+extern void restore_tty_settings(void);
+extern void set_control_chars(TTY * /* tty_settings */, int /* erase */, int /* intr */, int /* kill */);
+extern void set_conversions(TTY * /* tty_settings */);
+extern void update_tty_settings(TTY * /* old_settings */, TTY * /* new_settings */);
+
+#if HAVE_SIZECHANGE
+extern void set_window_size(int /* fd */, int /* high */, int /* wide */);
 #endif
 
-static NCURSES_CONST char *the_color_names[] =
-{
-    "black",
-    "red",
-    "green",
-    "yellow",
-    "blue",
-    "magenta",
-    "cyan",
-    "white",
-    "BLACK",
-    "RED",
-    "GREEN",
-    "YELLOW",
-    "BLUE",
-    "MAGENTA",
-    "CYAN",
-    "WHITE"
-};
+extern const char *_nc_progname;
 
-#ifdef NEED_COLOR_CODE
-static int
-color_code(const char *color)
-{
-    int result = 0;
-    char *endp = 0;
-    size_t n;
+/* *INDENT-ON* */
 
-    if ((result = (int) strtol(color, &endp, 0)) >= 0
-	&& (endp == 0 || *endp == 0)) {
-	;
-    } else if (!strcmp(color, "default")) {
-	result = -1;
-    } else {
-	for (n = 0; n < SIZEOF(the_color_names); ++n) {
-	    if (!strcmp(the_color_names[n], color)) {
-		result = (int) n;
-		break;
-	    }
-	}
-    }
-    return result;
-}
-#endif /* NEED_COLOR_NAME */
-
-#ifdef NEED_COLOR_NAME
-static const char *
-color_name(int color)
-{
-    static char temp[20];
-    const char *result = 0;
-
-    if (color >= (int) SIZEOF(the_color_names)) {
-	_nc_SPRINTF(temp, _nc_SLIMIT(sizeof(result)) "%d", color);
-	result = temp;
-    } else if (color < 0) {
-	result = "default";
-    } else {
-	result = the_color_names[color];
-    }
-    return result;
-}
-#endif /* NEED_COLOR_NAME */
-
-#endif /* __COLORNAME_H */
+#endif /* RESET_CMD_H */
