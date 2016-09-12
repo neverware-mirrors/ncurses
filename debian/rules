@@ -53,6 +53,7 @@ tempdir=debian/tmp
 fulltempdir=$(workdir)/$(tempdir)
 
 srcdir=$(shell pwd)
+relsrcdir=..
 objdir=$(srcdir)/obj
 objdir-static=$(srcdir)/obj-static
 objdir-32=$(srcdir)/obj-32
@@ -192,7 +193,7 @@ config.guess-stamp:
 
 $(objdir)/config.status: config.guess-stamp
 	test -d $(objdir) || mkdir $(objdir)
-	cd $(objdir) && CFLAGS="$(CFLAGS)" $(srcdir)/configure \
+	cd $(objdir) && CFLAGS="$(CFLAGS)" $(relsrcdir)/configure \
 		$(CONFARGS) \
 		--with-progs \
 		--with-install-prefix=$(fulltempdir) \
@@ -200,7 +201,7 @@ $(objdir)/config.status: config.guess-stamp
 
 $(objdir-static)/config.status: config.guess-stamp
 	test -d $(objdir-static) || mkdir $(objdir-static)
-	cd $(objdir-static) && CFLAGS="$(CFLAGS)" $(srcdir)/configure \
+	cd $(objdir-static) && CFLAGS="$(CFLAGS)" $(relsrcdir)/configure \
 		$(CONFARGS) \
 		--without-shared \
 		--without-dlsym \
@@ -214,7 +215,7 @@ $(objdir-32)/config.status: config.guess-stamp
 	cf_cv_working_poll=yes; export cf_cv_working_poll; \
 	cd $(objdir-32) && CFLAGS="$(CFLAGS)" CC="$(HOST_CC) -m32" \
 		BUILD_CC="gcc" CXX="$(HOST_CXX) -m32" \
-		$(srcdir)/configure \
+		$(relsrcdir)/configure \
 		$(CONFARGS) \
 		--host=$(build_32_target) \
 		--without-gpm \
@@ -228,7 +229,7 @@ $(objdir-64)/config.status: config.guess-stamp
 	cf_cv_working_poll=yes; export cf_cv_working_poll; \
 	cd $(objdir-64) && CFLAGS="$(CFLAGS)" CC="$(HOST_CC) -m64" \
 		BUILD_CC="gcc" CXX="$(HOST_CXX) -m64" \
-		$(srcdir)/configure \
+		$(relsrcdir)/configure \
 		$(CONFARGS) \
 		--host=$(build_64_target) \
 		--without-gpm \
@@ -238,7 +239,7 @@ $(objdir-64)/config.status: config.guess-stamp
 $(objdir-debug)/config.status: config.guess-stamp
 	test -d $(objdir-debug) || mkdir $(objdir-debug)
 	cd $(objdir-debug) && \
-		CFLAGS="$(CFLAGS) -DTRACE" $(srcdir)/configure \
+		CFLAGS="$(CFLAGS) -DTRACE" $(relsrcdir)/configure \
 		$(CONFARGS) \
 		--without-normal \
 		--with-install-prefix=$(fulltempdir) \
@@ -246,7 +247,7 @@ $(objdir-debug)/config.status: config.guess-stamp
 
 $(wobjdir)/config.status: config.guess-stamp
 	test -d $(wobjdir) || mkdir $(wobjdir)
-	cd $(wobjdir) && CFLAGS="$(CFLAGS)" $(srcdir)/configure \
+	cd $(wobjdir) && CFLAGS="$(CFLAGS)" $(relsrcdir)/configure \
 		$(CONFARGS) \
 		--with-install-prefix=$(fulltempdir) \
 		--disable-overwrite --enable-widec \
@@ -254,7 +255,7 @@ $(wobjdir)/config.status: config.guess-stamp
 
 $(wobjdir-static)/config.status: config.guess-stamp
 	test -d $(wobjdir-static) || mkdir $(wobjdir-static)
-	cd $(wobjdir-static) && CFLAGS="$(CFLAGS)" $(srcdir)/configure \
+	cd $(wobjdir-static) && CFLAGS="$(CFLAGS)" $(relsrcdir)/configure \
 		$(CONFARGS) \
 		--without-shared \
 		--without-dlsym \
@@ -265,7 +266,7 @@ $(wobjdir-static)/config.status: config.guess-stamp
 $(wobjdir-debug)/config.status: config.guess-stamp
 	test -d $(wobjdir-debug) || mkdir $(wobjdir-debug)
 	cd $(wobjdir-debug) && \
-		CFLAGS="$(CFLAGS) -DTRACE" $(srcdir)/configure \
+		CFLAGS="$(CFLAGS) -DTRACE" $(relsrcdir)/configure \
 		$(CONFARGS) \
 		--without-normal \
 		--with-install-prefix=$(fulltempdir) \
@@ -279,7 +280,7 @@ $(wobjdir-32)/config.status: config.guess-stamp
 	cf_cv_working_poll=yes; export cf_cv_working_poll; \
 	cd $(wobjdir-32) && CFLAGS="$(CFLAGS)" CC="$(HOST_CC) -m32" \
 		BUILD_CC="gcc" BUILD_CPPFLAGS="-D_GNU_SOURCE" CXX="$(HOST_CXX) -m32" \
-		$(srcdir)/configure \
+		$(relsrcdir)/configure \
 		$(CONFARGS) \
 		--host=$(build_32_target) \
 		--without-gpm \
@@ -291,7 +292,7 @@ $(objdir-test)/config.status: build-wide config.guess-stamp
 	test -d $(objdir-test) || mkdir $(objdir-test)
 	cd $(objdir-test) && CFLAGS="$(CFLAGS)" \
 		PKG_CONFIG_LIBDIR=$(wobjdir)/usr/lib/$(DEB_HOST_MULTIARCH)/pkgconfig \
-		$(srcdir)/test/configure $(CONFARGS-TEST)
+		$(relsrcdir)/test/configure $(CONFARGS-TEST)
 
 build-arch build-indep: build
 
