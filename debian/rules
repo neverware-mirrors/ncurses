@@ -2,6 +2,11 @@
 # This file has gone through many maintainers.  Mostly rewritten
 # by Daniel Jacobowitz.
 
+ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
+    NUMJOBS = $(patsubst parallel=%,%,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
+    MAKEFLAGS += -j$(NUMJOBS) -Otarget
+endif
+
 CFLAGS := $(shell DEB_BUILD_MAINT_OPTIONS=hardening=+bindnow dpkg-buildflags --get CFLAGS)
 export CPPFLAGS := $(shell DEB_BUILD_MAINT_OPTIONS=hardening=+bindnow dpkg-buildflags --get CPPFLAGS)
 export CXXFLAGS := $(shell DEB_BUILD_MAINT_OPTIONS=hardening=+bindnow dpkg-buildflags --get CXXFLAGS)

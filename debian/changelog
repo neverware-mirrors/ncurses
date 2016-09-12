@@ -3,6 +3,7 @@ ncurses (6.0+20160910-1) UNRELEASED; urgency=low
   * New upstream patchlevel.
     - Trim trailing blanks from include/Caps*, to work around a problem
       in sed (Closes: #818067).
+  * Enable parallel builds.
 
  -- Sven Joachim <svenjoac@gmx.de>  Sun, 11 Sep 2016 11:17:47 +0200
 
