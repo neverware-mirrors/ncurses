@@ -1,9 +1,9 @@
-ncurses (6.0+20160917-1) UNRELEASED; urgency=medium
+ncurses (6.0+20160917-1) unstable; urgency=medium
 
   * New upstream patchlevel.
     - Fix typo in 20160910 changes (Closes: #837892, patch by Sven Joachim).
 
- -- Sven Joachim <svenjoac@gmx.de>  Mon, 19 Sep 2016 18:21:47 +0200
+ -- Sven Joachim <svenjoac@gmx.de>  Wed, 21 Sep 2016 18:37:15 +0200
 
 ncurses (6.0+20160910-1) unstable; urgency=low
 
