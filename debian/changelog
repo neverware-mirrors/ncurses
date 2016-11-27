@@ -1,3 +1,9 @@
+ncurses (6.0+20161126-1) UNRELEASED; urgency=low
+
+  * New upstream patchlevel.
+
+ -- Sven Joachim <svenjoac@gmx.de>  Sun, 27 Nov 2016 18:40:57 +0100
+
 ncurses (6.0+20160917-1) unstable; urgency=medium
 
   * New upstream patchlevel.
