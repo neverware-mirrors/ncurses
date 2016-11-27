@@ -48,7 +48,7 @@
 #include <parametrized.h>
 #include <transform.h>
 
-MODULE_ID("$Id: tic.c,v 1.223 2016/09/05 00:27:13 tom Exp $")
+MODULE_ID("$Id: tic.c,v 1.228 2016/11/26 22:01:41 tom Exp $")
 
 #define STDIN_NAME "<stdin>"
 
@@ -170,6 +170,7 @@ usage(void)
 #endif
 	DATA("  -U         suppress post-processing of entries")
 	DATA("  -V         print version")
+	DATA("  -W         wrap long strings according to -w[n] option")
 	DATA("  -v[n]      set verbosity level")
 	DATA("  -w[n]      set format width for translation output")
 #if NCURSES_XNAMES
@@ -700,6 +701,7 @@ main(int argc, char *argv[])
     bool suppress_untranslatable = FALSE;
     int quickdump = 0;
     bool quiet = FALSE;
+    bool wrap_strings = FALSE;
 
     log_fp = stderr;
 
@@ -725,7 +727,7 @@ main(int argc, char *argv[])
      * be optional.
      */
     while ((this_opt = getopt(argc, argv,
-			      "0123456789CDIKLNQR:TUVace:fGgo:qrstvwx")) != -1) {
+			      "0123456789CDIKLNQR:TUVWace:fGgo:qrstvwx")) != -1) {
 	if (isdigit(this_opt)) {
 	    switch (last_opt) {
 	    case 'Q':
@@ -801,6 +803,9 @@ main(int argc, char *argv[])
 	case 'V':
 	    puts(curses_version());
 	    ExitProgram(EXIT_SUCCESS);
+	case 'W':
+	    wrap_strings = TRUE;
+	    break;
 	case 'c':
 	    check_only = TRUE;
 	    break;
@@ -929,15 +934,18 @@ main(int argc, char *argv[])
 
     if (infodump || check_only) {
 	dump_init(tversion,
-		  smart_defaults
-		  ? outform
-		  : F_LITERAL,
-		  sortmode, width, height, debug_level, formatted ||
-		  check_only, check_only, quickdump);
+		  (smart_defaults
+		   ? outform
+		   : F_LITERAL),
+		  sortmode,
+		  wrap_strings, width, height,
+		  debug_level, formatted || check_only, check_only, quickdump);
     } else if (capdump) {
 	dump_init(tversion,
 		  outform,
-		  sortmode, width, height, debug_level, FALSE, FALSE, FALSE);
+		  sortmode,
+		  wrap_strings, width, height,
+		  debug_level, FALSE, FALSE, FALSE);
     }
 
     /* parse entries out of the source file */
@@ -1164,6 +1172,19 @@ check_colors(TERMTYPE *tp)
     }
 }
 
+static int
+csi_length(const char *value)
+{
+    int result = 0;
+
+    if (value[0] == '\033' && value[1] == '[') {
+	result = 2;
+    } else if (UChar(value[0]) == 0x9a) {
+	result = 1;
+    }
+    return result;
+}
+
 static char
 keypad_final(const char *string)
 {
@@ -1206,7 +1227,6 @@ check_ansi_cursor(char *list[4])
 {
     int j, k;
     int want;
-    size_t prefix = 0;
     size_t suffix;
     bool skip[4];
     bool repeated = FALSE;
@@ -1224,16 +1244,8 @@ check_ansi_cursor(char *list[4])
     }
     if (!repeated) {
 	char *up = list[1];
+	size_t prefix = csi_length(up);
 
-	if (UChar(up[0]) == '\033') {
-	    if (up[1] == '[') {
-		prefix = 2;
-	    } else {
-		prefix = 1;
-	    }
-	} else if (UChar(up[0]) == UChar('\233')) {
-	    prefix = 1;
-	}
 	if (prefix) {
 	    suffix = prefix;
 	    while (up[suffix] && isdigit(UChar(up[suffix])))
@@ -1757,6 +1769,159 @@ check_params(TERMTYPE *tp, const char *name, char *value)
 	for (n = 1; n < actual; n++) {
 	    if (!params[n])
 		_nc_warning("%s omits parameter %d", name, n);
+	}
+    }
+}
+
+static bool
+line_capability(const char *name)
+{
+    bool result = FALSE;
+    static const char *table[] =
+    {
+	"csr",			/* change_scroll_region          */
+	"clear",		/* clear_screen                  */
+	"ed",			/* clr_eos                       */
+	"cwin",			/* create_window                 */
+	"cup",			/* cursor_address                */
+	"cud1",			/* cursor_down                   */
+	"home",			/* cursor_home                   */
+	"mrcup",		/* cursor_mem_address            */
+	"ll",			/* cursor_to_ll                  */
+	"cuu1",			/* cursor_up                     */
+	"dl1",			/* delete_line                   */
+	"hd",			/* down_half_line                */
+	"flash",		/* flash_screen                  */
+	"ff",			/* form_feed                     */
+	"il1",			/* insert_line                   */
+	"nel",			/* newline                       */
+	"dl",			/* parm_delete_line              */
+	"cud",			/* parm_down_cursor              */
+	"indn",			/* parm_index                    */
+	"il",			/* parm_insert_line              */
+	"rin",			/* parm_rindex                   */
+	"cuu",			/* parm_up_cursor                */
+	"mc0",			/* print_screen                  */
+	"vpa",			/* row_address                   */
+	"ind",			/* scroll_forward                */
+	"ri",			/* scroll_reverse                */
+	"hu",			/* up_half_line                  */
+    };
+    size_t n;
+    for (n = 0; n < SIZEOF(table); ++n) {
+	if (!strcmp(name, table[n])) {
+	    result = TRUE;
+	    break;
+	}
+    }
+    return result;
+}
+
+/*
+ * Check for DEC VT100 private mode for reverse video.
+ */
+static const char *
+skip_DECSCNM(const char *value, int *flag)
+{
+    *flag = -1;
+    if (value != 0) {
+	int skip = csi_length(value);
+	fprintf(stderr, "test %d:%s\n", skip, value);
+	if (skip > 0 &&
+	    value[skip++] == '?' &&
+	    value[skip++] == '5') {
+	    if (value[skip] == 'h') {
+		*flag = 1;
+	    } else if (value[skip] == 'l') {
+		*flag = 0;
+	    }
+	    value += skip + 1;
+	}
+    }
+    return value;
+}
+
+static void
+check_delays(const char *name, const char *value)
+{
+    const char *p, *q;
+    const char *first = 0;
+    const char *last = 0;
+
+    for (p = value; *p != '\0'; ++p) {
+	if (p[0] == '$' && p[1] == '<') {
+	    const char *base = p + 2;
+	    const char *mark = 0;
+	    bool maybe = TRUE;
+	    bool mixed = FALSE;
+	    int proportional = 0;
+	    int mandatory = 0;
+
+	    first = p;
+
+	    for (q = base; *q != '\0'; ++q) {
+		if (*q == '>') {
+		    if (mark == 0)
+			mark = q;
+		    break;
+		} else if (*q == '*' || *q == '/') {
+		    if (*q == '*')
+			++proportional;
+		    if (*q == '/')
+			++mandatory;
+		    if (mark == 0)
+			mark = q;
+		} else if (!(isalnum(UChar(*q)) || strchr("+-.", *q) != 0)) {
+		    maybe = FALSE;
+		    break;
+		} else if (proportional || mandatory) {
+		    mixed = TRUE;
+		}
+	    }
+	    last = *q ? (q + 1) : q;
+	    if (*q == '\0') {
+		maybe = FALSE;	/* just an isolated "$<" */
+	    } else if (maybe) {
+		float check_f;
+		char check_c;
+		int rc = sscanf(base, "%f%c", &check_f, &check_c);
+		if ((rc != 2) || (check_c != *mark) || mixed) {
+		    _nc_warning("syntax error in %s delay '%.*s'", name,
+				(int) (q - base), base);
+		} else if (*name == 'k') {
+		    _nc_warning("function-key %s has delay", name);
+		} else if (proportional && !line_capability(name)) {
+		    _nc_warning("non-line capability using proportional delay: %s", name);
+		}
+	    } else {
+		p = q - 1;	/* restart scan */
+	    }
+	}
+    }
+
+    if (!strcmp(name, "flash") ||
+	!strcmp(name, "beep")) {
+
+	if (first != 0) {
+	    if (first == value || *last == 0) {
+		/*
+		 * Delay is on one end or the other.
+		 */
+		_nc_warning("expected delay embedded within %s", name);
+	    }
+	} else {
+	    int flag;
+
+	    /*
+	     * Check for missing delay when using VT100 reverse-video.
+	     * A real VT100 might not need this, but terminal emulators do.
+	     */
+	    if ((p = skip_DECSCNM(value, &flag)) != 0 &&
+		flag > 0 &&
+		(q = skip_DECSCNM(p, &flag)) != 0 &&
+		flag == 0) {
+		_nc_warning("expected a delay in %s", name);
+	    }
 	}
     }
 }
@@ -2293,15 +2458,13 @@ is_sgr_string(char *value)
     bool result = FALSE;
 
     if (VALID_STRING(value)) {
-	if (value[0] == '\033' && value[1] == '[') {
-	    result = TRUE;
-	    value += 2;
-	} else if (UChar(value[0]) == 0x9a) {
-	    result = TRUE;
-	    value += 1;
-	}
-	if (result) {
+	int skip = csi_length(value);
+
+	if (skip) {
 	    int ch;
+
+	    result = TRUE;
+	    value += skip;
 	    while ((ch = UChar(*value++)) != '\0') {
 		if (isdigit(ch) || ch == ';') {
 		    ;
@@ -2380,6 +2543,7 @@ check_termtype(TERMTYPE *tp, bool literal)
 	char *a = tp->Strings[j];
 	if (VALID_STRING(a)) {
 	    check_params(tp, ExtStrname(tp, (int) j, strnames), a);
+	    check_delays(ExtStrname(tp, (int) j, strnames), a);
 	    if (capdump) {
 		check_infotocap(tp, (int) j, a);
 	    }

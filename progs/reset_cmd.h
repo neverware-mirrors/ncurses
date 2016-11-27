@@ -31,7 +31,7 @@
  ****************************************************************************/
 
 /*
- * $Id: reset_cmd.h,v 1.5 2016/08/06 20:09:34 tom Exp $
+ * $Id: reset_cmd.h,v 1.6 2016/10/22 23:34:37 tom Exp $
  *
  * Utility functions for resetting terminal.
  */
@@ -58,7 +58,7 @@ extern void set_conversions(TTY * /* tty_settings */);
 extern void update_tty_settings(TTY * /* old_settings */, TTY * /* new_settings */);
 
 #if HAVE_SIZECHANGE
-extern void set_window_size(int /* fd */, int /* high */, int /* wide */);
+extern void set_window_size(int /* fd */, short * /* high */, short * /* wide */);
 #endif
 
 extern const char *_nc_progname;
