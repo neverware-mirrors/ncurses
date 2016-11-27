@@ -1,6 +1,9 @@
 ncurses (6.0+20161126-1) UNRELEASED; urgency=low
 
   * New upstream patchlevel.
+    - Omit selection of ISO-8859-1 for G0 in enacs capability from
+      linux2.6 entry, to avoid conflict with the user-defined mapping
+      (Closes: #830694).
   * Update symbols files for new symbol unfocus_current_field.
 
  -- Sven Joachim <svenjoac@gmx.de>  Sun, 27 Nov 2016 18:40:57 +0100
