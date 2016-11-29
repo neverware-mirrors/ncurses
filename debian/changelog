@@ -1,4 +1,4 @@
-ncurses (6.0+20161126-1) UNRELEASED; urgency=low
+ncurses (6.0+20161126-1) unstable; urgency=low
 
   * New upstream patchlevel.
     - Omit selection of ISO-8859-1 for G0 in enacs capability from
@@ -6,7 +6,7 @@ ncurses (6.0+20161126-1) UNRELEASED; urgency=low
       (Closes: #830694).
   * Update symbols files for new symbol unfocus_current_field.
 
- -- Sven Joachim <svenjoac@gmx.de>  Sun, 27 Nov 2016 18:40:57 +0100
+ -- Sven Joachim <svenjoac@gmx.de>  Tue, 29 Nov 2016 21:19:08 +0100
 
 ncurses (6.0+20160917-1) unstable; urgency=medium
 
