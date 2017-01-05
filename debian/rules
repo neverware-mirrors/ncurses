@@ -290,6 +290,7 @@ $(wobjdir-32)/config.status: config.guess-stamp
 
 $(objdir-test)/config.status: build-wide config.guess-stamp
 	test -d $(objdir-test) || mkdir $(objdir-test)
+	export LD_LIBRARY_PATH=$${LD_LIBRARY_PATH}:$(wobjdir)/lib && \
 	cd $(objdir-test) && CFLAGS="$(CFLAGS)" \
 		PKG_CONFIG_LIBDIR=$(wobjdir)/usr/lib/$(DEB_HOST_MULTIARCH)/pkgconfig \
 		$(relsrcdir)/test/configure $(CONFARGS-TEST)
