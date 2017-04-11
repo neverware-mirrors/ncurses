@@ -474,10 +474,10 @@ endif
 	dh_strip -p$(package-libw) --dbg-package=$(package-dbgw)
 	dh_strip -p$(package-ti) --dbg-package=$(package-dbgti)
 	dh_lintian -a
+	dh_link -a
 	dh_compress -p$(package-examples) usr/lib/ncurses/examples/README
 	dh_compress -a -N$(package-examples)
 	dh_fixperms -a
-	dh_link -a
 	dh_makeshlibs -p$(package-ti) -V "$(package-ti) $(sodepver)" --add-udeb=$(package-ti)-udeb -- -c4
 	dh_makeshlibs -p$(package-lib) -V "$(package-lib) $(sodepver)" -- -c4
 	dh_makeshlibs -p$(package-libw) -V "$(package-libw) $(sodepver)" -- -c4
@@ -511,9 +511,9 @@ binary-indep: build install $(autogen-files)
 	dh_install -i --fail-missing
 	dh_installdirs -i
 	dh_lintian -i
+	dh_link -i
 	dh_compress -i
 	dh_fixperms -i
-	dh_link -i
 	dh_gencontrol -i
 	dh_installdeb -i
 	dh_md5sums -i
