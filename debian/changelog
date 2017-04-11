@@ -1,6 +1,8 @@
 ncurses (6.0+20170408-1) UNRELEASED; urgency=low
 
   * New upstream patchlevel.
+    - Fix a memory leak in the window-list when creating multiple
+      screens (reports by Andres Martinelli, Closes: #783486).
   * Set LD_LIBRARY_PATH when building the test programs, fixes an
     impending FTBFS when we switch to libncursesw6 from libncursesw5.
 
