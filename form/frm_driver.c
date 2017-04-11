@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright (c) 1998-2015,2016 Free Software Foundation, Inc.              *
+ * Copyright (c) 1998-2016,2017 Free Software Foundation, Inc.              *
  *                                                                          *
  * Permission is hereby granted, free of charge, to any person obtaining a  *
  * copy of this software and associated documentation files (the            *
@@ -32,7 +32,7 @@
 
 #include "form.priv.h"
 
-MODULE_ID("$Id: frm_driver.c,v 1.119 2016/10/29 22:30:10 tom Exp $")
+MODULE_ID("$Id: frm_driver.c,v 1.121 2017/04/08 22:02:15 tom Exp $")
 
 /*----------------------------------------------------------------------------
   This is the core module of the form library. It contains the majority
@@ -1275,7 +1275,8 @@ _nc_Synchronize_Attributes(FIELD *field)
 	      copywin(form->w, formwin,
 		      0, 0,
 		      field->frow, field->fcol,
-		      field->rows - 1, field->cols - 1, 0);
+		      field->frow + field->rows - 1,
+		      field->fcol + field->cols - 1, 0);
 	      wsyncup(formwin);
 	      Buffer_To_Window(field, form->w);
 	      SetStatus(field, _NEWTOP);	/* fake refresh to paint all */
@@ -4044,7 +4045,7 @@ Data_Entry_w(FORM *form, wchar_t c)
       cchar_t temp_ch;
 
       given[0] = c;
-      given[1] = 1;
+      given[1] = 0;
       setcchar(&temp_ch, given, 0, 0, (void *)0);
       if ((Field_Has_Option(field, O_BLANK)) &&
 	  First_Position_In_Current_Field(form) &&

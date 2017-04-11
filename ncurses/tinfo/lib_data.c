@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright (c) 1998-2013,2016 Free Software Foundation, Inc.              *
+ * Copyright (c) 1998-2016,2017 Free Software Foundation, Inc.              *
  *                                                                          *
  * Permission is hereby granted, free of charge, to any person obtaining a  *
  * copy of this software and associated documentation files (the            *
@@ -42,7 +42,7 @@
 
 #include <curses.priv.h>
 
-MODULE_ID("$Id: lib_data.c,v 1.68 2016/11/21 23:29:14 tom Exp $")
+MODULE_ID("$Id: lib_data.c,v 1.71 2017/03/31 17:06:34 tom Exp $")
 
 /*
  * OS/2's native linker complains if we don't initialize public data when
@@ -94,7 +94,9 @@ _nc_screen(void)
 NCURSES_EXPORT(int)
 _nc_alloc_screen(void)
 {
-    return ((my_screen = _nc_alloc_screen_sp()) != 0);
+    my_screen = _nc_alloc_screen_sp();
+    T(("_nc_alloc_screen_sp %p", my_screen));
+    return (my_screen != 0);
 }
 
 NCURSES_EXPORT(void)
@@ -168,6 +170,7 @@ NCURSES_EXPORT_VAR(NCURSES_GLOBALS) _nc_globals = {
 #endif
 
 #ifdef TRACE
+    FALSE,			/* trace_opened */
     CHARS_0s,			/* trace_fname */
     0,				/* trace_level */
     NULL,			/* trace_fp */
@@ -203,6 +206,9 @@ NCURSES_EXPORT_VAR(NCURSES_GLOBALS) _nc_globals = {
 #endif
 #if USE_PTHREADS_EINTR
     0,				/* read_thread */
+#endif
+#if USE_WIDEC_SUPPORT
+    CHARS_0s,			/* key_name */
 #endif
 };
 
@@ -371,7 +377,7 @@ _nc_sigprocmask(int how, const sigset_t * newmask, sigset_t * oldmask)
     if ((pthread_sigmask))
 	return pthread_sigmask(how, newmask, oldmask);
     else
-	return (sigprocmask)(how, newmask, oldmask);
+	return (sigprocmask) (how, newmask, oldmask);
 }
 #endif
 #endif /* USE_PTHREADS */

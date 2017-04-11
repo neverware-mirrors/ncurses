@@ -1,5 +1,5 @@
 dnl***************************************************************************
-dnl Copyright (c) 2003-2015,2016 Free Software Foundation, Inc.              *
+dnl Copyright (c) 2003-2016,2017 Free Software Foundation, Inc.              *
 dnl                                                                          *
 dnl Permission is hereby granted, free of charge, to any person obtaining a  *
 dnl copy of this software and associated documentation files (the            *
@@ -26,7 +26,7 @@ dnl sale, use or other dealings in this Software without prior written       *
 dnl authorization.                                                           *
 dnl***************************************************************************
 dnl
-dnl $Id: aclocal.m4,v 1.136 2016/10/08 21:36:55 tom Exp $
+dnl $Id: aclocal.m4,v 1.138 2017/02/26 00:37:04 tom Exp $
 dnl
 dnl Author: Thomas E. Dickey
 dnl
@@ -89,7 +89,7 @@ define([CF_ACVERSION_COMPARE],
 [ifelse([$8], , ,[$8])],
 [ifelse([$9], , ,[$9])])])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_ADD_CFLAGS version: 12 updated: 2015/04/12 15:39:00
+dnl CF_ADD_CFLAGS version: 13 updated: 2017/02/25 18:57:40
 dnl -------------
 dnl Copy non-preprocessor flags to $CFLAGS, preprocessor flags to $CPPFLAGS
 dnl The second parameter if given makes this macro verbose.
@@ -119,10 +119,10 @@ case $cf_fix_cppflags in
 				&& cf_fix_cppflags=yes
 
 			if test $cf_fix_cppflags = yes ; then
-				cf_new_extra_cppflags="$cf_new_extra_cppflags $cf_add_cflags"
+				CF_APPEND_TEXT(cf_new_extra_cppflags,$cf_add_cflags)
 				continue
 			elif test "${cf_tst_cflags}" = "\"'" ; then
-				cf_new_extra_cppflags="$cf_new_extra_cppflags $cf_add_cflags"
+				CF_APPEND_TEXT(cf_new_extra_cppflags,$cf_add_cflags)
 				continue
 			fi
 			;;
@@ -137,17 +137,17 @@ case $cf_fix_cppflags in
 				CF_REMOVE_DEFINE(CPPFLAGS,$CPPFLAGS,$cf_tst_cppflags)
 				;;
 			esac
-			cf_new_cppflags="$cf_new_cppflags $cf_add_cflags"
+			CF_APPEND_TEXT(cf_new_cppflags,$cf_add_cflags)
 			;;
 		esac
 		;;
 	(*)
-		cf_new_cflags="$cf_new_cflags $cf_add_cflags"
+		CF_APPEND_TEXT(cf_new_cflags,$cf_add_cflags)
 		;;
 	esac
 	;;
 (yes)
-	cf_new_extra_cppflags="$cf_new_extra_cppflags $cf_add_cflags"
+	CF_APPEND_TEXT(cf_new_extra_cppflags,$cf_add_cflags)
 
 	cf_tst_cflags=`echo ${cf_add_cflags} |sed -e 's/^[[^"]]*"'\''//'`
 
@@ -160,17 +160,17 @@ done
 
 if test -n "$cf_new_cflags" ; then
 	ifelse([$2],,,[CF_VERBOSE(add to \$CFLAGS $cf_new_cflags)])
-	CFLAGS="$CFLAGS $cf_new_cflags"
+	CF_APPEND_TEXT(CFLAGS,$cf_new_cflags)
 fi
 
 if test -n "$cf_new_cppflags" ; then
 	ifelse([$2],,,[CF_VERBOSE(add to \$CPPFLAGS $cf_new_cppflags)])
-	CPPFLAGS="$CPPFLAGS $cf_new_cppflags"
+	CF_APPEND_TEXT(CPPFLAGS,$cf_new_cppflags)
 fi
 
 if test -n "$cf_new_extra_cppflags" ; then
 	ifelse([$2],,,[CF_VERBOSE(add to \$EXTRA_CPPFLAGS $cf_new_extra_cppflags)])
-	EXTRA_CPPFLAGS="$cf_new_extra_cppflags $EXTRA_CPPFLAGS"
+	CF_APPEND_TEXT(EXTRA_CPPFLAGS,$cf_new_extra_cppflags)
 fi
 
 AC_SUBST(EXTRA_CPPFLAGS)
@@ -341,6 +341,16 @@ ifelse([$5],NONE,,[(test -z "$5" || test x$5 = xNONE || test "x$4" != "x$5") &&]
 }
 ])dnl
 dnl ---------------------------------------------------------------------------
+dnl CF_APPEND_TEXT version: 1 updated: 2017/02/25 18:58:55
+dnl --------------
+dnl use this macro for appending text without introducing an extra blank at
+dnl the beginning
+define([CF_APPEND_TEXT],
+[
+	test -n "[$]$1" && $1="[$]$1 "
+	$1="[$]{$1}$2"
+])dnl
+dnl ---------------------------------------------------------------------------
 dnl CF_ARG_DISABLE version: 3 updated: 1999/03/30 17:24:31
 dnl --------------
 dnl Allow user to disable a normally-on option.
@@ -376,7 +386,7 @@ ifelse([$3],,[    :]dnl
 ])dnl
 ])])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_CC_ENV_FLAGS version: 6 updated: 2016/08/29 20:57:00
+dnl CF_CC_ENV_FLAGS version: 7 updated: 2017/02/25 18:57:40
 dnl ---------------
 dnl Check for user's environment-breakage by stuffing CFLAGS/CPPFLAGS content
 dnl into CC.  This will not help with broken scripts that wrap the compiler
@@ -399,13 +409,14 @@ case "$CC" in
 	AC_MSG_RESULT(broken)
 	AC_MSG_WARN(your environment misuses the CC variable to hold CFLAGS/CPPFLAGS options)
 	# humor him...
-	cf_flags=`echo "$CC" | sed -e 's/^.*[[ 	]]\(-[[^ 	]]\)/\1/'`
-	CC=`echo "$CC " | sed -e 's/[[ 	]]-[[^ 	]].*$//' -e 's/[[ 	]]*$//'`
+	cf_prog=`echo "$CC" | sed -e 's/	/ /g' -e 's/[[ ]]* / /g' -e 's/[[ ]]*[[ ]]-[[^ ]].*//'`
+	cf_flags=`echo "$CC" | ${AWK:-awk} -v prog="$cf_prog" '{ printf("%s", substr([$]0,1+length(prog))); }'`
+	CC="$cf_prog"
 	for cf_arg in $cf_flags
 	do
 		case "x$cf_arg" in
 		(x-[[IUDfgOW]]*)
-			CF_ADD_CFLAGS($cf_flags)
+			CF_ADD_CFLAGS($cf_arg)
 			;;
 		(*)
 			CC="$CC $cf_arg"
@@ -1941,7 +1952,7 @@ AC_SUBST(MAKE_UPPER_TAGS)
 AC_SUBST(MAKE_LOWER_TAGS)
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_MATH_LIB version: 8 updated: 2010/05/29 16:31:02
+dnl CF_MATH_LIB version: 9 updated: 2017/01/21 11:06:25
 dnl -----------
 dnl Checks for libraries.  At least one UNIX system, Apple Macintosh
 dnl Rhapsody 5.5, does not have -lm.  We cannot use the simpler
@@ -1952,6 +1963,7 @@ AC_CACHE_CHECK(if -lm needed for math functions,
 	cf_cv_need_libm,[
 	AC_TRY_LINK([
 	#include <stdio.h>
+	#include <stdlib.h>
 	#include <math.h>
 	],
 	[double x = rand(); printf("result = %g\n", ]ifelse([$2],,sin(x),$2)[)],

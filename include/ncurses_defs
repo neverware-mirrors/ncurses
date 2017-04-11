@@ -1,6 +1,6 @@
-# $Id: ncurses_defs,v 1.70 2016/09/04 18:32:17 tom Exp $
+# $Id: ncurses_defs,v 1.72 2017/03/31 13:00:11 tom Exp $
 ##############################################################################
-# Copyright (c) 2000-2015,2016 Free Software Foundation, Inc.                #
+# Copyright (c) 2000-2016,2017 Free Software Foundation, Inc.                #
 #                                                                            #
 # Permission is hereby granted, free of charge, to any person obtaining a    #
 # copy of this software and associated documentation files (the "Software"), #
@@ -41,11 +41,12 @@ DECL_ERRNO
 ETIP_NEEDS_MATH_H
 GCC_NORETURN	/* nothing */
 GCC_UNUSED	/* nothing */
+HAVE_ALLOC_PAIR
 HAVE_ASSUME_DEFAULT_COLORS
 HAVE_BIG_CORE
 HAVE_BSD_CGETENT
-HAVE_BSD_STRING_H
 HAVE_BSD_SIGNAL_H
+HAVE_BSD_STRING_H
 HAVE_BTOWC 
 HAVE_BUILTIN_H
 HAVE_CHGAT	1
@@ -71,6 +72,7 @@ HAVE_GPM_H
 HAVE_GPP_BUILTIN_H
 HAVE_GXX_BUILTIN_H
 HAVE_HAS_KEY
+HAVE_INIT_EXTENDED_COLOR
 HAVE_INTTYPES_H
 HAVE_IOSTREAM
 HAVE_ISASCII
@@ -157,6 +159,7 @@ HAVE_TGETENT	1
 HAVE_TIGETNUM	1
 HAVE_TIGETSTR	1
 HAVE_TIMES
+HAVE_TPUTS_SP
 HAVE_TTYENT_H
 HAVE_TYPEAHEAD	1
 HAVE_TYPEINFO

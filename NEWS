@@ -1,5 +1,5 @@
 -------------------------------------------------------------------------------
--- Copyright (c) 1998-2015,2016 Free Software Foundation, Inc.               --
+-- Copyright (c) 1998-2016,2017 Free Software Foundation, Inc.               --
 --                                                                           --
 -- Permission is hereby granted, free of charge, to any person obtaining a   --
 -- copy of this software and associated documentation files (the             --
@@ -25,7 +25,7 @@
 -- sale, use or other dealings in this Software without prior written        --
 -- authorization.                                                            --
 -------------------------------------------------------------------------------
--- $Id: NEWS,v 1.2703 2016/11/27 01:41:10 tom Exp $
+-- $Id: NEWS,v 1.2799 2017/04/08 22:54:04 tom Exp $
 -------------------------------------------------------------------------------
 
 This is a log of changes that ncurses has gone through since Zeyd started
@@ -38,12 +38,227 @@ Contributors include those who have provided patches (even small ones), as well
 as those who provide useful information (bug reports, analyses).  Changes with
 no cited author are the work of Thomas E Dickey (TD).
 
-A few contributors are given in this file by their initials.
-They each account for one percent or more of the changes since 1.9.9e.
+A few contributors may be cited in this file by their initials.
+Each accounts for half of one percent or more of the changes since 1.9.9e.
 See the AUTHORS file for the corresponding full names.
 
 Changes through 1.9.9e did not credit all contributions;
 it is not possible to add this information.
+
+20170408
+	+ change logic in wins_nwstr() to avoid addressing data past the output
+	  of mbstowcs().
+	+ correct a call to setcchar() in Data_Entry_w() from 20131207 changes.
+	+ fix minor memory-leaks in test-programs.
+	+ further improve ifdef in term_entry.h for internal definitions not
+	  used by tack.
+
+20170401
+	+ minor fixes for vt100+4bsd, e.g., delay in sgr for consistency -TD
+	+ add smso for env230, to match sgr -TD
+	+ remove p7/protect from sgr in fbterm -TD
+	+ drop setf/setb from fbterm; setaf/setab are enough -TD
+	+ make xterm-pcolor sgr consistent with other capabilities -TD
+	+ add rmxx/smxx ECMA-48 strikeout extension to tmux and xterm-basic
+	  (discussion with Nicholas Marriott)
+	+ add test-programs sp_tinfo and extended_color
+	+ modify no-leaks code for lib_cur_term.c to account for the tgetent()
+	  cache.
+	+ modify setupterm() to save original tty-modes so that erasechar()
+	  works as expected.  Also modify _nc_setupscreen() to avoid redundant
+	  calls to get original tty-modes.
+	+ modify set_curterm() to update ttytype[] data used by longname().
+	+ modify wattr_set() and wattr_get() to return ERR if win-parameter is
+	  null, as documented.
+	+ improve cast used for null-pointer checks in header macros, to
+	  reduce compiler warnings.
+	+ modify several functions, using the reserved "opts" parameter to pass
+	  color- and pair-values larger than 16-bits:
+	  + getcchar(), setcchar(), slk_attr_set(), vid_puts(), wattr_get(),
+	    wattr_set(), wchgat(), wcolor_set().
+	  + Other functions call these with the corresponding altered behavior,
+	    including chgat(), mvchgat(), mvwchgat(), slk_color_on(),
+	    slk_color_off(), vid_attr().
+	+ add new functions for manipulating color- and pair-values larger
+	  than 16-bits.  These are extended_color_content(),
+	  extended_pair_content(), extended_slk_color(), init_extended_color(),
+	  init_extended_pair(), and the corresponding sp-funcs.
+
+20170325
+	+ fix a memory leak in the window-list when creating multiple screens
+	  (reports by Andres Martinelli, Debian #783486).
+	+ reviewed calls from link_test.c, added a few more null-pointer
+	  checks.
+	+ add a null-pointer check in ungetmouse, in case mousemask was not
+	  called (report by "Kau").
+	+ updated curs_sp_funcs.3x for new functions.
+
+20170318
+	+ change TERMINAL structure in term.h to make it opaque.  Some
+	  applications misuse its members, e.g., directly modifying it
+	  rather than using def_prog_mode().
+	+ modify utility headers such as tic.h to make it clearer which are
+	  externals that are used by tack.
+	+ improve curs_slk.3x in particular its discussion of portability.
+	+ fix cut/paste in legacy_encoding.3x
+	+ add prototype for find_pair() to new_pair.3x (report by Branden
+	  Robinson).
+	+ fix a couple of broken links in generated man-html documentation.
+	+ regenerate man-html documentation.
+
+20170311
+	+ modify vt100 rs2 string to reset vt52 mode and scrolling regions
+	  (report/analysis by Robert King) -TD
+	+ add vt100+4bsd building block, use that for older terminals rather
+	  than "vt100" which is now mostly used as a building block for
+	  terminal emulators -TD
+	+ correct a few spelling errors in terminfo.src comments -TD
+	+ add fbterm -TD
+	+ fix a typo in ncurses.c test_attr legend (patch by Petr Vanek).
+	+ changed internal colorpair_t to a struct, eliminating an internal
+	  8-bit limit on colors
+	+ add ncurses/new_pair.h
+	+ add ncurses/base/new_pair.c with alloc_pair(), find_pair() and
+	  free_pair() functions
+	+ add test/demo_new_pair.c
+
+20170304
+	+ improve terminfo manual description of terminfo syntax.
+	+ clarify the use of wint_t vs wchar_t in curs_get_wstr.3x
+	+ improve description of endwin() in manual.
+	+ modify setcchar() and getcchar() to treat negative color-pair as an
+	  error.
+	+ fix a typo in include/hashed_db.h (Andre Sa).
+
+20170225
+	+ fixes for CF_CC_ENV_FLAGS (report by Ross Burton).
+
+20170218
+	+ fix several formatting issues with manual pages.
+	+ correct read of terminfo entry in which all strings are absent or
+	  explicitly cancelled.  Before this fix, the result was that all were
+	  treated as only absent.
+	+ modify infocmp to suppress mixture of absent/cancelled capabilities
+	  that would only show as "NULL, NULL", unless the -q option is used,
+	  e.g., to show "-, @" or "@, -".
+
+20170212
+	+ build-fixes for PGI compilers (report by Adam J. Stewart)
+	  + accept whitespace in sed expression for generating expanded.c
+	  + modify configure check that g++ compiler warnings are not used.
+	  + add configure check for -fPIC option needed for shared libraries.
+	+ let configure --disable-ext-funcs override the default for the
+	  --enable-sp-funcs option.
+	+ mark some structs in form/menu/panel libraries as potentially opaque
+	  without modifying API/ABI.
+	+ add configure option --enable-opaque-curses for ncurses library and
+	  similar options for the other libraries.
+
+20170204
+	+ trim newlines, tabs and escaped newlines from terminfo "paths" passed
+	  to db-iterator.
+	+ ignore zero-length files in db-iterator; these are useful for
+	  instance to suppress "$HOME/.terminfo" when not wanted.
+	+ amended "b64:" encoder to work with the terminfo reader.
+	+ modify terminfo reader to accept "b64:" format using RFC-3548 in
+	  as well as RFC-4648 url/filename-safe format.
+	+ modify terminfo reader to accept "hex:" format as generated by
+	  "infocmp -0qQ1" (cf: 20150905).
+	+ adjust authors comment to reflect drop below 1% for SV.
+
+20170128
+	+ minor comment-fixes to help automate links to bug-urls -TD
+	+ add dvtm, dvtm-256color -TD
+	+ add settings corresponding to xterm-keys option to tmux entry to
+	  reflect upcoming change to make that option "on" by default
+	  (patch by Nicholas Marriott).
+	+ uncancel Ms in tmux entry (Harry Gindi, Nicholas Marriott).
+	+ add dumb-emacs-ansi -TD
+
+20170121
+	+ improve discussion of early history of tput program.
+	+ incorporate A_COLOR mask into COLOR_PAIR(), in case user application
+	  provides an out-of-range pair number (report by Elijah Stone).
+	+ clarify description in tput manual page regarding support for
+	  termcap names (prompted by FreeBSD #214709).
+	+ remove a restriction in tput's support for termcap names which
+	  omitted capabilities normally not shown in termcap translations
+	  (cf: 990123).
+	+ modify configure script for clang as used on FreeBSD, to work around
+	  clang's differences in exit codes vs gcc.
+
+20170114
+	+ improve discussion of early history of tset/reset programs.
+	+ clarify in manual pages that the optional verbose option level is
+	  available only when ncurses is configured for tracing.
+	+ amend change from 20161231 to avoid writing traces to the standard
+	  error after initializing the trace feature using the environment
+	  variable.
+
+20170107
+	+ amend changes for tput to reset tty modes to "sane" if the program
+	  is run as "reset", like tset.  Likewise, ensure that tset sends
+	  either reset- or init-strings.
+	+ improve manual page descriptions of tput init/reset and tset/reset,
+	  to make it easier to see how they are similar and different.
+	+ move a static result from key_name() to _nc_globals
+	+ modify _nc_get_screensize to allow for use_env() and use_tioctl()
+	  state to be per-screen when sp-funcs are configured, better matching
+	  the behavior when using the term-driver configuration.
+	+ improve cross-references in manual pages for often used functions
+	+ move SCREEN field for use_tioctl() data before the ncursesw fields,
+	  and limit that to the sp-funcs configuration to improve termlib
+	  compatibility (cf:  20120714).
+	+ correct order of initialization for traces in use_env() and
+	  use_tioctl() versus first trace calls.
+
+20161231
+	+ fix errata for ncurses-howto (report by Damien Ruscoe).
+	+ fix a few places in configure/build scripts where DESTDIR and rpath
+	  were combined (report by Thomas Klausner).
+	+ merge current st description (report by Harry Gindi) -TD
+	+ modify flash capability for linux and wyse entries to put the delay
+	  between the reverse/normal escapes rather than after -TD
+	+ modify program tabs to pass the actual tty file descriptor to
+	  setupterm rather than the standard output, making padding work
+	  consistently.
+	+ explain in clear's manual page that it writes to stdout.
+	+ add special case for verbose debugging traces of command-line
+	  utilities which write to stderr (cf: 20161126).
+	+ remove a trace with literal escapes from skip_DECSCNM(), added in
+	  20161203.
+	+ update config.guess, config.sub from
+		http://git.savannah.gnu.org/cgit/config.git
+
+20161224
+	+ correct parmeters for copywin call in _nc_Synchronize_Attributes()
+	  (patch by Leon Winter).
+	+ improve color-handling section in terminfo manual page (prompted by
+	  patch by Mihail Konev).
+	+ modify programs clear, tput and tset to pass the actual tty file
+	  descriptor to setupterm rather than the standard output, making
+	  padding work.
+
+20161217
+	+ add tput-colorcube demo script.
+	+ add -r and -s options to tput-initc demo, to match usage in xterm.
+	+ flush the standard output in _nc_flush for the case where SP is zero,
+	  e.g., when called via putp.  This fixes a scenario where "tput flash"
+	  did not work after changes in 20130112.
+
+20161210
+	+ add configure script option --disable-wattr-macros for use in cases
+	  where one wants to use the same headers for ncurses5/ncurses6
+	  development, by suppressing the wattr* macros which differ due to
+	  the introduction of extended colors (prompted by comments in
+	  Debian #230990, Redhat #1270534).
+	+ add test/tput-initc to demonstrate tput used to initialize palette
+	  from a data file.
+	+ modify test/xterm*.dat to use the newer color4/color12 values.
+
+20161203
+	+ improve discussion of field validation in form_driver.3x manual page.
+	+ update curs_trace.3x manual page.
 
 20161126
 	+ modify linux-16color to not mask dim, standout or reverse with the

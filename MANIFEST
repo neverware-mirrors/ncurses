@@ -464,6 +464,7 @@
 ./doc/html/man/mitem_visible.3x.html
 ./doc/html/man/ncurses.3x.html
 ./doc/html/man/ncurses6-config.1.html
+./doc/html/man/new_pair.3x.html
 ./doc/html/man/panel.3x.html
 ./doc/html/man/resizeterm.3x.html
 ./doc/html/man/tabs.1.html
@@ -691,6 +692,7 @@
 ./man/mitem_value.3x
 ./man/mitem_visible.3x
 ./man/ncurses.3x
+./man/new_pair.3x
 ./man/panel.3x
 ./man/resizeterm.3x
 ./man/tabs.1
@@ -861,6 +863,7 @@
 ./ncurses/base/lib_winch.c
 ./ncurses/base/lib_window.c
 ./ncurses/base/nc_panel.c
+./ncurses/base/new_pair.c
 ./ncurses/base/resizeterm.c
 ./ncurses/base/safe_sprintf.c
 ./ncurses/base/sigaction.c
@@ -885,6 +888,7 @@
 ./ncurses/llib-ltinfotw
 ./ncurses/llib-ltinfow
 ./ncurses/modules
+./ncurses/new_pair.h
 ./ncurses/tinfo/MKcaptab.awk
 ./ncurses/tinfo/MKcaptab.sh
 ./ncurses/tinfo/MKcodes.awk
@@ -1064,6 +1068,8 @@
 ./progs/tput.c
 ./progs/transform.c
 ./progs/tset.c
+./progs/tty_settings.c
+./progs/tty_settings.h
 ./test/Makefile.in
 ./test/README
 ./test/aclocal.m4
@@ -1086,6 +1092,7 @@
 ./test/demo_forms.txt
 ./test/demo_keyok.c
 ./test/demo_menus.c
+./test/demo_new_pair.c
 ./test/demo_panels.c
 ./test/demo_termcap.c
 ./test/demo_terminfo.c
@@ -1097,6 +1104,7 @@
 ./test/echochar.c
 ./test/edit_field.c
 ./test/edit_field.h
+./test/extended_color.c
 ./test/filter.c
 ./test/firework.c
 ./test/firstlast.c
@@ -1155,6 +1163,7 @@
 ./test/redraw.c
 ./test/savescreen.c
 ./test/savescreen.sh
+./test/sp_tinfo.c
 ./test/tclock.c
 ./test/test.priv.h
 ./test/test_add_wchstr.c
@@ -1174,6 +1183,8 @@
 ./test/testaddch.c
 ./test/testcurs.c
 ./test/testscanw.c
+./test/tput-colorcube
+./test/tput-initc
 ./test/tracemunch
 ./test/view.c
 ./test/widechars-utf8.txt

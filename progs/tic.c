@@ -48,7 +48,7 @@
 #include <parametrized.h>
 #include <transform.h>
 
-MODULE_ID("$Id: tic.c,v 1.228 2016/11/26 22:01:41 tom Exp $")
+MODULE_ID("$Id: tic.c,v 1.230 2016/12/31 12:24:00 tom Exp $")
 
 #define STDIN_NAME "<stdin>"
 
@@ -1244,7 +1244,7 @@ check_ansi_cursor(char *list[4])
     }
     if (!repeated) {
 	char *up = list[1];
-	size_t prefix = csi_length(up);
+	size_t prefix = (size_t) csi_length(up);
 
 	if (prefix) {
 	    suffix = prefix;
@@ -1826,7 +1826,6 @@ skip_DECSCNM(const char *value, int *flag)
     *flag = -1;
     if (value != 0) {
 	int skip = csi_length(value);
-	fprintf(stderr, "test %d:%s\n", skip, value);
 	if (skip > 0 &&
 	    value[skip++] == '?' &&
 	    value[skip++] == '5') {

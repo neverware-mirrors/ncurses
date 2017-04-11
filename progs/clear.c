@@ -36,17 +36,27 @@
  * clear.c --  clears the terminal's screen
  */
 
-#define USE_LIBTINFO 1
+#define USE_LIBTINFO
 #include <clear_cmd.h>
+#include <tty_settings.h>
 
-MODULE_ID("$Id: clear.c,v 1.15 2016/10/23 00:36:36 tom Exp $")
+MODULE_ID("$Id: clear.c,v 1.17 2016/12/24 19:33:39 tom Exp $")
+
+const char *_nc_progname = "clear";
 
 int
 main(
 	int argc GCC_UNUSED,
 	char *argv[]GCC_UNUSED)
 {
-    setupterm((char *) 0, STDOUT_FILENO, (int *) 0);
+    TTY tty_settings;
+    int fd;
+
+    _nc_progname = _nc_rootname(argv[0]);
+
+    fd = save_tty_settings(&tty_settings);
+
+    setupterm((char *) 0, fd, (int *) 0);
 
     ExitProgram((clear_cmd() == ERR)
 		? EXIT_FAILURE

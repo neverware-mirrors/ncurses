@@ -1,5 +1,5 @@
 dnl***************************************************************************
-dnl Copyright (c) 2010-2015,2016 Free Software Foundation, Inc.              *
+dnl Copyright (c) 2010-2016,2017 Free Software Foundation, Inc.              *
 dnl                                                                          *
 dnl Permission is hereby granted, free of charge, to any person obtaining a  *
 dnl copy of this software and associated documentation files (the            *
@@ -28,7 +28,7 @@ dnl***************************************************************************
 dnl
 dnl Author: Thomas E. Dickey
 dnl
-dnl $Id: aclocal.m4,v 1.116 2016/09/04 00:11:44 tom Exp $
+dnl $Id: aclocal.m4,v 1.118 2017/02/26 00:38:49 tom Exp $
 dnl Macros used in NCURSES Ada95 auto-configuration script.
 dnl
 dnl These macros are maintained separately from NCURSES.  The copyright on
@@ -97,7 +97,7 @@ AC_DEFUN([CF_ADD_ADAFLAGS],[
 	AC_SUBST(ADAFLAGS)
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_ADD_CFLAGS version: 12 updated: 2015/04/12 15:39:00
+dnl CF_ADD_CFLAGS version: 13 updated: 2017/02/25 18:57:40
 dnl -------------
 dnl Copy non-preprocessor flags to $CFLAGS, preprocessor flags to $CPPFLAGS
 dnl The second parameter if given makes this macro verbose.
@@ -127,10 +127,10 @@ case $cf_fix_cppflags in
 				&& cf_fix_cppflags=yes
 
 			if test $cf_fix_cppflags = yes ; then
-				cf_new_extra_cppflags="$cf_new_extra_cppflags $cf_add_cflags"
+				CF_APPEND_TEXT(cf_new_extra_cppflags,$cf_add_cflags)
 				continue
 			elif test "${cf_tst_cflags}" = "\"'" ; then
-				cf_new_extra_cppflags="$cf_new_extra_cppflags $cf_add_cflags"
+				CF_APPEND_TEXT(cf_new_extra_cppflags,$cf_add_cflags)
 				continue
 			fi
 			;;
@@ -145,17 +145,17 @@ case $cf_fix_cppflags in
 				CF_REMOVE_DEFINE(CPPFLAGS,$CPPFLAGS,$cf_tst_cppflags)
 				;;
 			esac
-			cf_new_cppflags="$cf_new_cppflags $cf_add_cflags"
+			CF_APPEND_TEXT(cf_new_cppflags,$cf_add_cflags)
 			;;
 		esac
 		;;
 	(*)
-		cf_new_cflags="$cf_new_cflags $cf_add_cflags"
+		CF_APPEND_TEXT(cf_new_cflags,$cf_add_cflags)
 		;;
 	esac
 	;;
 (yes)
-	cf_new_extra_cppflags="$cf_new_extra_cppflags $cf_add_cflags"
+	CF_APPEND_TEXT(cf_new_extra_cppflags,$cf_add_cflags)
 
 	cf_tst_cflags=`echo ${cf_add_cflags} |sed -e 's/^[[^"]]*"'\''//'`
 
@@ -168,17 +168,17 @@ done
 
 if test -n "$cf_new_cflags" ; then
 	ifelse([$2],,,[CF_VERBOSE(add to \$CFLAGS $cf_new_cflags)])
-	CFLAGS="$CFLAGS $cf_new_cflags"
+	CF_APPEND_TEXT(CFLAGS,$cf_new_cflags)
 fi
 
 if test -n "$cf_new_cppflags" ; then
 	ifelse([$2],,,[CF_VERBOSE(add to \$CPPFLAGS $cf_new_cppflags)])
-	CPPFLAGS="$CPPFLAGS $cf_new_cppflags"
+	CF_APPEND_TEXT(CPPFLAGS,$cf_new_cppflags)
 fi
 
 if test -n "$cf_new_extra_cppflags" ; then
 	ifelse([$2],,,[CF_VERBOSE(add to \$EXTRA_CPPFLAGS $cf_new_extra_cppflags)])
-	EXTRA_CPPFLAGS="$cf_new_extra_cppflags $EXTRA_CPPFLAGS"
+	CF_APPEND_TEXT(EXTRA_CPPFLAGS,$cf_new_extra_cppflags)
 fi
 
 AC_SUBST(EXTRA_CPPFLAGS)
@@ -334,6 +334,16 @@ ifelse([$5],NONE,,[(test -z "$5" || test x$5 = xNONE || test "x$4" != "x$5") &&]
 	test -d $4/$2/$3 &&       $1="[$]$1 $4/$2/$3"
 	test -d $4/$2/$3/$2 &&    $1="[$]$1 $4/$2/$3/$2"
 }
+])dnl
+dnl ---------------------------------------------------------------------------
+dnl CF_APPEND_TEXT version: 1 updated: 2017/02/25 18:58:55
+dnl --------------
+dnl use this macro for appending text without introducing an extra blank at
+dnl the beginning
+define([CF_APPEND_TEXT],
+[
+	test -n "[$]$1" && $1="[$]$1 "
+	$1="[$]{$1}$2"
 ])dnl
 dnl ---------------------------------------------------------------------------
 dnl CF_ARG_DISABLE version: 3 updated: 1999/03/30 17:24:31
@@ -514,7 +524,7 @@ AC_SUBST(BUILD_EXEEXT)
 AC_SUBST(BUILD_OBJEXT)
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_CC_ENV_FLAGS version: 6 updated: 2016/08/29 20:57:00
+dnl CF_CC_ENV_FLAGS version: 7 updated: 2017/02/25 18:57:40
 dnl ---------------
 dnl Check for user's environment-breakage by stuffing CFLAGS/CPPFLAGS content
 dnl into CC.  This will not help with broken scripts that wrap the compiler
@@ -537,13 +547,14 @@ case "$CC" in
 	AC_MSG_RESULT(broken)
 	AC_MSG_WARN(your environment misuses the CC variable to hold CFLAGS/CPPFLAGS options)
 	# humor him...
-	cf_flags=`echo "$CC" | sed -e 's/^.*[[ 	]]\(-[[^ 	]]\)/\1/'`
-	CC=`echo "$CC " | sed -e 's/[[ 	]]-[[^ 	]].*$//' -e 's/[[ 	]]*$//'`
+	cf_prog=`echo "$CC" | sed -e 's/	/ /g' -e 's/[[ ]]* / /g' -e 's/[[ ]]*[[ ]]-[[^ ]].*//'`
+	cf_flags=`echo "$CC" | ${AWK:-awk} -v prog="$cf_prog" '{ printf("%s", substr([$]0,1+length(prog))); }'`
+	CC="$cf_prog"
 	for cf_arg in $cf_flags
 	do
 		case "x$cf_arg" in
 		(x-[[IUDfgOW]]*)
-			CF_ADD_CFLAGS($cf_flags)
+			CF_ADD_CFLAGS($cf_arg)
 			;;
 		(*)
 			CC="$CC $cf_arg"
@@ -1627,7 +1638,7 @@ cf_save_CFLAGS="$cf_save_CFLAGS -we147"
 fi
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_LARGEFILE version: 9 updated: 2015/04/18 08:56:57
+dnl CF_LARGEFILE version: 10 updated: 2017/01/21 11:06:25
 dnl ------------
 dnl Add checks for large file support.
 AC_DEFUN([CF_LARGEFILE],[
@@ -1649,6 +1660,7 @@ ifdef([AC_FUNC_FSEEKO],[
 
 	AC_CACHE_CHECK(whether to use struct dirent64, cf_cv_struct_dirent64,[
 		AC_TRY_COMPILE([
+#pragma GCC diagnostic error "-Wincompatible-pointer-types"
 #include <sys/types.h>
 #include <dirent.h>
 		],[
@@ -1854,7 +1866,7 @@ AC_DEFUN([CF_LIB_TYPE],
 	test -n "$LIB_SUFFIX" && $2="${LIB_SUFFIX}[$]{$2}"
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_LINK_DATAONLY version: 10 updated: 2012/10/06 17:41:51
+dnl CF_LINK_DATAONLY version: 11 updated: 2017/01/21 11:06:25
 dnl ----------------
 dnl Some systems have a non-ANSI linker that doesn't pull in modules that have
 dnl only data (i.e., no functions), for example NeXT.  On those systems we'll
@@ -1897,7 +1909,7 @@ EOF
 	cf_saveLIBS="$LIBS"
 	LIBS="conftest.a $LIBS"
 	AC_TRY_RUN([
-	int main()
+	int main(void)
 	{
 		extern int testfunc();
 		${cf_cv_main_return:-return} (!testfunc());
@@ -2024,20 +2036,26 @@ fi
 test "$cf_cv_mixedcase" = yes && AC_DEFINE(MIXEDCASE_FILENAMES,1,[Define to 1 if filesystem supports mixed-case filenames.])
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_MKSTEMP version: 9 updated: 2012/10/03 04:34:49
+dnl CF_MKSTEMP version: 10 updated: 2017/01/21 11:12:16
 dnl ----------
 dnl Check for a working mkstemp.  This creates two files, checks that they are
 dnl successfully created and distinct (AmigaOS apparently fails on the last).
 AC_DEFUN([CF_MKSTEMP],[
+AC_CHECK_HEADERS( \
+unistd.h \
+)
 AC_CACHE_CHECK(for working mkstemp, cf_cv_func_mkstemp,[
 rm -rf conftest*
 AC_TRY_RUN([
 #include <sys/types.h>
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
-int main()
+int main(void)
 {
 	char *tmpl = "conftestXXXXXX";
 	char name[2][80];
@@ -2758,7 +2776,7 @@ CF_ACVERSION_CHECK(2.52,
 CF_CC_ENV_FLAGS
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_PROG_CC_C_O version: 4 updated: 2016/05/21 18:08:09
+dnl CF_PROG_CC_C_O version: 5 updated: 2017/01/21 11:06:25
 dnl --------------
 dnl Analogous to AC_PROG_CC_C_O, but more useful: tests only $CC, ensures that
 dnl the output file can be renamed, and allows for a shell variable that can
@@ -2775,7 +2793,7 @@ AC_MSG_CHECKING([whether [$]$1 understands -c and -o together])
 AC_CACHE_VAL(cf_cv_prog_$1_c_o,
 [
 cat > conftest.$ac_ext <<CF_EOF
-int main()
+int main(void)
 {
 	${cf_cv_main_return:-return}(0);
 }
@@ -2925,7 +2943,7 @@ define([CF_REMOVE_LIB],
 $1=`echo "$2" | sed -e 's/-l$3[[ 	]]//g' -e 's/-l$3[$]//'`
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_SHARED_OPTS version: 89 updated: 2015/08/15 18:38:59
+dnl CF_SHARED_OPTS version: 90 updated: 2017/02/11 14:48:57
 dnl --------------
 dnl --------------
 dnl Attempt to determine the appropriate CC/LD options for creating a shared
@@ -2994,7 +3012,20 @@ AC_DEFUN([CF_SHARED_OPTS],
 
 	# Some less-capable ports of gcc support only -fpic
 	CC_SHARED_OPTS=
+
+	cf_try_fPIC=no
 	if test "$GCC" = yes
+	then
+		cf_try_fPIC=yes
+	else
+		case $cf_cv_system_name in
+		(*linux*)	# e.g., PGI compiler
+			cf_try_fPIC=yes
+			;;
+		esac
+	fi
+
+	if test "$cf_try_fPIC" = yes
 	then
 		AC_MSG_CHECKING(which $CC option to use)
 		cf_save_CFLAGS="$CFLAGS"

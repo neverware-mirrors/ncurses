@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright (c) 1998-2015,2016 Free Software Foundation, Inc.              *
+ * Copyright (c) 1998-2016,2017 Free Software Foundation, Inc.              *
  *                                                                          *
  * Permission is hereby granted, free of charge, to any person obtaining a  *
  * copy of this software and associated documentation files (the            *
@@ -48,7 +48,7 @@
 #include <locale.h>
 #endif
 
-MODULE_ID("$Id: lib_setup.c,v 1.167 2016/09/10 20:07:30 tom Exp $")
+MODULE_ID("$Id: lib_setup.c,v 1.174 2017/04/02 14:26:18 tom Exp $")
 
 /****************************************************************************
  *
@@ -220,9 +220,9 @@ _nc_handle_sigwinch(SCREEN *sp)
 NCURSES_EXPORT(void)
 NCURSES_SP_NAME(use_env) (NCURSES_SP_DCLx bool f)
 {
+    START_TRACE();
     T((T_CALLED("use_env(%p,%d)"), (void *) SP_PARM, (int) f));
 #if NCURSES_SP_FUNCS
-    START_TRACE();
     if (IsPreScreen(SP_PARM)) {
 	SP_PARM->_use_env = f;
     }
@@ -235,11 +235,11 @@ NCURSES_SP_NAME(use_env) (NCURSES_SP_DCLx bool f)
 NCURSES_EXPORT(void)
 NCURSES_SP_NAME(use_tioctl) (NCURSES_SP_DCLx bool f)
 {
+    START_TRACE();
     T((T_CALLED("use_tioctl(%p,%d)"), (void *) SP_PARM, (int) f));
 #if NCURSES_SP_FUNCS
-    START_TRACE();
     if (IsPreScreen(SP_PARM)) {
-	SP_PARM->_use_tioctl = f;
+	SP_PARM->use_tioctl = f;
     }
 #else
     _nc_prescreen.use_tioctl = f;
@@ -251,8 +251,8 @@ NCURSES_SP_NAME(use_tioctl) (NCURSES_SP_DCLx bool f)
 NCURSES_EXPORT(void)
 use_env(bool f)
 {
-    T((T_CALLED("use_env(%d)"), (int) f));
     START_TRACE();
+    T((T_CALLED("use_env(%d)"), (int) f));
     _nc_prescreen.use_env = f;
     returnVoid;
 }
@@ -260,8 +260,8 @@ use_env(bool f)
 NCURSES_EXPORT(void)
 use_tioctl(bool f)
 {
-    T((T_CALLED("use_tioctl(%d)"), (int) f));
     START_TRACE();
+    T((T_CALLED("use_tioctl(%d)"), (int) f));
     _nc_prescreen.use_tioctl = f;
     returnVoid;
 }
@@ -297,6 +297,8 @@ _nc_get_screensize(SCREEN *sp,
 #else /* !USE_TERM_DRIVER */
     TERMINAL *termp = cur_term;
     int my_tabsize;
+    bool useEnv = _nc_prescreen.use_env;
+    bool useTioctl = _nc_prescreen.use_tioctl;
 
     /* figure out the size of the screen */
     T(("screen size: terminfo lines = %d columns = %d", lines, columns));
@@ -304,7 +306,14 @@ _nc_get_screensize(SCREEN *sp,
     *linep = (int) lines;
     *colp = (int) columns;
 
-    if (_nc_prescreen.use_env || _nc_prescreen.use_tioctl) {
+#if NCURSES_SP_FUNCS
+    if (sp) {
+	useEnv = sp->_use_env;
+	useTioctl = sp->use_tioctl;
+    }
+#endif
+
+    if (useEnv || useTioctl) {
 #ifdef __EMX__
 	{
 	    int screendata[2];
@@ -338,10 +347,10 @@ _nc_get_screensize(SCREEN *sp,
 	}
 #endif /* HAVE_SIZECHANGE */
 
-	if (_nc_prescreen.use_env) {
+	if (useEnv) {
 	    int value;
 
-	    if (_nc_prescreen.use_tioctl) {
+	    if (useTioctl) {
 		/*
 		 * If environment variables are used, update them.
 		 */
@@ -752,10 +761,11 @@ TINFO_SETUP_TERM(TERMINAL ** tp,
 	 * If an application calls setupterm() rather than initscr() or
 	 * newterm(), we will not have the def_prog_mode() call in
 	 * _nc_setupscreen().  Do it now anyway, so we can initialize the
-	 * baudrate.
+	 * baudrate.  Also get the shell-mode so that erasechar() works.
 	 */
 	if (NC_ISATTY(Filedes)) {
-	    def_prog_mode();
+	    NCURSES_SP_NAME(def_shell_mode) (NCURSES_SP_ARG);
+	    NCURSES_SP_NAME(def_prog_mode) (NCURSES_SP_ARG);
 	    baudrate();
 	}
 	code = OK;
@@ -802,9 +812,9 @@ TINFO_SETUP_TERM(TERMINAL ** tp,
 #if NCURSES_SP_FUNCS
 /*
  * In case of handling multiple screens, we need to have a screen before
- * initialization in setupscreen takes place.  This is to extend the substitute
- * for some of the stuff in _nc_prescreen, especially for slk and ripoff
- * handling which should be done per screen.
+ * initialization in _nc_setupscreen takes place.  This is to extend the
+ * substitute for some of the stuff in _nc_prescreen, especially for slk and
+ * ripoff handling which should be done per screen.
  */
 NCURSES_EXPORT(SCREEN *)
 new_prescr(void)
@@ -815,6 +825,7 @@ new_prescr(void)
     T((T_CALLED("new_prescr()")));
 
     sp = _nc_alloc_screen_sp();
+    T(("_nc_alloc_screen_sp %p", (void *) sp));
     if (sp != 0) {
 	sp->rsp = sp->rippedoff;
 	sp->_filtered = _nc_prescreen.filter_mode;

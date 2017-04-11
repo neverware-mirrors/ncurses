@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright (c) 1998-2014,2016 Free Software Foundation, Inc.              *
+ * Copyright (c) 1998-2016,2017 Free Software Foundation, Inc.              *
  *                                                                          *
  * Permission is hereby granted, free of charge, to any person obtaining a  *
  * copy of this software and associated documentation files (the            *
@@ -29,7 +29,7 @@
 /****************************************************************************
  *  Author: Thomas E. Dickey                    1996-on                     *
  ****************************************************************************/
-/* $Id: test.priv.h,v 1.138 2016/09/10 23:42:33 tom Exp $ */
+/* $Id: test.priv.h,v 1.141 2017/03/31 13:09:31 tom Exp $ */
 
 #ifndef __TEST_PRIV_H
 #define __TEST_PRIV_H 1
@@ -58,6 +58,10 @@
 /*
  * Fallback definitions to accommodate broken compilers.
  */
+#ifndef HAVE_ALLOC_PAIR
+#define HAVE_ALLOC_PAIR 0
+#endif
+
 #ifndef HAVE_ASSUME_DEFAULT_COLORS
 #define HAVE_ASSUME_DEFAULT_COLORS 0
 #endif
@@ -107,6 +111,10 @@
 
 #ifndef HAVE_GETWIN
 #define HAVE_GETWIN 0
+#endif
+
+#ifndef HAVE_INIT_EXTENDED_COLOR
+#define HAVE_INIT_EXTENDED_COLOR 0
 #endif
 
 #ifndef HAVE_LIBFORM
@@ -223,6 +231,10 @@
 
 #ifndef HAVE_TIGETSTR
 #define HAVE_TIGETSTR 0
+#endif
+
+#ifndef HAVE_TPUTS_SP
+#define HAVE_TPUTS_SP 0
 #endif
 
 #ifndef HAVE_TYPEAHEAD
@@ -457,10 +469,6 @@ extern int optind;
 
 #ifndef NCURSES_PAIRS_T
 #define NCURSES_PAIRS_T short
-#endif
-
-#ifndef NCURSES_OPAQUE
-#define NCURSES_OPAQUE 0
 #endif
 
 #ifndef CCHARW_MAX

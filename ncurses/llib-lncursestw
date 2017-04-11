@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright (c) 2009-2015,2016 Free Software Foundation, Inc.              *
+ * Copyright (c) 2009-2016,2017 Free Software Foundation, Inc.              *
  *                                                                          *
  * Permission is hereby granted, free of charge, to any person obtaining a  *
  * copy of this software and associated documentation files (the            *
@@ -34,7 +34,6 @@
 /* ./tty/hardscroll.c */
 
 #include <curses.priv.h>
-
 #undef _nc_oldnums
 int	*_nc_oldnums;
 
@@ -219,7 +218,7 @@ int	wchgat(
 		WINDOW	*win, 
 		int	n, 
 		attr_t	attr, 
-		short	color, 
+		short	pair_arg, 
 		const void *opts)
 		{ return(*(int *)0); }
 
@@ -280,6 +279,20 @@ int	start_color_sp(
 int	start_color(void)
 		{ return(*(int *)0); }
 
+#undef _nc_change_pair
+void	_nc_change_pair(
+		SCREEN	*sp, 
+		int	pair)
+		{ /* void */ }
+
+#undef _nc_init_pair
+int	_nc_init_pair(
+		SCREEN	*sp, 
+		int	pair, 
+		int	f, 
+		int	b)
+		{ return(*(int *)0); }
+
 #undef init_pair_sp
 int	init_pair_sp(
 		SCREEN	*sp, 
@@ -293,6 +306,15 @@ int	init_pair(
 		short	pair, 
 		short	f, 
 		short	b)
+		{ return(*(int *)0); }
+
+#undef _nc_init_color
+int	_nc_init_color(
+		SCREEN	*sp, 
+		int	color, 
+		int	r, 
+		int	g, 
+		int	b)
 		{ return(*(int *)0); }
 
 #undef init_color_sp
@@ -347,6 +369,14 @@ int	color_content(
 		short	*b)
 		{ return(*(int *)0); }
 
+#undef _nc_pair_content
+int	_nc_pair_content(
+		SCREEN	*sp, 
+		int	pair, 
+		int	*f, 
+		int	*b)
+		{ return(*(int *)0); }
+
 #undef pair_content_sp
 int	pair_content_sp(
 		SCREEN	*sp, 
@@ -379,12 +409,76 @@ void	_nc_do_color(
 		NCURSES_OUTC outc)
 		{ /* void */ }
 
+#undef init_extended_pair_sp
+int	init_extended_pair_sp(
+		SCREEN	*sp, 
+		int	pair, 
+		int	f, 
+		int	b)
+		{ return(*(int *)0); }
+
+#undef init_extended_color_sp
+int	init_extended_color_sp(
+		SCREEN	*sp, 
+		int	color, 
+		int	r, 
+		int	g, 
+		int	b)
+		{ return(*(int *)0); }
+
+#undef extended_color_content_sp
+int	extended_color_content_sp(
+		SCREEN	*sp, 
+		int	color, 
+		int	*r, 
+		int	*g, 
+		int	*b)
+		{ return(*(int *)0); }
+
+#undef extended_pair_content_sp
+int	extended_pair_content_sp(
+		SCREEN	*sp, 
+		int	pair, 
+		int	*f, 
+		int	*b)
+		{ return(*(int *)0); }
+
+#undef init_extended_pair
+int	init_extended_pair(
+		int	pair, 
+		int	f, 
+		int	b)
+		{ return(*(int *)0); }
+
+#undef init_extended_color
+int	init_extended_color(
+		int	color, 
+		int	r, 
+		int	g, 
+		int	b)
+		{ return(*(int *)0); }
+
+#undef extended_color_content
+int	extended_color_content(
+		int	color, 
+		int	*r, 
+		int	*g, 
+		int	*b)
+		{ return(*(int *)0); }
+
+#undef extended_pair_content
+int	extended_pair_content(
+		int	pair, 
+		int	*f, 
+		int	*b)
+		{ return(*(int *)0); }
+
 /* ./base/lib_colorset.c */
 
 #undef wcolor_set
 int	wcolor_set(
 		WINDOW	*win, 
-		short	color_pair_number, 
+		short	pair_arg, 
 		void	*opts)
 		{ return(*(int *)0); }
 
@@ -2587,14 +2681,14 @@ int	slk_restore(void)
 int	slk_attr_set_sp(
 		SCREEN	*sp, 
 		const attr_t attr, 
-		short	color_pair_number, 
+		short	pair_arg, 
 		void	*opts)
 		{ return(*(int *)0); }
 
 #undef slk_attr_set
 int	slk_attr_set(
 		const attr_t attr, 
-		short	color_pair_number, 
+		short	pair_arg, 
 		void	*opts)
 		{ return(*(int *)0); }
 
@@ -2664,12 +2758,23 @@ int	slk_clear(void)
 #undef slk_color_sp
 int	slk_color_sp(
 		SCREEN	*sp, 
-		short	color_pair_number)
+		short	pair_arg)
 		{ return(*(int *)0); }
 
 #undef slk_color
 int	slk_color(
-		short	color_pair_number)
+		short	pair_arg)
+		{ return(*(int *)0); }
+
+#undef extended_slk_color_sp
+int	extended_slk_color_sp(
+		SCREEN	*sp, 
+		int	pair_arg)
+		{ return(*(int *)0); }
+
+#undef extended_slk_color
+int	extended_slk_color(
+		int	pair_arg)
 		{ return(*(int *)0); }
 
 /* ./base/lib_slkinit.c */
@@ -3110,7 +3215,7 @@ int	setcchar(
 		cchar_t	*wcval, 
 		const wchar_t *wch, 
 		const attr_t attrs, 
-		short	color_pair, 
+		short	pair_arg, 
 		const void *opts)
 		{ return(*(int *)0); }
 
@@ -3119,7 +3224,7 @@ int	getcchar(
 		const cchar_t *wcval, 
 		wchar_t	*wch, 
 		attr_t	*attrs, 
-		short	*color_pair, 
+		short	*pair_arg, 
 		void	*opts)
 		{ return(*(int *)0); }
 
@@ -3264,7 +3369,7 @@ int	unget_wch(
 int	vid_puts_sp(
 		SCREEN	*sp, 
 		attr_t	newmode, 
-		short	pair, 
+		short	pair_arg, 
 		void	*opts, 
 		NCURSES_OUTC_sp outc)
 		{ return(*(int *)0); }
@@ -3272,7 +3377,7 @@ int	vid_puts_sp(
 #undef vid_puts
 int	vid_puts(
 		attr_t	newmode, 
-		short	pair, 
+		short	pair_arg, 
 		void	*opts, 
 		NCURSES_OUTC outc)
 		{ return(*(int *)0); }
@@ -3281,14 +3386,14 @@ int	vid_puts(
 int	vid_attr_sp(
 		SCREEN	*sp, 
 		attr_t	newmode, 
-		short	pair, 
+		short	pair_arg, 
 		void	*opts)
 		{ return(*(int *)0); }
 
 #undef vid_attr
 int	vid_attr(
 		attr_t	newmode, 
-		short	pair, 
+		short	pair_arg, 
 		void	*opts)
 		{ return(*(int *)0); }
 
@@ -3429,6 +3534,59 @@ int	mcprint_sp(
 int	mcprint(
 		char	*data, 
 		int	len)
+		{ return(*(int *)0); }
+
+/* ./base/new_pair.c */
+
+#undef _nc_reset_color_pair
+void	_nc_reset_color_pair(
+		SCREEN	*sp, 
+		int	pair, 
+		colorpair_t *next)
+		{ /* void */ }
+
+#undef _nc_set_color_pair
+void	_nc_set_color_pair(
+		SCREEN	*sp, 
+		int	pair, 
+		int	mode)
+		{ /* void */ }
+
+#undef alloc_pair_sp
+int	alloc_pair_sp(
+		SCREEN	*sp, 
+		int	fg, 
+		int	bg)
+		{ return(*(int *)0); }
+
+#undef find_pair_sp
+int	find_pair_sp(
+		SCREEN	*sp, 
+		int	fg, 
+		int	bg)
+		{ return(*(int *)0); }
+
+#undef free_pair_sp
+int	free_pair_sp(
+		SCREEN	*sp, 
+		int	pair)
+		{ return(*(int *)0); }
+
+#undef alloc_pair
+int	alloc_pair(
+		int	f, 
+		int	b)
+		{ return(*(int *)0); }
+
+#undef find_pair
+int	find_pair(
+		int	f, 
+		int	b)
+		{ return(*(int *)0); }
+
+#undef free_pair
+int	free_pair(
+		int	pair)
 		{ return(*(int *)0); }
 
 /* ./base/resizeterm.c */

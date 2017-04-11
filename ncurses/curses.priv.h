@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright (c) 1998-2015,2016 Free Software Foundation, Inc.              *
+ * Copyright (c) 1998-2016,2017 Free Software Foundation, Inc.              *
  *                                                                          *
  * Permission is hereby granted, free of charge, to any person obtaining a  *
  * copy of this software and associated documentation files (the            *
@@ -34,7 +34,7 @@
  ****************************************************************************/
 
 /*
- * $Id: curses.priv.h,v 1.554 2016/11/21 23:28:54 tom Exp $
+ * $Id: curses.priv.h,v 1.567 2017/04/01 17:10:55 tom Exp $
  *
  *	curses.priv.h
  *
@@ -326,8 +326,8 @@ typedef TRIES {
 
 typedef struct
 {
-    NCURSES_COLOR_T red, green, blue;	/* what color_content() returns */
-    NCURSES_COLOR_T r, g, b;		/* params to init_color() */
+    int red, green, blue;	/* what color_content() returns */
+    int r, g, b;		/* params to init_color() */
     int init;			/* true if we called init_color() */
 }
 color_t;
@@ -406,7 +406,7 @@ color_t;
  * option for compiling the tracing into the library.
  */
 #if 1
-#define ColorPair(n)		NCURSES_BITS(n, 0)
+#define ColorPair(n)		(NCURSES_BITS(n, 0) & A_COLOR)
 #define PairNumber(a)		(NCURSES_CAST(int,(((unsigned long)(a) & A_COLOR) >> NCURSES_ATTR_SHIFT)))
 #else
 #define ColorPair(pair)		COLOR_PAIR(pair)
@@ -426,7 +426,7 @@ color_t;
 #define if_EXT_COLORS(stmt)	stmt
 #define SetPair(value,p)	SetPair2((value).ext_color, AttrOf(value), p)
 #define SetPair2(c,a,p)		c = (p), \
-				a = (unColor2(a) | (A_COLOR & (unsigned) ColorPair(oldColor(c))))
+				a = (unColor2(a) | ColorPair(oldColor(c)))
 #define GetPair(value)		GetPair2((value).ext_color, AttrOf(value))
 #define GetPair2(c,a)		((c) ? (c) : PairNumber(a))
 #define oldColor(p)		(((p) > 255) ? 255 : (p))
@@ -434,17 +434,17 @@ color_t;
 #define SET_WINDOW_PAIR(w,p)	(w)->_color = (p)
 #define SameAttrOf(a,b)		(AttrOf(a) == AttrOf(b) && GetPair(a) == GetPair(b))
 
-#define VIDATTR(sp,attr,pair)	NCURSES_SP_NAME(vid_puts)(NCURSES_SP_ARGx attr, (short) pair, 0, NCURSES_OUTC_FUNC)
+#define VIDATTR(sp,attr,pair)	NCURSES_SP_NAME(vid_puts)(NCURSES_SP_ARGx attr, (NCURSES_PAIRS_T) pair, 0, NCURSES_OUTC_FUNC)
 
 #else /* !NCURSES_EXT_COLORS */
 
 #define if_EXT_COLORS(stmt)	/* nothing */
 #define SetPair(value,p)	RemAttr(value, A_COLOR), \
-				SetAttr(value, AttrOf(value) | (A_COLOR & (attr_t) ColorPair(p)))
+				SetAttr(value, AttrOf(value) | ColorPair(p))
 #define GetPair(value)		PairNumber(AttrOf(value))
 #define GET_WINDOW_PAIR(w)	PairNumber(WINDOW_ATTRS(w))
 #define SET_WINDOW_PAIR(w,p)	WINDOW_ATTRS(w) &= ALL_BUT_COLOR, \
-				WINDOW_ATTRS(w) |= (A_COLOR & (attr_t) ColorPair(p))
+				WINDOW_ATTRS(w) |= ColorPair(p)
 #define SameAttrOf(a,b)		(AttrOf(a) == AttrOf(b))
 
 #define VIDATTR(sp,attr,pair)	NCURSES_SP_NAME(vidputs)(NCURSES_SP_ARGx attr, NCURSES_OUTC_FUNC)
@@ -635,15 +635,15 @@ extern NCURSES_EXPORT(int) _nc_sigprocmask(int, const sigset_t *, sigset_t *);
 /*
  * Definitions for color pairs
  */
-typedef unsigned colorpair_t;	/* type big enough to store PAIR_OF() */
-#define C_SHIFT 9		/* we need more bits than there are colors */
-#define C_MASK			((1 << C_SHIFT) - 1)
-#define PAIR_OF(fg, bg)		(colorpair_t) ((((fg) & C_MASK) << C_SHIFT) | ((bg) & C_MASK))
-#define FORE_OF(c)		(((c) >> C_SHIFT) & C_MASK)
-#define BACK_OF(c)		((c) & C_MASK)
-#define isDefaultColor(c)	((c) >= COLOR_DEFAULT || (c) < 0)
+#include <new_pair.h>
 
-#define COLOR_DEFAULT		C_MASK
+/*
+ * As an extension, support color values and color pairs past 2^16.
+ */
+#define USE_EXTENDED_COLORS	USE_NEW_PAIR
+
+#define isDefaultColor(c)	((c) < 0)
+#define COLOR_DEFAULT		-1
 
 #if defined(USE_BUILD_CC) || (defined(USE_TERMLIB) && !defined(NEED_NCURSES_CH_T))
 
@@ -901,6 +901,7 @@ typedef struct {
 #endif
 
 #ifdef TRACE
+	bool		trace_opened;
 	char		trace_fname[PATH_MAX];
 	int		trace_level;
 	FILE		*trace_fp;
@@ -938,6 +939,9 @@ typedef struct {
 #endif
 #if USE_PTHREADS_EINTR
 	pthread_t	read_thread;		/* The reading thread */
+#endif
+#if USE_WIDEC_SUPPORT
+	char		key_name[MB_LEN_MAX + 1];
 #endif
 } NCURSES_GLOBALS;
 
@@ -1099,9 +1103,14 @@ struct screen {
 	color_t		*_color_table;	/* screen's color palette	     */
 	int		_color_count;	/* count of colors in palette	     */
 	colorpair_t	*_color_pairs;	/* screen's color pair list	     */
-	int		_pair_count;	/* count of color pairs		     */
+	int		_pair_count;	/* same as COLOR_PAIRS               */
 	int		_pair_limit;	/* actual limit of color-pairs       */
 #if NCURSES_EXT_FUNCS
+#if USE_NEW_PAIR
+	void		*_ordered_pairs; /* index used by alloc_pair()	     */
+	int		_pairs_used;	/* actual number of color-pairs used */
+	int		_recent_pair;	/* number for most recent free-pair  */
+#endif
 	bool		_assumed_color; /* use assumed colors		     */
 	bool		_default_color; /* use default colors		     */
 	bool		_has_sgr_39_49; /* has ECMA default color support    */
@@ -1248,6 +1257,10 @@ struct screen {
 	ripoff_t	rippedoff[N_RIPS];
 	ripoff_t	*rsp;
 
+#if NCURSES_SP_FUNCS
+	bool		use_tioctl;
+#endif
+
 	/*
 	 * ncurses/ncursesw are the same up to this point.
 	 */
@@ -1258,8 +1271,6 @@ struct screen {
 	bool		_screen_acs_fix;
 	bool		_screen_unicode;
 #endif
-
-	bool		_use_tioctl;
 };
 
 extern NCURSES_EXPORT_VAR(SCREEN *) _nc_screen_chain;
@@ -1279,6 +1290,12 @@ extern NCURSES_EXPORT_VAR(SIG_ATOMIC_T) _nc_have_sigwinch;
 
 #define WINDOW_EXT(w,m) (((WINDOWLIST *)((void *)((char *)(w) - offsetof(WINDOWLIST, win))))->m)
 
+#ifdef USE_SP_WINDOWLIST
+#define SP_INIT_WINDOWLIST(sp)	WindowList(sp) = 0
+#else
+#define SP_INIT_WINDOWLIST(sp)	/* nothing */
+#endif
+
 #define SP_PRE_INIT(sp)                         \
     sp->_cursrow = -1;                          \
     sp->_curscol = -1;                          \
@@ -1289,7 +1306,7 @@ extern NCURSES_EXPORT_VAR(SIG_ATOMIC_T) _nc_have_sigwinch;
     sp->_fifohead = -1;                         \
     sp->_endwin = TRUE;                         \
     sp->_cursor = -1;                           \
-    WindowList(sp) = 0;                         \
+    SP_INIT_WINDOWLIST(sp);                     \
     sp->_outch = NCURSES_OUTC_FUNC;             \
     sp->jump = 0                                \
 
@@ -1651,6 +1668,8 @@ typedef void VoidFunc(void);
 #define returnVoidPtr(code)	TRACE_RETURN1(code,void_ptr)
 #define returnWin(code)		TRACE_RETURN1(code,win)
 
+#define returnDB(code)		do { TR(TRACE_DATABASE,(T_RETURN("code %d"), (code))); return (code); } while (0)
+
 extern NCURSES_EXPORT(NCURSES_BOOL)     _nc_retrace_bool (int);
 extern NCURSES_EXPORT(NCURSES_CONST void *) _nc_retrace_cvoid_ptr (NCURSES_CONST void *);
 extern NCURSES_EXPORT(SCREEN *)         _nc_retrace_sp (SCREEN *);
@@ -1719,6 +1738,8 @@ extern NCURSES_EXPORT(const char *) _nc_viscbuf (const NCURSES_CH_T *, int);
 #define returnVoid		return
 #define returnVoidPtr(code)	return code
 #define returnWin(code)		return code
+
+#define returnDB(code)		return code
 
 #endif /* TRACE/!TRACE */
 
@@ -1913,7 +1934,11 @@ extern NCURSES_EXPORT(int) _nc_wchstrlen(const cchar_t *);
 #endif
 
 /* lib_color.c */
+extern NCURSES_EXPORT(int) _nc_init_color(SCREEN *, int, int, int, int);
+extern NCURSES_EXPORT(int) _nc_init_pair(SCREEN *, int, int, int);
+extern NCURSES_EXPORT(int) _nc_pair_content(SCREEN *, int, int *, int *);
 extern NCURSES_EXPORT(bool) _nc_reset_colors(void);
+extern NCURSES_EXPORT(void) _nc_change_pair(SCREEN *, int);
 
 /* lib_getch.c */
 extern NCURSES_EXPORT(int) _nc_wgetch(WINDOW *, int *, int EVENTLIST_2nd(_nc_eventlist *));
@@ -2064,6 +2089,7 @@ extern NCURSES_EXPORT(void) _nc_comp_scan_leaks(void);
 extern NCURSES_EXPORT(void) _nc_db_iterator_leaks(void);
 extern NCURSES_EXPORT(void) _nc_keyname_leaks(void);
 extern NCURSES_EXPORT(void) _nc_names_leaks(void);
+extern NCURSES_EXPORT(void) _nc_tgetent_leak(TERMINAL *);
 extern NCURSES_EXPORT(void) _nc_tgetent_leaks(void);
 #endif
 
@@ -2149,7 +2175,7 @@ extern NCURSES_EXPORT_VAR(int *) _nc_oldnums;
 
 #define USE_SETBUF_0 0
 
-#define NC_OUTPUT(sp) ((sp != 0) ? sp->_ofp : stdout)
+#define NC_OUTPUT(sp) ((sp != 0 && sp->_ofp != 0) ? sp->_ofp : stdout)
 
 /*
  * On systems with a broken linker, define 'SP' as a function to force the
@@ -2430,7 +2456,6 @@ extern NCURSES_EXPORT(WINDOW *) NCURSES_SP_NAME(_nc_makenew) (SCREEN*, int, int,
 extern NCURSES_EXPORT(bool)     NCURSES_SP_NAME(_nc_reset_colors)(SCREEN*);
 extern NCURSES_EXPORT(char *)   NCURSES_SP_NAME(_nc_printf_string)(SCREEN*, const char *, va_list);
 extern NCURSES_EXPORT(chtype)   NCURSES_SP_NAME(_nc_acs_char)(SCREEN*,int);
-extern NCURSES_EXPORT(int)      NCURSES_SP_NAME(_nc_curs_set)(SCREEN*,int);
 extern NCURSES_EXPORT(int)      NCURSES_SP_NAME(_nc_get_tty_mode)(SCREEN*,TTY*);
 extern NCURSES_EXPORT(int)      NCURSES_SP_NAME(_nc_mcprint)(SCREEN*,char*, int);
 extern NCURSES_EXPORT(int)      NCURSES_SP_NAME(_nc_msec_cost)(SCREEN*, const char *, int);
@@ -2439,19 +2464,11 @@ extern NCURSES_EXPORT(int)      NCURSES_SP_NAME(_nc_outch)(SCREEN*, int);
 extern NCURSES_EXPORT(int)      NCURSES_SP_NAME(_nc_putchar)(SCREEN*, int);
 extern NCURSES_EXPORT(int)      NCURSES_SP_NAME(_nc_putp)(SCREEN*, const char *, const char*);
 extern NCURSES_EXPORT(int)      NCURSES_SP_NAME(_nc_putp_flush)(SCREEN*, const char *, const char *);
-extern NCURSES_EXPORT(int)      NCURSES_SP_NAME(_nc_resetty)(SCREEN*);
-extern NCURSES_EXPORT(int)      NCURSES_SP_NAME(_nc_resize_term)(SCREEN*,int,int);
 extern NCURSES_EXPORT(int)      NCURSES_SP_NAME(_nc_ripoffline)(SCREEN*, int, int (*)(WINDOW *,int));
-extern NCURSES_EXPORT(int)      NCURSES_SP_NAME(_nc_savetty)(SCREEN*);
-extern NCURSES_EXPORT(int)      NCURSES_SP_NAME(_nc_scr_init)(SCREEN*,const char*);
-extern NCURSES_EXPORT(int)      NCURSES_SP_NAME(_nc_scr_restore)(SCREEN*, const char*);
 extern NCURSES_EXPORT(int)      NCURSES_SP_NAME(_nc_scrolln)(SCREEN*, int, int, int, int);
 extern NCURSES_EXPORT(int)      NCURSES_SP_NAME(_nc_set_tty_mode)(SCREEN*, TTY*);
 extern NCURSES_EXPORT(int)      NCURSES_SP_NAME(_nc_setupscreen)(SCREEN**, int, int, FILE *, int, int);
 extern NCURSES_EXPORT(int)      NCURSES_SP_NAME(_nc_tgetent)(SCREEN*,char*,const char *);
-extern NCURSES_EXPORT(int)      NCURSES_SP_NAME(_nc_tigetnum)(SCREEN*,NCURSES_CONST char*);
-extern NCURSES_EXPORT(int)      NCURSES_SP_NAME(_nc_vid_attr)(SCREEN *, attr_t, NCURSES_COLOR_T, void *);
-extern NCURSES_EXPORT(int)      NCURSES_SP_NAME(_nc_vidputs)(SCREEN*,chtype,int(*) (SCREEN*, int));
 extern NCURSES_EXPORT(void)     NCURSES_SP_NAME(_nc_do_color)(SCREEN*, int, int, int, NCURSES_SP_OUTC);
 extern NCURSES_EXPORT(void)     NCURSES_SP_NAME(_nc_do_xmc_glitch)(SCREEN*, attr_t);
 extern NCURSES_EXPORT(void)     NCURSES_SP_NAME(_nc_flush)(SCREEN*);
