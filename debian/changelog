@@ -7,6 +7,7 @@ ncurses (6.0+20170408-1) UNRELEASED; urgency=low
   * Set LD_LIBRARY_PATH when building the test programs, fixes an
     impending FTBFS when we switch to libncursesw6 from libncursesw5.
   * Update years in debian/copyright.
+  * Change priority of libncurses5 to optional (see #852002).
 
  -- Sven Joachim <svenjoac@gmx.de>  Thu, 05 Jan 2017 18:02:21 +0100
 

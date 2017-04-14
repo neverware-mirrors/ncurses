@@ -42,6 +42,7 @@ Description: shared low-level terminfo library for terminal handling - udeb
 
 Package: libncurses5
 Architecture: any
+Priority: optional
 Pre-Depends: ${misc:Pre-Depends}
 Multi-Arch: same
 Depends: libtinfo5 (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
