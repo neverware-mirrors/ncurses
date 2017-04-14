@@ -1,4 +1,4 @@
-ncurses (6.0+20170408-1) UNRELEASED; urgency=low
+ncurses (6.0+20170408-1) experimental; urgency=low
 
   * New upstream patchlevel.
     - Fix a memory leak in the window-list when creating multiple
@@ -9,7 +9,7 @@ ncurses (6.0+20170408-1) UNRELEASED; urgency=low
   * Update years in debian/copyright.
   * Change priority of libncurses5 to optional (see #852002).
 
- -- Sven Joachim <svenjoac@gmx.de>  Thu, 05 Jan 2017 18:02:21 +0100
+ -- Sven Joachim <svenjoac@gmx.de>  Fri, 14 Apr 2017 12:21:10 +0200
 
 ncurses (6.0+20161126-1) unstable; urgency=low
 
