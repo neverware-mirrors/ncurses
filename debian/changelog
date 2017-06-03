@@ -1,3 +1,10 @@
+ncurses (6.0+20170408-2) UNRELEASED; urgency=low
+
+  * Blacklist dvtm and dvtm-256color terminfo entries which are shipped
+    in the dvtm package (Closes: #863969).
+
+ -- Sven Joachim <svenjoac@gmx.de>  Sat, 03 Jun 2017 09:50:35 +0200
+
 ncurses (6.0+20170408-1) experimental; urgency=low
 
   * New upstream patchlevel.
