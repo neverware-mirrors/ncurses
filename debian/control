@@ -393,6 +393,7 @@ Package: ncurses-doc
 Architecture: all
 Section: doc
 Priority: optional
+Multi-Arch: foreign
 Depends: ${misc:Depends}
 Replaces: libncurses5-dev (<< 5.7+20101128)
 Description: developer's guide and documentation for ncurses
