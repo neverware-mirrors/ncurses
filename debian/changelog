@@ -1,5 +1,6 @@
-ncurses (6.0+20170408-2) UNRELEASED; urgency=low
+ncurses (6.0+20170701-1) UNRELEASED; urgency=low
 
+  * New upstream patchlevel.
   * Blacklist dvtm and dvtm-256color terminfo entries which are shipped
     in the dvtm package (Closes: #863969).
 
