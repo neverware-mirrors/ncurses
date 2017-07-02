@@ -27,7 +27,7 @@
 .\" authorization.                                                           *
 .\"***************************************************************************
 .\"
-.\" $Id: curs_util.3x,v 1.47 2017/02/18 16:43:03 tom Exp $
+.\" $Id: curs_util.3x,v 1.49 2017/05/30 21:09:21 tom Exp $
 .TH curs_util 3X ""
 .ie \n(.g .ds `` \(lq
 .el       .ds `` ``
@@ -159,7 +159,7 @@ Finally (unless \fBuse_env\fP was called with \fBFALSE\fP parameter),
 using a value in those to override the results
 from the operating system or terminal database.
 .IP
-\fBNcurses\fP also updates the screen size in response to SIGWINCH,
+\fBNcurses\fP also updates the screen size in response to \fBSIGWINCH\fP,
 unless overridden by the \fBLINES\fR or \fBCOLUMNS\fR environment variables,
 .SS use_tioctl
 .PP
@@ -277,7 +277,7 @@ user-defined strings which begin with "k".
 The keycodes start at KEY_MAX, but are not guaranteed to be
 the same value for different runs because user-defined codes are
 merged from all terminal descriptions which have been loaded.
-The \fBuse_extended_names\fP function controls whether this data is
+The \fBuse_extended_names\fP(3X) function controls whether this data is
 loaded when the terminal description is read by the library.
 .SS nofilter/use_tioctl
 .PP

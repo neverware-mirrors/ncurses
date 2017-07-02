@@ -34,7 +34,7 @@
  ****************************************************************************/
 
 /*
- * $Id: curses.priv.h,v 1.567 2017/04/01 17:10:55 tom Exp $
+ * $Id: curses.priv.h,v 1.580 2017/07/01 17:56:12 tom Exp $
  *
  *	curses.priv.h
  *
@@ -358,6 +358,9 @@ color_t;
 
 #include <nc_panel.h>
 
+#include <term.h>
+#include <nc_termios.h>
+
 #define IsPreScreen(sp)      (((sp) != 0) && sp->_prescreen)
 #define HasTerminal(sp)      (((sp) != 0) && (0 != ((sp)->_term)))
 #define IsValidScreen(sp)    (HasTerminal(sp) && !IsPreScreen(sp))
@@ -374,8 +377,27 @@ color_t;
 #define TerminalOf(sp)       CurTerm
 #endif
 
-#include <term.h>
-#include <nc_termios.h>
+/*
+ * The legacy layout for TERMTYPE uses "short" for all of the numbers.  Moving
+ * past that, numeric capabilities can be "int" by using a TERMTYPE2 structure
+ * in TERMINAL, and doing most of the internal work using TERMTYPE2.  There are
+ * a few places (mostly to expose the legacy layout) where the distinction
+ * needs attention.
+ */
+#if NCURSES_EXT_COLORS && HAVE_INIT_EXTENDED_COLOR
+#define NCURSES_EXT_NUMBERS  1
+#define NCURSES_INT2         int
+#define TerminalType(tp)     (tp)->type2
+#else
+#define NCURSES_EXT_NUMBERS  0
+#define NCURSES_INT2         short
+#define TerminalType(tp)     (tp)->type
+#endif
+
+#ifdef CUR
+#undef CUR
+#define CUR TerminalType(cur_term).
+#endif
 
 /*
  * Reduce dependency on cur_term global by using terminfo data from SCREEN's
@@ -385,7 +407,7 @@ color_t;
 #undef CUR
 #endif
 
-#define SP_TERMTYPE TerminalOf(sp)->type.
+#define SP_TERMTYPE TerminalType(TerminalOf(sp)).
 
 #include <term_entry.h>
 
@@ -635,6 +657,9 @@ extern NCURSES_EXPORT(int) _nc_sigprocmask(int, const sigset_t *, sigset_t *);
 /*
  * Definitions for color pairs
  */
+
+#define MAX_OF_TYPE(t)   (int)(((unsigned t)(~0))>>1)
+
 #include <new_pair.h>
 
 /*
@@ -766,6 +791,16 @@ typedef struct {
 } TGETENT_CACHE;
 
 #define TGETENT_MAX 4
+
+/*
+ * When converting from terminfo to termcap, check for cases where we can trim
+ * octal escapes down to 2-character form.  It is useful for terminfo format
+ * also, but not as important.
+ */
+#define MAX_TC_FIXUPS	10
+#define MIN_TC_FIXUPS	4
+
+#define isoctal(c) ((c) >= '0' && (c) <= '7')
 
 /*
  * State of tparm().
@@ -931,6 +966,9 @@ typedef struct {
 
 #ifdef USE_PTHREADS
 	pthread_mutex_t	mutex_curses;
+	pthread_mutex_t	mutex_prescreen;
+	pthread_mutex_t	mutex_screen;
+	pthread_mutex_t	mutex_update;
 	pthread_mutex_t	mutex_tst_tracef;
 	pthread_mutex_t	mutex_tracef;
 	int		nested_tracef;
@@ -949,11 +987,24 @@ extern NCURSES_EXPORT_VAR(NCURSES_GLOBALS) _nc_globals;
 
 #define N_RIPS 5
 
+#ifdef USE_PTHREADS
+typedef struct _prescreen_list {
+	struct _prescreen_list *next;
+	pthread_t id;
+	struct screen *sp;
+} PRESCREEN_LIST;
+#endif
+
 /*
  * Global data which can be swept up into a SCREEN when one is created.
  * It may be modified before the next SCREEN is created.
  */
 typedef struct {
+#ifdef USE_PTHREADS
+	PRESCREEN_LIST *allocated;
+#else
+	struct screen * allocated;
+#endif
 	bool		use_env;
 	bool		filter_mode;
 	attr_t		previous_attr;
@@ -1106,11 +1157,6 @@ struct screen {
 	int		_pair_count;	/* same as COLOR_PAIRS               */
 	int		_pair_limit;	/* actual limit of color-pairs       */
 #if NCURSES_EXT_FUNCS
-#if USE_NEW_PAIR
-	void		*_ordered_pairs; /* index used by alloc_pair()	     */
-	int		_pairs_used;	/* actual number of color-pairs used */
-	int		_recent_pair;	/* number for most recent free-pair  */
-#endif
 	bool		_assumed_color; /* use assumed colors		     */
 	bool		_default_color; /* use default colors		     */
 	bool		_has_sgr_39_49; /* has ECMA default color support    */
@@ -1270,6 +1316,11 @@ struct screen {
 	 */
 	bool		_screen_acs_fix;
 	bool		_screen_unicode;
+#endif
+#if NCURSES_EXT_FUNCS && USE_NEW_PAIR
+	void		*_ordered_pairs; /* index used by alloc_pair()	     */
+	int		_pairs_used;	/* actual number of color-pairs used */
+	int		_recent_pair;	/* number for most recent free-pair  */
 #endif
 };
 
@@ -1649,7 +1700,7 @@ extern NCURSES_EXPORT(void)	_nc_locked_tracef (const char *, ...) GCC_PRINTFLIKE
 
 typedef void VoidFunc(void);
 
-#define TR_FUNC(value)          ((const char*) &(value))
+#define TR_FUNC(value)          ((const char*) (value))
 #define NonNull(s)	        ((s) != 0 ? s : "<null>")
 
 #define returnAttr(code)	TRACE_RETURN(code,attr_t)
@@ -1887,6 +1938,14 @@ extern NCURSES_EXPORT(void) _nc_expanded (void);
 #define getcwd(buf,len) getwd(buf)
 #endif
 
+#define save_ttytype(termp) \
+	if (TerminalType(termp).term_names != 0) { \
+	    _nc_STRNCPY(ttytype, \
+	    		TerminalType(termp).term_names, \
+			NAMESIZE - 1); \
+	    ttytype[NAMESIZE - 1] = '\0'; \
+	}
+
 /* charable.c */
 #if USE_WIDEC_SUPPORT
 extern NCURSES_EXPORT(bool) _nc_is_charable(wchar_t);
@@ -1975,17 +2034,32 @@ extern NCURSES_EXPORT(int)    _nc_locale_breaks_acs(TERMINAL *);
 extern NCURSES_EXPORT(int)    _nc_setupterm(NCURSES_CONST char *, int, int *, int);
 extern NCURSES_EXPORT(void)   _nc_tinfo_cmdch(TERMINAL *, int);
 
+#ifdef USE_PTHREADS
+extern NCURSES_EXPORT(SCREEN *) _nc_find_prescr(void);
+extern NCURSES_EXPORT(void)   _nc_forget_prescr(void);
+#else
+#define _nc_find_prescr()     _nc_prescreen.allocated
+#define _nc_forget_prescr()   _nc_prescreen.allocated = 0
+#endif
+
 /* lib_set_term.c */
 extern NCURSES_EXPORT(int)    _nc_ripoffline(int, int(*)(WINDOW*, int));
 
 /* lib_setup.c */
+#if NO_LEAKS
+#define ExitTerminfo(code)    _nc_free_tinfo(code)
+#else
+#define ExitTerminfo(code)    exit(code)
+#endif
+
 #define SETUP_FAIL ERR
+
 #define ret_error(code, fmt, arg)	if (errret) {\
 					    *errret = code;\
 					    returnCode(SETUP_FAIL);\
 					} else {\
 					    fprintf(stderr, fmt, arg);\
-					    exit(EXIT_FAILURE);\
+					    ExitTerminfo(EXIT_FAILURE);\
 					}
 
 #define ret_error1(code, fmt, arg)	ret_error(code, "'%s': " fmt, arg)
@@ -1995,7 +2069,7 @@ extern NCURSES_EXPORT(int)    _nc_ripoffline(int, int(*)(WINDOW*, int));
 					    returnCode(SETUP_FAIL);\
 					} else {\
 					    fprintf(stderr, msg);\
-					    exit(EXIT_FAILURE);\
+					    ExitTerminfo(EXIT_FAILURE);\
 					}
 
 /* lib_tstp.c */
@@ -2039,7 +2113,6 @@ extern NCURSES_EXPORT(int) _nc_remove_key (TRIES **, unsigned);
 extern NCURSES_EXPORT(int) _nc_remove_string (TRIES **, const char *);
 
 /* elsewhere ... */
-extern NCURSES_EXPORT(ENTRY *) _nc_delink_entry (ENTRY *, TERMTYPE *);
 extern NCURSES_EXPORT(SCREEN *) _nc_screen_of (WINDOW *);
 extern NCURSES_EXPORT(TERMINAL*) _nc_get_cur_term (void);
 extern NCURSES_EXPORT(WINDOW *) _nc_makenew (int, int, int, int, int);
@@ -2058,14 +2131,15 @@ extern NCURSES_EXPORT(int) _nc_outch (int);
 extern NCURSES_EXPORT(int) _nc_putchar (int);
 extern NCURSES_EXPORT(int) _nc_putp(const char *, const char *);
 extern NCURSES_EXPORT(int) _nc_putp_flush(const char *, const char *);
-extern NCURSES_EXPORT(int) _nc_read_termcap_entry (const char *const, TERMTYPE *const);
-extern NCURSES_EXPORT(int) _nc_setup_tinfo(const char *, TERMTYPE *);
+extern NCURSES_EXPORT(int) _nc_read_termcap_entry (const char *const, TERMTYPE2 *const);
+extern NCURSES_EXPORT(int) _nc_setup_tinfo(const char *, TERMTYPE2 *);
 extern NCURSES_EXPORT(int) _nc_setupscreen (int, int, FILE *, int, int);
 extern NCURSES_EXPORT(int) _nc_timed_wait (SCREEN *, int, int, int * EVENTLIST_2nd(_nc_eventlist *));
+extern NCURSES_EXPORT(void) _nc_init_termtype (TERMTYPE2 *const);
 extern NCURSES_EXPORT(void) _nc_do_color (int, int, int, NCURSES_OUTC);
 extern NCURSES_EXPORT(void) _nc_flush (void);
 extern NCURSES_EXPORT(void) _nc_free_and_exit (int) GCC_NORETURN;
-extern NCURSES_EXPORT(void) _nc_free_entry (ENTRY *, TERMTYPE *);
+extern NCURSES_EXPORT(void) _nc_free_entry (ENTRY *, TERMTYPE2 *);
 extern NCURSES_EXPORT(void) _nc_freeall (void);
 extern NCURSES_EXPORT(void) _nc_hash_map (void);
 extern NCURSES_EXPORT(void) _nc_init_keytry (SCREEN *);
@@ -2078,6 +2152,23 @@ extern NCURSES_EXPORT(void) _nc_setenv_num (const char *, int);
 extern NCURSES_EXPORT(void) _nc_signal_handler (int);
 extern NCURSES_EXPORT(void) _nc_synchook (WINDOW *);
 extern NCURSES_EXPORT(void) _nc_trace_tries (TRIES *);
+
+#if NCURSES_EXT_NUMBERS
+extern NCURSES_EXPORT(const TERMTYPE2 *) _nc_fallback2 (const char *);
+#else
+#define _nc_fallback2(tp) _nc_fallback(tp)
+#endif
+
+#if NCURSES_EXT_NUMBERS
+extern NCURSES_EXPORT(void) _nc_copy_termtype2 (TERMTYPE2 *, const TERMTYPE2 *);
+extern NCURSES_EXPORT(void) _nc_export_termtype2(TERMTYPE *, const TERMTYPE2 *);
+extern NCURSES_EXPORT(void) _nc_import_termtype2(TERMTYPE2 *, const TERMTYPE *);
+#else
+#define _nc_copy_termtype2(dst,src) _nc_copy_termtype((dst),(src))
+#define _nc_export_termtype2(dst,src) /* nothing */
+#define _nc_import_termtype2(dst,src) /* nothing */
+#define _nc_free_termtype2(t) _nc_free_termtype(t)
+#endif
 
 #if NO_LEAKS
 extern NCURSES_EXPORT(void) _nc_alloc_entry_leaks(void);

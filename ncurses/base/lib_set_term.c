@@ -43,11 +43,10 @@
 #include <curses.priv.h>
 #include <tic.h>
 
-#ifndef CUR
+#undef CUR
 #define CUR SP_TERMTYPE
-#endif
 
-MODULE_ID("$Id: lib_set_term.c,v 1.159 2017/04/02 14:26:18 tom Exp $")
+MODULE_ID("$Id: lib_set_term.c,v 1.166 2017/07/01 16:37:24 tom Exp $")
 
 #ifdef USE_TERM_DRIVER
 #define MaxColors      InfoOf(sp).maxcolors
@@ -183,6 +182,7 @@ delscreen(SCREEN *sp)
 	FreeIfNeeded(sp->_color_table);
 	FreeIfNeeded(sp->_color_pairs);
 
+	FreeIfNeeded(sp->_oldnum_list);
 	FreeIfNeeded(sp->oldhash);
 	FreeIfNeeded(sp->newhash);
 	FreeIfNeeded(sp->hashtab);
@@ -193,6 +193,9 @@ delscreen(SCREEN *sp)
 	NCURSES_SP_NAME(_nc_flush) (NCURSES_SP_ARG);
 	NCURSES_SP_NAME(del_curterm) (NCURSES_SP_ARGx sp->_term);
 	FreeIfNeeded(sp->out_buffer);
+	if (_nc_find_prescr() == sp) {
+	    _nc_forget_prescr();
+	}
 	free(sp);
 
 	/*
@@ -261,7 +264,7 @@ extract_fgbg(const char *src, int *result)
     if ((dst = tmp) == 0) {
 	dst = src;
     } else if (value >= 0) {
-	*result = value;
+	*result = (int) value;
     }
     while (*dst != 0 && *dst != ';')
 	dst++;
@@ -752,12 +755,15 @@ NCURSES_SP_NAME(_nc_ripoffline) (NCURSES_SP_DCLx
 	if (line == 0) {
 	    code = OK;
 	} else {
-	    if (safe_ripoff_sp == 0)
+	    if (safe_ripoff_sp == 0) {
 		safe_ripoff_sp = safe_ripoff_stack;
+	    }
 	    if (safe_ripoff_sp < safe_ripoff_stack + N_RIPS) {
 		safe_ripoff_sp->line = line;
 		safe_ripoff_sp->hook = init;
 		(safe_ripoff_sp)++;
+		T(("ripped-off %d:%d chunks",
+		   (int) (safe_ripoff_sp - safe_ripoff_stack), N_RIPS));
 		code = OK;
 	    }
 	}
@@ -770,7 +776,12 @@ NCURSES_SP_NAME(_nc_ripoffline) (NCURSES_SP_DCLx
 NCURSES_EXPORT(int)
 _nc_ripoffline(int line, int (*init) (WINDOW *, int))
 {
-    return NCURSES_SP_NAME(_nc_ripoffline) (CURRENT_SCREEN_PRE, line, init);
+    int rc;
+    _nc_lock_global(prescreen);
+    START_TRACE();
+    rc = NCURSES_SP_NAME(_nc_ripoffline) (CURRENT_SCREEN_PRE, line, init);
+    _nc_unlock_global(prescreen);
+    return rc;
 }
 #endif
 
@@ -789,6 +800,11 @@ NCURSES_SP_NAME(ripoffline) (NCURSES_SP_DCLx
 NCURSES_EXPORT(int)
 ripoffline(int line, int (*init) (WINDOW *, int))
 {
-    return NCURSES_SP_NAME(ripoffline) (CURRENT_SCREEN_PRE, line, init);
+    int rc;
+    _nc_lock_global(prescreen);
+    START_TRACE();
+    rc = NCURSES_SP_NAME(ripoffline) (CURRENT_SCREEN_PRE, line, init);
+    _nc_unlock_global(prescreen);
+    return rc;
 }
 #endif

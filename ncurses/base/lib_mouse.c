@@ -84,7 +84,7 @@
 #define CUR SP_TERMTYPE
 #endif
 
-MODULE_ID("$Id: lib_mouse.c,v 1.171 2017/03/25 21:20:35 tom Exp $")
+MODULE_ID("$Id: lib_mouse.c,v 1.175 2017/06/17 22:05:15 tom Exp $")
 
 #include <tic.h>
 
@@ -486,10 +486,15 @@ load_gpm_library(SCREEN *sp)
 {
     sp->_mouse_gpm_found = FALSE;
     if ((sp->_dlopen_gpm = dlopen(LIBGPM_SONAME, my_RTLD)) != 0) {
+#pragma GCC diagnostic push
+#if (defined(__GNUC__) && (__GNUC__ >= 5)) || defined(__clang__)
+#pragma GCC diagnostic ignored "-Wpedantic"
+#endif
 	if (GET_DLSYM(gpm_fd) == 0 ||
 	    GET_DLSYM(Gpm_Open) == 0 ||
 	    GET_DLSYM(Gpm_Close) == 0 ||
 	    GET_DLSYM(Gpm_GetEvent) == 0) {
+#pragma GCC diagnostic pop
 	    T(("GPM initialization failed: %s", dlerror()));
 	    unload_gpm_library(sp);
 	} else {
@@ -597,7 +602,7 @@ initialize_mousetype(SCREEN *sp)
     /* OS/2 VIO */
 #if USE_EMX_MOUSE
     if (!sp->_emxmouse_thread
-	&& strstr(TerminalOf(sp)->type.term_names, "xterm") == 0
+	&& strstr(SP_TERMTYPE term_names, "xterm") == 0
 	&& key_mouse) {
 	int handles[2];
 
@@ -711,10 +716,10 @@ initialize_mousetype(SCREEN *sp)
     /* we know how to recognize mouse events under "xterm" */
     if (key_mouse != 0) {
 	if (!strcmp(key_mouse, xterm_kmous)
-	    || strstr(TerminalOf(sp)->type.term_names, "xterm") != 0) {
+	    || strstr(SP_TERMTYPE term_names, "xterm") != 0) {
 	    init_xterm_mouse(sp);
 	}
-    } else if (strstr(TerminalOf(sp)->type.term_names, "xterm") != 0) {
+    } else if (strstr(SP_TERMTYPE term_names, "xterm") != 0) {
 	if (_nc_add_to_try(&(sp->_keytry), xterm_kmous, KEY_MOUSE) == OK)
 	    init_xterm_mouse(sp);
     }
@@ -1023,7 +1028,8 @@ decode_X10_bstate(SCREEN *sp, MEVENT * eventp, unsigned intro)
 static bool
 decode_xterm_X10(SCREEN *sp, MEVENT * eventp)
 {
-    unsigned char kbuf[4];
+#define MAX_KBUF 3
+    unsigned char kbuf[MAX_KBUF + 1];
     size_t grabbed;
     int res;
     bool result;
@@ -1034,7 +1040,7 @@ decode_xterm_X10(SCREEN *sp, MEVENT * eventp)
 #  endif
 	_nc_globals.read_thread = pthread_self();
 # endif
-    for (grabbed = 0; grabbed < 3; grabbed += (size_t) res) {
+    for (grabbed = 0; grabbed < MAX_KBUF; grabbed += (size_t) res) {
 
 	/* For VIO mouse we add extra bit 64 to disambiguate button-up. */
 	res = (int) read(
@@ -1043,14 +1049,14 @@ decode_xterm_X10(SCREEN *sp, MEVENT * eventp)
 #else
 			    sp->_ifd,
 #endif
-			    kbuf + grabbed, 3 - grabbed);
+			    kbuf + grabbed, (size_t) (MAX_KBUF - (int) grabbed));
 	if (res == -1)
 	    break;
     }
 #if USE_PTHREADS_EINTR
     _nc_globals.read_thread = 0;
 #endif
-    kbuf[3] = '\0';
+    kbuf[MAX_KBUF] = '\0';
 
     TR(TRACE_IEVENT,
        ("_nc_mouse_inline sees the following xterm data: '%s'", kbuf));
@@ -1186,7 +1192,7 @@ read_SGR(SCREEN *sp, SGR_DATA * result)
 			    kbuf + grabbed, 1);
 	if (res == -1)
 	    break;
-	if ((grabbed + 3) >= (int) sizeof(kbuf)) {
+	if ((grabbed + MAX_KBUF) >= (int) sizeof(kbuf)) {
 	    result->nerror++;
 	    break;
 	}

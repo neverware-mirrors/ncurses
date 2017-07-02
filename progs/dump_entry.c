@@ -39,7 +39,7 @@
 #include "termsort.c"		/* this C file is generated */
 #include <parametrized.h>	/* so is this */
 
-MODULE_ID("$Id: dump_entry.c,v 1.149 2017/03/04 20:18:20 tom Exp $")
+MODULE_ID("$Id: dump_entry.c,v 1.154 2017/07/01 11:27:29 tom Exp $")
 
 #define DISCARD(string) string = ABSENT_STRING
 #define PRINTF (void) printf
@@ -299,7 +299,7 @@ dump_init(const char *version,
 		       _nc_progname, width, tversion, outform);
 }
 
-static TERMTYPE *cur_type;
+static TERMTYPE2 *cur_type;
 
 static int
 dump_predicate(PredType type, PredIdx idx)
@@ -322,7 +322,7 @@ dump_predicate(PredType type, PredIdx idx)
     return (FALSE);		/* pacify compiler */
 }
 
-static void set_obsolete_termcaps(TERMTYPE *tp);
+static void set_obsolete_termcaps(TERMTYPE2 *tp);
 
 /* is this the index of a function key string? */
 #define FNKEY(i) \
@@ -697,7 +697,7 @@ has_params(const char *src)
 }
 
 static char *
-fmt_complex(TERMTYPE *tterm, const char *capability, char *src, int level)
+fmt_complex(TERMTYPE2 *tterm, const char *capability, char *src, int level)
 {
     bool percent = FALSE;
     bool params = has_params(src);
@@ -796,11 +796,35 @@ fmt_complex(TERMTYPE *tterm, const char *capability, char *src, int level)
     return src;
 }
 
+/*
+ * Make "large" numbers a little easier to read by showing them in hexadecimal
+ * if they are "close" to a power of two.
+ */
+static const char *
+number_format(int value)
+{
+    const char *result = "%d";
+    if ((outform != F_TERMCAP) && (value > 255)) {
+	unsigned long lv = (unsigned long) value;
+	unsigned long mm;
+	int bits = sizeof(unsigned long) * 8;
+	int nn;
+	for (nn = 8; nn < bits; ++nn) {
+	    mm = 1UL << nn;
+	    if ((mm - 16) <= lv && (mm + 16) > lv) {
+		result = "%#x";
+		break;
+	    }
+	}
+    }
+    return result;
+}
+
 #define SAME_CAP(n,cap) (&tterm->Strings[n] == &cap)
 #define EXTRA_CAP 20
 
 int
-fmt_entry(TERMTYPE *tterm,
+fmt_entry(TERMTYPE2 *tterm,
 	  PredFunc pred,
 	  int content_only,
 	  int suppress_untranslatable,
@@ -817,9 +841,10 @@ fmt_entry(TERMTYPE *tterm,
     PredIdx num_strings = 0;
     bool outcount = 0;
 
-#define WRAP_CONCAT	\
-	wrap_concat(buffer); \
-	outcount = TRUE
+#define WRAP_CONCAT1(s)		wrap_concat(s); outcount = TRUE
+#define WRAP_CONCAT2(a,b)	wrap_concat(a); WRAP_CONCAT1(b)
+#define WRAP_CONCAT3(a,b,c)	wrap_concat(a); WRAP_CONCAT2(b,c)
+#define WRAP_CONCAT		WRAP_CONCAT1(buffer)
 
     len = 12;			/* terminfo file-header */
 
@@ -892,8 +917,13 @@ fmt_entry(TERMTYPE *tterm,
 		_nc_SPRINTF(buffer, _nc_SLIMIT(sizeof(buffer))
 			    "%s@", name);
 	    } else {
+		size_t nn;
 		_nc_SPRINTF(buffer, _nc_SLIMIT(sizeof(buffer))
-			    "%s#%d", name, tterm->Numbers[i]);
+			    "%s#", name);
+		nn = strlen(buffer);
+		_nc_SPRINTF(buffer + nn, _nc_SLIMIT(sizeof(buffer) - nn)
+			    number_format(tterm->Numbers[i]),
+			    tterm->Numbers[i]);
 		if (i + 1 > num_values)
 		    num_values = i + 1;
 	    }
@@ -978,9 +1008,9 @@ fmt_entry(TERMTYPE *tterm,
 		    set_attributes = save_sgr;
 
 		    trimmed_sgr0 = _nc_trim_sgr0(tterm);
-		    if (strcmp(capability, trimmed_sgr0))
+		    if (strcmp(capability, trimmed_sgr0)) {
 			capability = trimmed_sgr0;
-		    else {
+		    } else {
 			if (trimmed_sgr0 != exit_attribute_mode)
 			    free(trimmed_sgr0);
 		    }
@@ -1017,13 +1047,21 @@ fmt_entry(TERMTYPE *tterm,
 			_nc_SPRINTF(buffer, _nc_SLIMIT(sizeof(buffer))
 				    "%s=!!! %s WILL NOT CONVERT !!!",
 				    name, srccap);
+			WRAP_CONCAT;
 		    } else if (suppress_untranslatable) {
 			continue;
 		    } else {
 			char *s = srccap, *d = buffer;
-			_nc_SPRINTF(d, _nc_SLIMIT(sizeof(buffer)) "..%s=", name);
-			d += strlen(d);
+			WRAP_CONCAT3("..", name, "=");
 			while ((*d = *s++) != 0) {
+			    if ((d - buffer - 1) >= (int) sizeof(buffer)) {
+				fprintf(stderr,
+					"%s: value for %s is too long\n",
+					_nc_progname,
+					name);
+				*d = '\0';
+				break;
+			    }
 			    if (*d == ':') {
 				*d++ = '\\';
 				*d = ':';
@@ -1032,13 +1070,12 @@ fmt_entry(TERMTYPE *tterm,
 			    }
 			    d++;
 			}
+			WRAP_CONCAT;
 		    }
 		} else {
-		    _nc_SPRINTF(buffer, _nc_SLIMIT(sizeof(buffer))
-				"%s=%s", name, cv);
+		    WRAP_CONCAT3(name, "=", cv);
 		}
 		len += (int) strlen(capability) + 1;
-		WRAP_CONCAT;
 	    } else {
 		char *src = _nc_tic_expand(capability,
 					   outform == F_TERMINFO, numbers);
@@ -1054,8 +1091,7 @@ fmt_entry(TERMTYPE *tterm,
 		    strcpy_DYN(&tmpbuf, src);
 		}
 		len += (int) strlen(capability) + 1;
-		wrap_concat(tmpbuf.text);
-		outcount = TRUE;
+		WRAP_CONCAT1(tmpbuf.text);
 	    }
 	}
 	/* e.g., trimmed_sgr0 */
@@ -1188,7 +1224,7 @@ fmt_entry(TERMTYPE *tterm,
 }
 
 static bool
-kill_string(TERMTYPE *tterm, char *cap)
+kill_string(TERMTYPE2 *tterm, char *cap)
 {
     unsigned n;
     for (n = 0; n < NUM_STRINGS(tterm); ++n) {
@@ -1201,7 +1237,7 @@ kill_string(TERMTYPE *tterm, char *cap)
 }
 
 static char *
-find_string(TERMTYPE *tterm, char *name)
+find_string(TERMTYPE2 *tterm, char *name)
 {
     PredIdx n;
     for (n = 0; n < NUM_STRINGS(tterm); ++n) {
@@ -1222,7 +1258,7 @@ find_string(TERMTYPE *tterm, char *name)
  * make it smaller.
  */
 static int
-kill_labels(TERMTYPE *tterm, int target)
+kill_labels(TERMTYPE2 *tterm, int target)
 {
     int n;
     int result = 0;
@@ -1247,7 +1283,7 @@ kill_labels(TERMTYPE *tterm, int target)
  * make it smaller.
  */
 static int
-kill_fkeys(TERMTYPE *tterm, int target)
+kill_fkeys(TERMTYPE2 *tterm, int target)
 {
     int n;
     int result = 0;
@@ -1301,7 +1337,7 @@ one_one_mapping(const char *mapping)
 #define SHOW_WHY PRINTF
 
 static bool
-purged_acs(TERMTYPE *tterm)
+purged_acs(TERMTYPE2 *tterm)
 {
     bool result = FALSE;
 
@@ -1348,13 +1384,13 @@ encode_b64(char *target, char *source, unsigned state, int *saved)
  * Dump a single entry.
  */
 void
-dump_entry(TERMTYPE *tterm,
+dump_entry(TERMTYPE2 *tterm,
 	   int suppress_untranslatable,
 	   int limited,
 	   int numbers,
 	   PredFunc pred)
 {
-    TERMTYPE save_tterm;
+    TERMTYPE2 save_tterm;
     int len, critlen;
     const char *legend;
     bool infodump;
@@ -1497,7 +1533,8 @@ dump_entry(TERMTYPE *tterm,
 		}
 		if (len > critlen) {
 		    (void) fprintf(stderr,
-				   "warning: %s entry is %d bytes long\n",
+				   "%s: %s entry is %d bytes long\n",
+				   _nc_progname,
 				   _nc_first_name(tterm->term_names),
 				   len);
 		    SHOW_WHY("# WARNING: this entry, %d bytes long, may core-dump %s libraries!\n",
@@ -1566,7 +1603,7 @@ show_entry(void)
 
 void
 compare_entry(PredHook hook,
-	      TERMTYPE *tp GCC_UNUSED,
+	      TERMTYPE2 *tp GCC_UNUSED,
 	      bool quiet)
 /* compare two entries */
 {
@@ -1625,7 +1662,7 @@ compare_entry(PredHook hook,
 #define CUR tp->
 
 static void
-set_obsolete_termcaps(TERMTYPE *tp)
+set_obsolete_termcaps(TERMTYPE2 *tp)
 {
 #include "capdefaults.c"
 }
@@ -1635,7 +1672,7 @@ set_obsolete_termcaps(TERMTYPE *tp)
  * unique.
  */
 void
-repair_acsc(TERMTYPE *tp)
+repair_acsc(TERMTYPE2 *tp)
 {
     if (VALID_STRING(acs_chars)) {
 	size_t n, m;

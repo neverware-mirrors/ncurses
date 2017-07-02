@@ -28,11 +28,11 @@
 
 /****************************************************************************
  *  Author: Juergen Pfeifer                                                 *
- *                                                                          *
+ *     and: Thomas E. Dickey                                                *
  ****************************************************************************/
 
 #include <curses.priv.h>
-#define CUR ((TERMINAL*)TCB)->type.
+#define CUR TerminalType((TERMINAL*)TCB).
 #include <tic.h>
 #include <termcap.h>		/* ospeed */
 
@@ -51,7 +51,7 @@
 # endif
 #endif
 
-MODULE_ID("$Id: tinfo_driver.c,v 1.47 2017/03/28 09:15:24 tom Exp $")
+MODULE_ID("$Id: tinfo_driver.c,v 1.58 2017/06/26 00:43:07 tom Exp $")
 
 /*
  * SCO defines TIOCGSIZE and the corresponding struct.  Other systems (SunOS,
@@ -115,7 +115,7 @@ drv_Name(TERMINAL_CONTROL_BLOCK * TCB)
 }
 
 static void
-get_baudrate(TERMINAL * termp)
+get_baudrate(TERMINAL *termp)
 {
     int my_ospeed;
     int result;
@@ -161,17 +161,17 @@ drv_CanHandle(TERMINAL_CONTROL_BLOCK * TCB, const char *tname, int *errret)
     TCB->magic = TCBMAGIC;
 
 #if (NCURSES_USE_DATABASE || NCURSES_USE_TERMCAP)
-    status = _nc_setup_tinfo(tname, &termp->type);
+    status = _nc_setup_tinfo(tname, &TerminalType(termp));
 #else
     status = TGETENT_NO;
 #endif
 
     /* try fallback list if entry on disk */
     if (status != TGETENT_YES) {
-	const TERMTYPE *fallback = _nc_fallback(tname);
+	const TERMTYPE2 *fallback = _nc_fallback2(tname);
 
 	if (fallback) {
-	    termp->type = *fallback;
+	    TerminalType(termp) = *fallback;
 	    status = TGETENT_YES;
 	}
     }
@@ -185,10 +185,11 @@ drv_CanHandle(TERMINAL_CONTROL_BLOCK * TCB, const char *tname, int *errret)
 	}
     }
     result = TRUE;
+#if NCURSES_EXT_NUMBERS
+    _nc_export_termtype2(&termp->type, &TerminalType(termp));
+#endif
 #if !USE_REENTRANT
-#define MY_SIZE (size_t) NAMESIZE - 1
-    _nc_STRNCPY(ttytype, termp->type.term_names, MY_SIZE);
-    ttytype[MY_SIZE] = '\0';
+    save_ttytype(termp);
 #endif
 
     if (command_character)
@@ -203,8 +204,16 @@ drv_CanHandle(TERMINAL_CONTROL_BLOCK * TCB, const char *tname, int *errret)
     if (sp == 0 && NC_ISATTY(termp->Filedes)) {
 	get_baudrate(termp);
     }
+#if NCURSES_EXT_NUMBERS
+#define cleanup_termtype() \
+    _nc_free_termtype2(&TerminalType(termp)); \
+    _nc_free_termtype(&termp->type)
+#else
+#define cleanup_termtype() \
+    _nc_free_termtype2(&TerminalType(termp))
+#endif
 
-    if (generic_type) {
+	if (generic_type) {
 	/*
 	 * BSD 4.3's termcap contains mis-typed "gn" for wy99.  Do a sanity
 	 * check before giving up.
@@ -212,12 +221,15 @@ drv_CanHandle(TERMINAL_CONTROL_BLOCK * TCB, const char *tname, int *errret)
 	if ((VALID_STRING(cursor_address)
 	     || (VALID_STRING(cursor_down) && VALID_STRING(cursor_home)))
 	    && VALID_STRING(clear_screen)) {
+	    cleanup_termtype();
 	    ret_error1(TGETENT_YES, "terminal is not really generic.\n", tname);
 	} else {
+	    cleanup_termtype();
 	    ret_error1(TGETENT_NO, "I need something more specific.\n", tname);
 	}
     }
     if (hard_copy) {
+	cleanup_termtype();
 	ret_error1(TGETENT_YES, "I can't handle hardcopy terminals.\n", tname);
     }
 
@@ -884,10 +896,10 @@ drv_initmouse(TERMINAL_CONTROL_BLOCK * TCB)
     if (sp != 0) {
 	if (key_mouse != 0) {
 	    if (!strcmp(key_mouse, xterm_kmous)
-		|| strstr(TerminalOf(sp)->type.term_names, "xterm") != 0) {
+		|| strstr(SP_TERMTYPE term_names, "xterm") != 0) {
 		init_xterm_mouse(sp);
 	    }
-	} else if (strstr(TerminalOf(sp)->type.term_names, "xterm") != 0) {
+	} else if (strstr(SP_TERMTYPE term_names, "xterm") != 0) {
 	    if (_nc_add_to_try(&(sp->_keytry), xterm_kmous, KEY_MOUSE) == OK)
 		init_xterm_mouse(sp);
 	}

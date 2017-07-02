@@ -26,13 +26,14 @@
  * authorization.                                                           *
  ****************************************************************************/
 /*
- * $Id: demo_new_pair.c,v 1.11 2017/04/08 21:48:53 tom Exp $
+ * $Id: demo_new_pair.c,v 1.15 2017/06/26 00:20:23 tom Exp $
  *
  * Demonstrate the alloc_pair() function.
  */
 
 #include <test.priv.h>
 #include <time.h>
+#include <popup_msg.h>
 
 #if HAVE_ALLOC_PAIR && USE_WIDEC_SUPPORT
 
@@ -116,24 +117,6 @@ next_color(int now)
 	result = now;
     }
     return result;
-}
-
-static void
-show_help(const char **help)
-{
-    WINDOW *mywin = newwin(LINES, COLS, 0, 0);
-    int n;
-
-    wmove(mywin, 1, 1);
-    for (n = 0; help[n] != 0; ++n) {
-	wmove(mywin, 1 + n, 2);
-	wprintw(mywin, "%.*s\n", COLS - 4, help[n]);
-    }
-    box(mywin, 0, 0);
-    wgetch(mywin);
-    delwin(mywin);
-    touchwin(stdscr);
-    refresh();
 }
 
 static time_t
@@ -246,8 +229,11 @@ main(int argc, char *argv[])
 	fprintf(stderr, "cannot open terminal for output\n");
 	ExitProgram(EXIT_FAILURE);
     }
-    if (newterm(NULL, output, stdin) == 0)
-	usage();
+    if (newterm(NULL, output, stdin) == 0) {
+	fprintf(stderr, "Cannot initialize terminal\n");
+	fclose(output);
+	ExitProgram(EXIT_FAILURE);
+    }
     (void) cbreak();		/* read chars without wait for \n */
     (void) noecho();		/* don't echo input */
     update_modes();
@@ -272,8 +258,8 @@ main(int argc, char *argv[])
 	int my_pair;
 
 	switch (getch()) {
-	case '?':
-	    show_help(help);
+	case HELP_KEY_1:
+	    popup_msg(stdscr, help);
 	    break;
 	case 'p':
 	    /* step-by-page */
@@ -349,6 +335,7 @@ main(int argc, char *argv[])
 	++current;
     }
     endwin();
+    fclose(output);
 
     printf("%.1f cells/second\n",
 	   (double) (total_cells) / (double) (now() - start));
