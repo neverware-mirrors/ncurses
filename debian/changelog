@@ -1,4 +1,4 @@
-ncurses (6.0+20170701-1) UNRELEASED; urgency=low
+ncurses (6.0+20170701-1) unstable; urgency=low
 
   * New upstream patchlevel.
   * Refresh Debian patches.
@@ -10,7 +10,7 @@ ncurses (6.0+20170701-1) UNRELEASED; urgency=low
     in the dvtm package (Closes: #863969).
   * Mark ncurses-doc as Multi-Arch: foreign.
 
- -- Sven Joachim <svenjoac@gmx.de>  Sat, 03 Jun 2017 09:50:35 +0200
+ -- Sven Joachim <svenjoac@gmx.de>  Fri, 07 Jul 2017 22:00:14 +0200
 
 ncurses (6.0+20170408-1) experimental; urgency=low
 
