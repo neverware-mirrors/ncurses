@@ -3,12 +3,22 @@ ncurses (6.0+20170708-1) UNRELEASED; urgency=medium
   * New upstream patchlevel.
     - Correct a limit-check in fixes from CVE-2017-10684
       (report by Sven Joachim).
+  * Amend the previous Debian changelog entry with CVE references.
 
  -- Sven Joachim <svenjoac@gmx.de>  Sun, 09 Jul 2017 09:44:14 +0200
 
 ncurses (6.0+20170701-1) unstable; urgency=low
 
   * New upstream patchlevel.
+    - Add/improve checks in tic's parser to address invalid input
+      (Redhat #1464684, #1464685, #1464686, #1464691).
+      + alloc_entry.c, add a check for a null-pointer (CVE-2017-11113).
+      + parse_entry.c, add several checks for valid pointers (CVE-2017-11112),
+        as well as one check to ensure that a single character on a line is
+        not treated as the 2-character termcap short-name.
+    - Fix a problem with buffer overflow in dump_entry.c, which is
+      addressed by reducing the use of a fixed-size buffer
+      (CVE-2017-16084, CVE-2017-10685).
   * Refresh Debian patches.
   * Update symbols files.
     - Add new symbol _nc_read_entry2.
