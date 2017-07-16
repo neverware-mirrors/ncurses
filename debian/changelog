@@ -1,4 +1,4 @@
-ncurses (6.0+20170715-1) UNRELEASED; urgency=medium
+ncurses (6.0+20170715-1) unstable; urgency=medium
 
   * New upstream patchlevel.
     - Bring back the _nc_read_entry symbol in libtinfo5 (Closes: #868328),
@@ -6,7 +6,7 @@ ncurses (6.0+20170715-1) UNRELEASED; urgency=medium
     - Repair termcap-format from tic/infocmp broken in 20170701 fixes
       (Closes: #868266).
 
- -- Sven Joachim <svenjoac@gmx.de>  Sun, 16 Jul 2017 14:44:13 +0200
+ -- Sven Joachim <svenjoac@gmx.de>  Sun, 16 Jul 2017 18:07:56 +0200
 
 ncurses (6.0+20170708-1) unstable; urgency=high
 
