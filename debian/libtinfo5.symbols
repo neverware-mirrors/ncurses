@@ -82,7 +82,7 @@ libtinfo.so.5 #PACKAGE# #MINVER#
  _nc_putchar@NCURSES_TINFO_5.9.20150530 6
  _nc_putp@NCURSES_TINFO_5.8.20110226 6
  _nc_putp_flush@NCURSES_TINFO_5.8.20110226 6
- _nc_read_entry2@NCURSES_TIC_6.0.current 6.0+20170701 1
+ _nc_read_entry@NCURSES_TINFO_5.0.19991023 6+20170715
  _nc_read_file_entry@NCURSES_TINFO_5.0.19991023 6
  _nc_read_termtype@NCURSES_TINFO_5.6.20061217 6
  _nc_rootname@NCURSES_TINFO_5.3.20021019 6

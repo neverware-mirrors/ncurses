@@ -1,6 +1,8 @@
 ncurses (6.0+20170715-1) UNRELEASED; urgency=medium
 
   * New upstream patchlevel.
+    - Bring back the _nc_read_entry symbol in libtinfo5 (Closes: #868328),
+      drop the _nc_read_entry2 symbol which should not have been added.
 
  -- Sven Joachim <svenjoac@gmx.de>  Sun, 16 Jul 2017 14:44:13 +0200
 
