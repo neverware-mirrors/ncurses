@@ -3,6 +3,8 @@ ncurses (6.0+20161126-1+deb9u1) UNRELEASED; urgency=medium
   * Cherry-pick upstream fixes from the 20170701 and 20170708 patchlevels
     for various crash bugs in the tic library and the tic binary
     (CVE-2017-10684, CVE-2017-10685, CVE-2017-11112, CVE-2017-11113).
+  * Backport termcap-format fix from the 20170715 patchlevel, repairing a
+    regression from the above security fixes (see #868266).
 
  -- Sven Joachim <svenjoac@gmx.de>  Sun, 09 Jul 2017 15:32:26 +0200
 
