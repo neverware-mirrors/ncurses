@@ -1,3 +1,9 @@
+ncurses (6.0+20170715-3) UNRELEASED; urgency=medium
+
+  * Look for tarballs on ftp.invisible-island.net in the watch files.
+
+ -- Sven Joachim <svenjoac@gmx.de>  Wed, 09 Aug 2017 19:03:50 +0200
+
 ncurses (6.0+20170715-2) unstable; urgency=medium
 
   * Bump the minimal version of _nc_read_entry to 6.0+20170715 for partial

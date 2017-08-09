@@ -4,4 +4,4 @@ version=3
 # check/download weekly snapshots, use the watch.patchlevel file.
 
 opts=passive,pgpsigurlmangle=s/$/.asc/ \
- ftp://invisible-island.net/ncurses/ncurses-(.*)\.tar\.gz
+ ftp://ftp.invisible-island.net/ncurses/ncurses-(.*)\.tar\.gz

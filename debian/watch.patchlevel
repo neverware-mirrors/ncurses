@@ -4,4 +4,4 @@ version=3
 # i.e. "uscan --watchfile debian/watch.patchlevel"
 
 opts=passive,uversionmangle=s/-/+/,pgpsigurlmangle=s/$/.asc/ \
- ftp://invisible-island.net/ncurses/current/ncurses-(.*)\.tgz
+ ftp://ftp.invisible-island.net/ncurses/current/ncurses-(.*)\.tgz
