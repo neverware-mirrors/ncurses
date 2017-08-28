@@ -34,7 +34,7 @@
  ****************************************************************************/
 
 /*
- * $Id: curses.priv.h,v 1.581 2017/07/15 20:17:01 tom Exp $
+ * $Id: curses.priv.h,v 1.584 2017/08/04 09:02:33 tom Exp $
  *
  *	curses.priv.h
  *
@@ -331,6 +331,15 @@ typedef struct
     int init;			/* true if we called init_color() */
 }
 color_t;
+
+typedef union {
+    struct {
+	unsigned char red;
+	unsigned char green;
+	unsigned char blue;
+    } bits;			/* bits per color-value in RGB */
+    unsigned value;
+} rgb_bits_t;
 
 /*
  * If curses.h did not expose the SCREEN-functions, then we do not need the
@@ -963,6 +972,9 @@ typedef struct {
 	int		nested_tracef;
 #endif
 #endif	/* TRACE */
+#if NO_LEAKS
+	bool		leak_checking;
+#endif
 
 #ifdef USE_PTHREADS
 	pthread_mutex_t	mutex_curses;
@@ -1045,6 +1057,12 @@ typedef struct {
 #endif
 
 extern NCURSES_EXPORT_VAR(NCURSES_PRESCREEN) _nc_prescreen;
+
+typedef enum {
+    ewInitial = 0,
+    ewRunning,
+    ewSuspend
+} ENDWIN;
 
 /*
  * The SCREEN structure.
@@ -1151,11 +1169,13 @@ struct screen {
 	int		_scrolling;	/* 1 if terminal's smart enough to  */
 
 	/* used in lib_color.c */
+	rgb_bits_t	_direct_color;	/* RGB overrides color-table	     */
 	color_t		*_color_table;	/* screen's color palette	     */
 	int		_color_count;	/* count of colors in palette	     */
 	colorpair_t	*_color_pairs;	/* screen's color pair list	     */
 	int		_pair_count;	/* same as COLOR_PAIRS               */
 	int		_pair_limit;	/* actual limit of color-pairs       */
+	int		_pair_alloc;	/* current table-size of color-pairs */
 #if NCURSES_EXT_FUNCS
 	bool		_assumed_color; /* use assumed colors		     */
 	bool		_default_color; /* use default colors		     */
@@ -1355,7 +1375,7 @@ extern NCURSES_EXPORT_VAR(SIG_ATOMIC_T) _nc_have_sigwinch;
     sp->_cbreak = 0;                            \
     sp->_echo = TRUE;                           \
     sp->_fifohead = -1;                         \
-    sp->_endwin = TRUE;                         \
+    sp->_endwin = ewSuspend;                    \
     sp->_cursor = -1;                           \
     SP_INIT_WINDOWLIST(sp);                     \
     sp->_outch = NCURSES_OUTC_FUNC;             \
@@ -1473,6 +1493,8 @@ extern NCURSES_EXPORT_VAR(SIG_ATOMIC_T) _nc_have_sigwinch;
 		       && (a).chars[3] == (b).chars[3] \
 		       && (a).chars[4] == (b).chars[4] \
 			if_EXT_COLORS(&& (a).ext_color == (b).ext_color))
+#elif CCHARW_MAX > 0
+#error Inconsistent values for CCHARW_MAX
 #else
 #define CharEq(a,b)	(!memcmp(&(a), &(b), sizeof(a)))
 #endif
@@ -1997,6 +2019,7 @@ extern NCURSES_EXPORT(int) _nc_init_color(SCREEN *, int, int, int, int);
 extern NCURSES_EXPORT(int) _nc_init_pair(SCREEN *, int, int, int);
 extern NCURSES_EXPORT(int) _nc_pair_content(SCREEN *, int, int *, int *);
 extern NCURSES_EXPORT(bool) _nc_reset_colors(void);
+extern NCURSES_EXPORT(colorpair_t *) _nc_reserve_pairs(SCREEN *, int);
 extern NCURSES_EXPORT(void) _nc_change_pair(SCREEN *, int);
 
 /* lib_getch.c */

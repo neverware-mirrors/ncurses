@@ -29,7 +29,7 @@
 /****************************************************************************
  *  Author: Thomas E. Dickey                    1996-on                     *
  ****************************************************************************/
-/* $Id: test.priv.h,v 1.145 2017/06/24 14:07:38 tom Exp $ */
+/* $Id: test.priv.h,v 1.148 2017/08/20 16:51:33 tom Exp $ */
 
 #ifndef __TEST_PRIV_H
 #define __TEST_PRIV_H 1
@@ -69,12 +69,21 @@
 #ifndef HAVE_BSD_STRING_H
 #define HAVE_BSD_STRING_H 0
 #endif
+
 #ifndef HAVE_CURSES_VERSION
 #define HAVE_CURSES_VERSION 0
 #endif
 
+#ifndef HAVE_CURSCR
+#define HAVE_CURSCR 0
+#endif
+
 #ifndef HAVE_CHGAT
 #define HAVE_CHGAT 0
+#endif
+
+#ifndef HAVE_COLOR_CONTENT
+#define HAVE_COLOR_CONTENT 0
 #endif
 
 #ifndef HAVE_COLOR_SET
@@ -197,12 +206,20 @@
 #define HAVE_SLK_INIT 0
 #endif
 
+#ifndef HAVE_STDINT_H
+#define HAVE_STDINT_H 0
+#endif
+
 #ifndef HAVE_SYS_IOCTL_H
 #define HAVE_SYS_IOCTL_H 0
 #endif
 
 #ifndef HAVE_SYS_SELECT_H
 #define HAVE_SYS_SELECT_H 0
+#endif
+
+#ifndef HAVE_TDESTROY
+#define HAVE_TDESTROY 0
 #endif
 
 #ifndef HAVE_TERMATTRS
@@ -235,6 +252,10 @@
 
 #ifndef HAVE_TPUTS_SP
 #define HAVE_TPUTS_SP 0
+#endif
+
+#ifndef HAVE_TSEARCH
+#define HAVE_TSEARCH 0
 #endif
 
 #ifndef HAVE_TYPEAHEAD
@@ -550,6 +571,14 @@ extern int optind;
 #define	WACS_PI		&(CURSES_WACS_ARRAY['{'])
 #define	WACS_NEQUAL	&(CURSES_WACS_ARRAY['|'])
 #define	WACS_STERLING	&(CURSES_WACS_ARRAY['}'])
+#endif
+
+#ifndef OK
+#define OK (0)
+#endif
+
+#ifndef ERR
+#define ERR (-1)
 #endif
 
 #undef CTRL
