@@ -155,6 +155,7 @@ CONFARGS =	--prefix=/usr \
 CONFARGS-TEST =	--prefix=/usr \
 		--build=$(DEB_BUILD_GNU_TYPE) \
 		--bindir=/usr/lib/ncurses/examples \
+		--datadir=/usr/share/ncurses-examples \
 		--with-ncursesw \
 		--with-curses-dir=$(wobjdir)
 
