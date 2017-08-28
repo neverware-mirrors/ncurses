@@ -1,5 +1,6 @@
-ncurses (6.0+20170715-3) UNRELEASED; urgency=medium
+ncurses (6.0+20170827-1) UNRELEASED; urgency=medium
 
+  * New upstream patchlevel.
   * Look for tarballs on ftp.invisible-island.net in the watch files.
 
  -- Sven Joachim <svenjoac@gmx.de>  Wed, 09 Aug 2017 19:03:50 +0200
