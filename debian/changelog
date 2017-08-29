@@ -12,6 +12,7 @@ ncurses (6.0+20170827-1) UNRELEASED; urgency=medium
       + Reset secondary pointers on EOF in next_char() (CVE-2017-13732).
       + Guard _nc_safe_strcpy() and _nc_safe_strcat() against calls using
         cancelled strings (CVE-2017-13734).
+    - Add usage message to clear command (Closes: #371855).
   * Configure the test programs with --datadir=/usr/share/ncurses-examples.
   * Look for tarballs on ftp.invisible-island.net in the watch files.
 
