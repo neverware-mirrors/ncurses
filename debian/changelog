@@ -1,6 +1,17 @@
 ncurses (6.0+20170827-1) UNRELEASED; urgency=medium
 
   * New upstream patchlevel.
+    - Add/improve checks in tic's parser to address invalid input.
+      + Add a check in comp_scan.c to handle the special case where a
+        nontext file ending with a NUL rather than newline is given to
+        tic as input (CVE-2017-13728).
+      + Allow for cancelled capabilities in _nc_save_str (CVE-2017-13729).
+      + Add validity checks for "use=" target in _nc_parse_entry
+        (CVE-2017-13730).
+      + Check for invalid strings in postprocess_termcap (CVE-2017-13731).
+      + Reset secondary pointers on EOF in next_char() (CVE-2017-13732).
+      + Guard _nc_safe_strcpy() and _nc_safe_strcat() against calls using
+        cancelled strings (CVE-2017-13734).
   * Configure the test programs with --datadir=/usr/share/ncurses-examples.
   * Look for tarballs on ftp.invisible-island.net in the watch files.
 
