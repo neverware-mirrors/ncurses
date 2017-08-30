@@ -1,7 +1,8 @@
 ncurses (6.0+20170827-1) UNRELEASED; urgency=medium
 
   * New upstream patchlevel.
-    - Add/improve checks in tic's parser to address invalid input.
+    - Add/improve checks in tic's parser to address invalid input
+      (Closes: #873723).
       + Add a check in comp_scan.c to handle the special case where a
         nontext file ending with a NUL rather than newline is given to
         tic as input (CVE-2017-13728).
