@@ -1,4 +1,4 @@
-ncurses (6.0+20170827-1) UNRELEASED; urgency=medium
+ncurses (6.0+20170827-1) unstable; urgency=medium
 
   * New upstream patchlevel.
     - Add/improve checks in tic's parser to address invalid input
@@ -17,7 +17,7 @@ ncurses (6.0+20170827-1) UNRELEASED; urgency=medium
   * Configure the test programs with --datadir=/usr/share/ncurses-examples.
   * Look for tarballs on ftp.invisible-island.net in the watch files.
 
- -- Sven Joachim <svenjoac@gmx.de>  Wed, 09 Aug 2017 19:03:50 +0200
+ -- Sven Joachim <svenjoac@gmx.de>  Thu, 31 Aug 2017 21:01:20 +0200
 
 ncurses (6.0+20170715-2) unstable; urgency=medium
 
