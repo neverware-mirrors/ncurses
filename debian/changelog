@@ -1,6 +1,8 @@
 ncurses (6.0+20170902-1) UNRELEASED; urgency=medium
 
   * New upstream patchlevel.
+    - Modify check in fmt_entry() to handle a cancelled reset string
+      (CVE-2017-13733, Closes: #873746).
 
  -- Sven Joachim <svenjoac@gmx.de>  Sun, 03 Sep 2017 17:37:19 +0200
 
