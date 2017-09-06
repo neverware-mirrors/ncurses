@@ -3,3 +3,4 @@
 03-debian-ncursesconfig-omit-L.diff
 cve-fixes.diff
 termcap-fix.diff
+more-cve-fixes.diff

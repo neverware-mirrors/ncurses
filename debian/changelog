@@ -5,6 +5,10 @@ ncurses (5.9+20140913-1+deb8u1) UNRELEASED; urgency=medium
     (CVE-2017-10684, CVE-2017-10685, CVE-2017-11112, CVE-2017-11113).
   * Apply termcap-format fix from openSUSE's ncurses-5.9-55.6.1 package,
     repairing a regression from the above security fixes (see #868266).
+  * Cherry-pick upstream fixes from the 20170826 patchlevel for more
+    crash bugs in the tic library (CVE-2017-13728, CVE-2017-13729,
+    CVE-2017-13730, CVE-2017-13731, CVE-2017-13732, CVE-2017-13734,
+    Closes: #873723).
 
  -- Sven Joachim <svenjoac@gmx.de>  Sun, 09 Jul 2017 16:26:16 +0200
 
