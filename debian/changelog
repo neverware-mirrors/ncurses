@@ -9,6 +9,8 @@ ncurses (5.9+20140913-1+deb8u1) UNRELEASED; urgency=medium
     crash bugs in the tic library (CVE-2017-13728, CVE-2017-13729,
     CVE-2017-13730, CVE-2017-13731, CVE-2017-13732, CVE-2017-13734,
     Closes: #873723).
+  * Cherry-pick upstream fixes from the 20170902 patchlevel to fix
+    another crash bug in the tic program (CVE-2017-13733, Closes: #873746).
 
  -- Sven Joachim <svenjoac@gmx.de>  Sun, 09 Jul 2017 16:26:16 +0200
 
