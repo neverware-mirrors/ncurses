@@ -1,4 +1,4 @@
-ncurses (5.9+20140913-1+deb8u1) UNRELEASED; urgency=medium
+ncurses (5.9+20140913-1+deb8u1) jessie; urgency=medium
 
   * Cherry-pick upstream fixes from the 20170701 and 20170708 patchlevels
     for various crash bugs in the tic library and the tic binary
@@ -12,7 +12,7 @@ ncurses (5.9+20140913-1+deb8u1) UNRELEASED; urgency=medium
   * Cherry-pick upstream fixes from the 20170902 patchlevel to fix
     another crash bug in the tic program (CVE-2017-13733, Closes: #873746).
 
- -- Sven Joachim <svenjoac@gmx.de>  Sun, 09 Jul 2017 16:26:16 +0200
+ -- Sven Joachim <svenjoac@gmx.de>  Thu, 07 Sep 2017 19:08:05 +0200
 
 ncurses (5.9+20140913-1) unstable; urgency=low
 
