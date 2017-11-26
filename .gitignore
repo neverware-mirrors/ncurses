@@ -2,5 +2,3 @@ build*
 obj*/
 .pc/
 config.guess-stamp
-config.guess.dh-orig
-config.sub.dh-orig

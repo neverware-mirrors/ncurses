@@ -6,6 +6,8 @@ ncurses (6.0+20171125-1) UNRELEASED; urgency=medium
   * Change priority of the -dbg packages and the udeb to optional.
   * Delete trailing whitespace in debian/changelog.
   * Bump debhelper compatibility level to 10.
+  * Switch from dh_autotools-dev_updateconfig to dh_update_autotools_config
+    and drop the explicit autotools-dev build dependency.
   * Drop dpkg-dev build dependency, already fulfilled in oldstable.
 
  -- Sven Joachim <svenjoac@gmx.de>  Sun, 26 Nov 2017 14:22:46 +0100

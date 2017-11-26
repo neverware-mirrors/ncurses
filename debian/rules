@@ -189,7 +189,7 @@ export cf_cv_gpm_soname=libgpm.so.2
 endif
 
 config.guess-stamp:
-	dh_autotools-dev_updateconfig
+	dh_update_autotools_config
 	touch $@
 
 $(objdir)/config.status: config.guess-stamp
@@ -361,7 +361,6 @@ clean:
 	rm -rf $(wobjdir-debug)
 	rm -rf $(objdir-test)
 	rm -f $(autogen-files)
-	dh_autotools-dev_restoreconfig
 	dh_clean
 
 install: build
