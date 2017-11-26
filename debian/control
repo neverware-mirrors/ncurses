@@ -31,7 +31,7 @@ Package: libtinfo5-udeb
 Package-Type: udeb
 Section: debian-installer
 Architecture: any
-Priority: extra
+Priority: optional
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: shared low-level terminfo library for terminal handling - udeb
  The ncurses library routines are a terminal-independent method of
@@ -74,7 +74,7 @@ Description: developer's library for the low-level terminfo library
 Package: libtinfo5-dbg
 Architecture: any
 Section: debug
-Priority: extra
+Priority: optional
 Depends: libtinfo5 (= ${binary:Version}),
          ${shlibs:Depends}, ${misc:Depends}
 Replaces: libncurses5-dbg (<< 5.9+20130608)
@@ -109,7 +109,7 @@ Description: developer's libraries for ncurses
 Package: libncurses5-dbg
 Architecture: any
 Section: debug
-Priority: extra
+Priority: optional
 Depends: libtinfo5 (= ${binary:Version}), libncurses5 (= ${binary:Version}),
          libtinfo5-dbg (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
 Description: debugging/profiling libraries for ncurses
@@ -156,7 +156,7 @@ Description: developer's libraries for ncursesw
 Package: libncursesw5-dbg
 Architecture: any
 Section: debug
-Priority: extra
+Priority: optional
 Depends: libtinfo5 (= ${binary:Version}), libtinfo5-dbg (= ${binary:Version}),
          libncursesw5 (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
 Description: debugging/profiling libraries for ncursesw
