@@ -8,6 +8,7 @@ Build-Depends: debhelper (>= 10),
                libgpm-dev [linux-any],
                pkg-config,
 Standards-Version: 3.9.8
+Rules-Requires-Root: no
 Vcs-Browser: https://anonscm.debian.org/cgit/collab-maint/ncurses.git
 Vcs-Git: https://anonscm.debian.org/git/collab-maint/ncurses.git
 Homepage: http://invisible-island.net/ncurses/
