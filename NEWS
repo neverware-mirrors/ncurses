@@ -25,7 +25,7 @@
 -- sale, use or other dealings in this Software without prior written        --
 -- authorization.                                                            --
 -------------------------------------------------------------------------------
--- $Id: NEWS,v 1.2939 2017/09/02 21:48:17 tom Exp $
+-- $Id: NEWS,v 1.3014 2017/11/25 23:04:42 tom Exp $
 -------------------------------------------------------------------------------
 
 This is a log of changes that ncurses has gone through since Zeyd started
@@ -44,6 +44,153 @@ See the AUTHORS file for the corresponding full names.
 
 Changes through 1.9.9e did not credit all contributions;
 it is not possible to add this information.
+
+20171125
+	+ modify MKlib_gen.sh to avoid tracing result from getstr/getnstr
+	  before initialized.
+	+ add "-a" aspect-ratio option to picsmap.
+	+ add configure check for default path of rgb.txt, used in picsmap.
+	+ modify _nc_write_entry() to truncate too-long filename (report by
+	  Hosein Askari, Debian #882620).
+	+ build-fix for ncurses-examples with NetBSD curses:
+	  + it lacks the use_env() function.
+	  + it lacks libpanel; a recent change used the wrong ifdef symbol.
+	+ add a macro for is_linetouched() and adjust the function's return
+	  value to make it possible for most applications to check for an
+	  error-return (report by Midolikawa H).
+	+ additional manpage cleanup.
+	+ update config.guess, config.sub from
+		http://git.savannah.gnu.org/cgit/config.git
+
+20171118
+	+ add a note to curs_addch.3x on portability.
+	+ add a note to curs_pad.3x on the origin and portability of pads.
+	+ improve manpage description of getattrs (report by Midolikawa H).
+	+ improve manpage macros (prompted by discussion in Debian #880551.
+	+ reviewed test-programs using KEY_RESIZE, made fixes to test/worm.c
+	+ add a "-d" option to picsmap for default-colors.
+	+ modify old terminology entry and a few other terminal emulators to
+	  account for xon -TD
+	+ correct sgr string for tmux, which used screen's "standout" code
+	  rather than the standard code (patch by Roman Kagan)
+	+ correct sgr/sgr0 strings in a few other cases reported by tic, making
+	  those correspond to the non-sgr settings where they differ, but
+	  otherwise use ECMA-48 consistently:
+	  jaixterm, aixterm, att5420_2, att4424, att500, decansi, d410-7b,
+	  dm80, hpterm, emu-220, hp2, iTerm2.app, mterm-ansi, ncrvt100an,
+	  st-0.7, vi603, vwmterm -TD
+	+ build-fix for diagnostics warning in lib_mouse.c for pre-5.0 versions
+	  of gcc which did not recognize the diagnostic "push" pragma (patch by
+	  Vassili Courzakis).
+
+20171111
+	+ add "op" to xterm+256setaf -TD
+	+ reviewed terminology 1.0.0 -TD
+	+ reviewed st 0.7 -TD
+	+ suppress debug-package for ncurses-examples rpm build.
+
+20171104
+	+ check for interrupt in color-pair initialization of dots_curses.c,
+	  dots_xcurses.c
+	+ add z/Z zoom feature to test/ncurses.c C/c screens.
+	+ add '<' and '>' commands to test/ncurses.c S/s screens, to better
+	  test off-by-ones in the overlap/copywin functions.
+
+20171028
+	+ improve man/curs_inwstr.3x, correct end-logic for lib_inwstr.c
+	  (report by Midolikawa H).
+	+ fix typo in a few places for "improvements" (patch by Sven Joachim).
+	+ clear the other half of a double-width character on which a line
+	  drawing character is drawn.
+	+ make test/ncurses.c "s" test easier to understand which subtests are
+	  available; add a "S" wide-character overlap test-screen.
+	+ modify test/ncurses.c C/c tests to allow for extended color pairs.
+	+ add endwin() call in error-returns from test/ncurses.c omitted in
+	  recent redesign of its menu (cf: 20170923).
+	+ improve install of hashed-db by removing the ".db" file as done for
+	  directory-tree terminal databases.
+	+ repair a few overlooked items in include/ncurses_defs from recent
+	  port/refactoring of test-programs (cf: 20170909).
+	+ add test/padview.c, to compare pads with direct updates in view.c
+
+20171021
+	+ modify test/view.c to expand tabs using the ncurses library rather
+	  than in the test-program.
+	+ remove very old SIGWINCH example in test/view.c, just use KEY_RESIZE.
+	+ add -T, -e, -f -m options to "dots" test-programs.
+	+ fix a few typos in usage-messages for test-programs.
+
+20171014
+	+ minor cleanup to test/view.c:
+	  + eliminate "-n" option by simply reading the whole file.
+	  + implement page up/down commands.
+	+ add check in tput for init/reset operands to ensure those use a
+	  terminal.
+	+ improve manual pages which discuss chtype, cchar_t types and the
+	  attribute values which can be stored in those types.
+	+ correct array-index when parsing "-T" command-line option in tabs
+	  program.
+	+ modify demo_new_pair.c to pass extended pairs to setcchar().
+	+ add test/dots_xcurses.c to illustrate a different approach used for
+	  extended colors which can be contrasted with dots_curses.c.
+	+ add a check in tic to note when a description uses non-mandatory
+	  delays without xon_xoff.  This is not an error, but some descriptions
+	  for a terminal emulator may use the combination incorrectly.
+
+20171007
+	+ modify "-T" option of clear and tput to call use_tioctl() to obtain
+	  the operating system's notion of the screensize if possible.
+	+ review/repair some exit-codes for tput, making usage-message exit
+	  with 2 rather than 1, and a failure to open terminal 4+errno.
+	+ amend check in tput, tabs and clear to allow those to use the
+	  database-only features in cron if a -T option gives a suitable
+	  terminal name (report by Lauri Tirkkonen).
+	+ correct an ifdef in test/ncurses.c for systems with soft-keys but
+	  not slk_color().
+	+ regenerate man-html documentation.
+
+20170930
+	+ fix a symbol conflict that made ncurses.c C/c menu not work with
+	  Solaris xpg4 curses.
+	+ add refresh() call to dots_mvcur.c, needed to use mvcur() with
+	  Solaris xpg4 curses after calling newterm().
+	+ minor fixes for configure script from work on ncurses-examples and
+	  tin.
+	+ improve animation in test/xmas.c by adding a time-delay in blinkit().
+	+ modify several test programs to reflect that ncurses honors existing
+	  signal handlers in initscr(), while other implementations do not.
+	+ modify bs.c to make it easier to quit.
+	+ change ncurses-examples to use attr_t vs chtype to follow X/Open
+	  documentation more closely since Solaris xpg4-curses uses different
+	  values for WA_xxx vs A_xxx that rely on attr_t being an unsigned
+	  short.  Tru64 aka OSF1, HPUX, AIX did as ncurses does, equating the
+	  two sets.
+
+20170923
+	+ modify menu for test/ncurses.c to fit on 24-line screen.
+	+ build-fix for configure --with-caps=uwin
+	+ add options to test_arrays.c, for selecting termcap vs terminfo, etc.
+
+20170916
+	+ minor fix to test/filter.c to avoid clearing the command in one case.
+	+ modify filter() to discard clr_eos if back_color_erase is set.
+
+20170909
+	+ improve wide-character implementation of myADDNSTR() in frm_driver.c,
+	  which was inconsistent with the normal implementation.
+	+ save/restore cursor position in Undo_Justification(), matching
+	  behavior of Buffer_To_Window() (report by Leon Winter).
+	+ modify test/knight to provide the "slow" solution for small screens
+	  using "R", noting that Warnsdorf's method is easily done with "a".
+	+ modify several test-programs which call use_default_colors() to
+	  consistently do this only if "-d" option is given.
+	+ additional changes to test with non-standard variants of curses:
+	  + modify a loop limit in firework.c to work around absense of limit
+	    checks in some libraries.
+	  + fill the last row of a window with "?" in firstlast if waddch does
+	    not return ERR on the lower-right corner.
+	+ add checks in test/configure for some functions not in 4.3BSD curses.
+	+ fix a regression in test/configure (cf: 20170826).
 
 20170902
 	+ amend change for endwin-state for better consistency with the older
@@ -2663,7 +2810,7 @@ it is not possible to add this information.
 	+ regenerated html manpages.
 
 20120107
-	+ various improvments for MinGW (Juergen Pfeifer):
+	+ various improvements for MinGW (Juergen Pfeifer):
 	  + modify stat() calls to ignore the st_size member
 	  + drop mk-dlls.sh script.
 	  + change recommended regular expression library.
@@ -5114,7 +5261,7 @@ it is not possible to add this information.
 	+ fix ifdef in c++/internal.h for QNX 6.1
 	+ test-compiled with (old) egcs-1.1.2, modified configure script to
 	  not unset the $CXX and related variables which would prevent this.
-	+ fix a few terminfo.src typos exposed by improvments to "-f" option.
+	+ fix a few terminfo.src typos exposed by improvements to "-f" option.
 	+ improve infocmp/tic "-f" option formatting.
 
 20060923

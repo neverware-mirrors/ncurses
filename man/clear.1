@@ -26,14 +26,14 @@
 .\" authorization.                                                           *
 .\"***************************************************************************
 .\"
-.\" $Id: clear.1,v 1.17 2017/08/19 14:12:50 tom Exp $
+.\" $Id: clear.1,v 1.19 2017/11/18 23:51:59 tom Exp $
 .TH @CLEAR@ 1 ""
 .\" these would be fallbacks for DS/DE,
 .\" but groff changed the meaning of the macros.
 .de NS
-.ie \n(.sp
+.ie n  .sp
 .el    .sp .5
-.ie \n(.in +4
+.ie n  .in +4
 .el    .in +2
 .nf
 .ft C			\" Courier
@@ -48,7 +48,8 @@
 .ie \n(.g .ds '' \(rq
 .el       .ds '' ''
 .de bP
-.IP \(bu 4
+.ie n  .IP \(bu 4
+.el    .IP \(bu 2
 ..
 .ds n 5
 .SH NAME
@@ -76,6 +77,8 @@ indicates the \fItype\fR of terminal.
 Normally this option is
 unnecessary, because the default is taken from the environment
 variable \fBTERM\fR.
+If \fB\-T\fR is specified, then the shell
+variables \fBLINES\fR and \fBCOLUMNS\fR will also be ignored.
 .TP
 .B \-V
 reports the version of ncurses which was used in this program, and exits.

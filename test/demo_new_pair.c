@@ -26,7 +26,7 @@
  * authorization.                                                           *
  ****************************************************************************/
 /*
- * $Id: demo_new_pair.c,v 1.15 2017/06/26 00:20:23 tom Exp $
+ * $Id: demo_new_pair.c,v 1.18 2017/10/11 22:16:14 tom Exp $
  *
  * Demonstrate the alloc_pair() function.
  */
@@ -63,19 +63,19 @@ next_attr(int now)
 	attr_t bits[MAX_BITS];
 
 	init = TRUE;
-	bits[limit++] = A_NORMAL;
+	bits[limit++] = WA_NORMAL;
 	if (valid_cap("smso"))
-	    bits[limit++] = A_STANDOUT;
+	    bits[limit++] = WA_STANDOUT;
 	if (valid_cap("smul"))
-	    bits[limit++] = A_UNDERLINE;
+	    bits[limit++] = WA_UNDERLINE;
 	if (valid_cap("rev"))
-	    bits[limit++] = A_REVERSE;
+	    bits[limit++] = WA_REVERSE;
 	if (valid_cap("blink"))
-	    bits[limit++] = A_BLINK;
+	    bits[limit++] = WA_BLINK;
 	if (valid_cap("dim"))
-	    bits[limit++] = A_DIM;
+	    bits[limit++] = WA_DIM;
 	if (valid_cap("bold"))
-	    bits[limit++] = A_BOLD;
+	    bits[limit++] = WA_BOLD;
 	for (j = 0; j < limit; ++j) {
 	    for (k = 0; k < limit; ++k) {
 		table[j * limit + k] = bits[j] | bits[k];
@@ -323,7 +323,9 @@ main(int argc, char *argv[])
 	    break;
 	wch[0] = use_wide ? 0xff03 : '#';
 	wch[1] = 0;
-	setcchar(&temp, wch, my_attrs, (short) my_pair, NULL);
+	setcchar(&temp, wch, my_attrs,
+		 (short) my_pair,
+		 (use_init ? NULL : (void *) &my_pair));
 	/*
 	 * At the end of a page, move the cursor to the home position.
 	 */
@@ -334,7 +336,7 @@ main(int argc, char *argv[])
 	total_cells += 1 + (use_wide ? 1 : 0);
 	++current;
     }
-    endwin();
+    exit_curses();
     fclose(output);
 
     printf("%.1f cells/second\n",

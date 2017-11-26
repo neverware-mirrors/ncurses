@@ -26,7 +26,7 @@
  * authorization.                                                           *
  ****************************************************************************/
 /*
- * $Id: savescreen.c,v 1.32 2017/04/15 17:33:50 tom Exp $
+ * $Id: savescreen.c,v 1.36 2017/10/20 21:20:34 tom Exp $
  *
  * Demonstrate save/restore functions from the curses library.
  * Thomas Dickey - 2007/7/14
@@ -65,7 +65,7 @@ static bool keep_dumps = FALSE;
 static wchar_t
 BaseChar(cchar_t data)
 {
-    wchar_t my_wchar[sizeof(cchar_t)];
+    wchar_t my_wchar[CCHARW_MAX];
     attr_t my_attr;
     short my_pair;
     getcchar(&data, my_wchar, &my_attr, &my_pair, NULL);
@@ -313,7 +313,7 @@ main(int argc, char *argv[])
 	    }
 	    move(0, 0);
 	} else {
-	    endwin();
+	    exit_curses();
 	    fprintf(stderr, "Cannot open \"%s\"\n", fill_by);
 	    ExitProgram(EXIT_FAILURE);
 	}
@@ -325,14 +325,14 @@ main(int argc, char *argv[])
 	 * Use the last file as the initial/current screen.
 	 */
 	if (last < 0) {
-	    endwin();
+	    exit_curses();
 	    printf("No screen-dumps given\n");
 	    ExitProgram(EXIT_FAILURE);
 	}
 
 	which = last;
 	if (load_screen(files[which]) == ERR) {
-	    endwin();
+	    exit_curses();
 	    printf("Cannot load screen-dump %s\n", files[which]);
 	    ExitProgram(EXIT_FAILURE);
 	}
@@ -475,7 +475,7 @@ main(int argc, char *argv[])
 		continue;
 	    }
 	    if (!done) {
-		attr_t attr = (A_REVERSE | (attr_t) COLOR_PAIR(color * COLORS));
+		chtype attr = (A_REVERSE | (chtype) COLOR_PAIR(color * COLORS));
 		chtype ch2 = (altchars ? MyMarker : '#');
 		move(y, x);
 		AddCh(ch2 | attr);
@@ -489,7 +489,7 @@ main(int argc, char *argv[])
 
 #else
 int
-main(int argc, char *argv[])
+main(int argc GCC_UNUSED, char *argv[]GCC_UNUSED)
 {
     printf("This program requires the screen-dump functions\n");
     ExitProgram(EXIT_FAILURE);

@@ -1,4 +1,4 @@
-# $Id: programs,v 1.39 2017/07/01 20:14:35 tom Exp $
+# $Id: programs,v 1.41 2017/10/22 16:06:57 tom Exp $
 ##############################################################################
 # Copyright (c) 2006-2016,2017 Free Software Foundation, Inc.                #
 #                                                                            #
@@ -51,6 +51,7 @@ dots		$(LDFLAGS_TINFO)	$(LOCAL_LIBS)	dots
 dots_curses	$(LDFLAGS_CURSES)	$(LOCAL_LIBS)	dots_curses
 dots_mvcur	$(LDFLAGS_CURSES)	$(LOCAL_LIBS)	dots_mvcur
 dots_termcap	$(LDFLAGS_TINFO)	$(LOCAL_LIBS)	dots_termcap
+dots_xcurses	$(LDFLAGS_CURSES)	$(LOCAL_LIBS)	dots_xcurses
 echochar	$(LDFLAGS_CURSES)	$(LOCAL_LIBS)	echochar
 extended_color	$(LDFLAGS_CURSES)	$(LOCAL_LIBS)	extended_color
 filter		$(LDFLAGS_CURSES)	$(LOCAL_LIBS)	filter
@@ -73,6 +74,7 @@ list_keys	$(LDFLAGS_TINFO)	$(LOCAL_LIBS)	list_keys
 lrtest		$(LDFLAGS_CURSES)	$(LOCAL_LIBS)	lrtest
 movewindow	$(LDFLAGS_CURSES)	$(LOCAL_LIBS)	movewindow popup_msg
 ncurses		$(LDFLAGS_DEFAULT)	$(LOCAL_LIBS)	ncurses
+padview		$(LDFLAGS_CURSES)	$(LOCAL_LIBS)	padview popup_msg
 picsmap		$(LDFLAGS_CURSES)	$(LOCAL_LIBS)	picsmap
 newdemo		$(LDFLAGS_CURSES)	$(LOCAL_LIBS)	newdemo
 railroad	$(LDFLAGS_TINFO)	$(LOCAL_LIBS)	railroad

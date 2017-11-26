@@ -26,16 +26,16 @@
 .\" authorization.                                                           *
 .\"***************************************************************************
 .\"
-.\" $Id: user_caps.5,v 1.1 2017/08/12 21:26:12 tom Exp $
+.\" $Id: user_caps.5,v 1.4 2017/11/25 20:13:12 tom Exp $
 .TH user_caps 5
 .ie \n(.g .ds `` \(lq
 .el       .ds `` ``
 .ie \n(.g .ds '' \(rq
 .el       .ds '' ''
 .de NS
-.ie \n(.sp
+.ie n  .sp
 .el    .sp .5
-.ie \n(.in +4
+.ie n  .in +4
 .el    .in +2
 .nf
 .ft C			\" Courier
@@ -46,9 +46,9 @@
 .in -4
 ..
 .de bP
-.IP \(bu 4
+.ie n  .IP \(bu 4
+.el    .IP \(bu 2
 ..
-.ds n 5
 .SH NAME
 user_caps \- user-defined terminfo capabilities
 .SH SYNOPSIS
@@ -210,7 +210,7 @@ asserts that ncurses must use Unicode values for line-drawing characters,
 and that it should ignore the alternate character set capabilities
 when the locale uses UTF-8 encoding.
 For more information, see the discussion of
-\fBNCURSES_NO_UTF8_ACS\fP in \fBterminfo\fP(5).
+\fBNCURSES_NO_UTF8_ACS\fP in \fBncurses\fP(3X).
 .IP
 Set this capability to a nonzero value to enable it.
 .TP 3

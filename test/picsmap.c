@@ -26,7 +26,7 @@
  * authorization.                                                           *
  ****************************************************************************/
 /*
- * $Id: picsmap.c,v 1.101 2017/08/20 16:42:13 tom Exp $
+ * $Id: picsmap.c,v 1.112 2017/11/26 00:10:57 tom Exp $
  *
  * Author: Thomas E. Dickey
  *
@@ -49,7 +49,6 @@
  */
 #include <test.priv.h>
 
-#include <stdarg.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 
@@ -77,40 +76,11 @@
 #define Scaled256(n)	(NCURSES_COLOR_T) (int)(((n) * 1000.0) / 256)
 #define ScaledColor(n)	(NCURSES_COLOR_T) (int)(((n) * 1000.0) / scale)
 
+#ifndef RGB_PATH
 #define RGB_PATH "/etc/X11/rgb.txt"
+#endif
 
-typedef int NUM_COLOR;
-typedef unsigned short NUM_COUNT;
-
-typedef struct {
-    char ch;			/* nominal character to display */
-    NUM_COLOR fg;		/* foreground color */
-} PICS_CELL;
-
-typedef struct {
-    NUM_COLOR fgcol;
-    NUM_COUNT count;
-} FG_NODE;
-
-typedef struct {
-    char *name;
-    short high;
-    short wide;
-    int colors;
-    FG_NODE *fgcol;
-    PICS_CELL *cells;
-} PICS_HEAD;
-
-typedef struct {
-    const char *name;
-    int value;
-} RGB_NAME;
-
-typedef struct {
-    short red;
-    short green;
-    short blue;
-} RGB_DATA;
+#include <picsmap.h>
 
 typedef struct {
     size_t file;
@@ -144,6 +114,7 @@ static void warning(const char *fmt,...) GCC_PRINTFLIKE(1, 2);
 static int gather_c_values(int);
 
 static FILE *logfp = 0;
+static double aspect_ratio = 0.6;
 static bool in_curses = FALSE;
 static bool debugging = FALSE;
 static bool quiet = FALSE;
@@ -484,9 +455,10 @@ read_file(const char *filename)
 		    for (j = 0; (size_t) j < size; ++j) {
 			if (blob[j] == '\0' ||
 			    (UChar(blob[j]) < 32 &&
-			     !isspace(blob[j])) ||
-			    (UChar(blob[j]) >= 128 && UChar(blob[j]) < 160))
+			     !isspace(UChar(blob[j]))) ||
+			    (UChar(blob[j]) >= 128 && UChar(blob[j]) < 160)) {
 			    binary = TRUE;
+			}
 			if (blob[j] == '\n') {
 			    blob[j] = '\0';
 			    if (k && !binary) {
@@ -529,7 +501,11 @@ usage(void)
 	,"Read/display one or more xbm/xpm files (possibly use \"convert\")"
 	,""
 	,"Options:"
-	,"  -d           add debugging information to logfile"
+	,"  -a ratio     aspect-ratio correction for ImageMagick"
+#if HAVE_USE_DEFAULT_COLORS
+	,"  -d           invoke use_default_colors"
+#endif
+	,"  -L           add debugging information to logfile"
 	,"  -l logfile   write informational messages to logfile"
 	,"  -p palette   color-palette file (default \"$TERM.dat\")"
 	,"  -q           less verbose"
@@ -654,17 +630,19 @@ init_palette(const char *palette_file)
 {
     if (palette_file != 0) {
 	char **data = read_palette(palette_file);
-	int cp;
 
 	all_colors = typeMalloc(RGB_DATA, (unsigned) COLORS);
 	how_much.data += (sizeof(RGB_DATA) * (unsigned) COLORS);
 
 #if HAVE_COLOR_CONTENT
-	for (cp = 0; cp < COLORS; ++cp) {
-	    color_content((short) cp,
-			  &all_colors[cp].red,
-			  &all_colors[cp].green,
-			  &all_colors[cp].blue);
+	{
+	    int cp;
+	    for (cp = 0; cp < COLORS; ++cp) {
+		color_content((short) cp,
+			      &all_colors[cp].red,
+			      &all_colors[cp].green,
+			      &all_colors[cp].blue);
+	    }
 	}
 #else
 	memset(all_colors, 0, sizeof(RGB_DATA) * (size_t) COLORS);
@@ -1304,7 +1282,7 @@ parse_img(const char *filename)
 		isspace(UChar(buffer[n])) &&
 		sscanf(skip_word(buffer + n), " %dx%d ", &pic_x, &pic_y) == 2) {
 		/* distort image to make it show normally on terminal */
-		pic_x = (166 * pic_x) / 100;
+		pic_x = (int) ((double) pic_x / aspect_ratio);
 	    } else {
 		pic_x = pic_y = 0;
 	    }
@@ -1464,6 +1442,29 @@ dump_picture(PICS_HEAD * pics)
     }
 }
 
+#ifndef USE_DISPLAY_DRIVER
+static void
+init_display(const char *palette_path, int opt_d)
+{
+    if (isatty(fileno(stdout))) {
+	in_curses = TRUE;
+	initscr();
+	cbreak();
+	noecho();
+	curs_set(0);
+	if (has_colors()) {
+	    start_color();
+#if HAVE_USE_DEFAULT_COLORS
+	    if (opt_d)
+		use_default_colors();
+#endif
+	    init_palette(palette_path);
+	}
+	scrollok(stdscr, FALSE);
+	exit_curses();
+    }
+}
+
 static void
 show_picture(PICS_HEAD * pics)
 {
@@ -1538,6 +1539,7 @@ show_picture(PICS_HEAD * pics)
     if (!quiet)
 	endwin();
 }
+#endif
 
 static int
 compare_fg_counts(const void *a, const void *b)
@@ -1636,12 +1638,27 @@ int
 main(int argc, char *argv[])
 {
     int n;
+    int opt_d = FALSE;
+    char ignore_ch;
     const char *palette_path = 0;
-    const char *rgb_path = "/etc/X11/rgb.txt";
+    const char *rgb_path = RGB_PATH;
 
-    while ((n = getopt(argc, argv, "dl:p:qr:s:x:")) != -1) {
+    while ((n = getopt(argc, argv, "a:dLl:p:qr:s:x:")) != -1) {
 	switch (n) {
+	case 'a':
+	    if (sscanf(optarg, "%lf%c", &aspect_ratio, &ignore_ch) != 1
+		|| aspect_ratio < 0.1
+		|| aspect_ratio > 10.) {
+		fprintf(stderr, "Expected a number in [0.1 to 10.]: %s\n", optarg);
+		usage();
+	    }
+	    break;
+#if HAVE_USE_DEFAULT_COLORS
 	case 'd':
+	    opt_d = TRUE;
+	    break;
+#endif
+	case 'L':
 	    debugging = TRUE;
 	    break;
 	case 'l':
@@ -1692,19 +1709,7 @@ main(int argc, char *argv[])
 	if (rgb_data)
 	    rgb_table = parse_rgb(rgb_data);
 
-	if (isatty(fileno(stdout))) {
-	    in_curses = TRUE;
-	    initscr();
-	    cbreak();
-	    noecho();
-	    curs_set(0);
-	    if (has_colors()) {
-		start_color();
-		init_palette(palette_path);
-	    }
-	    scrollok(stdscr, FALSE);
-	    endwin();
-	}
+	init_display(palette_path, opt_d);
 	if (optind >= argc)
 	    giveup("expected at least one image filename");
 

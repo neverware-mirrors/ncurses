@@ -29,7 +29,7 @@
 /****************************************************************************
  *  Author: Thomas E. Dickey                    1996-on                     *
  ****************************************************************************/
-/* $Id: test.priv.h,v 1.148 2017/08/20 16:51:33 tom Exp $ */
+/* $Id: test.priv.h,v 1.160 2017/10/12 01:00:59 tom Exp $ */
 
 #ifndef __TEST_PRIV_H
 #define __TEST_PRIV_H 1
@@ -86,8 +86,20 @@
 #define HAVE_COLOR_CONTENT 0
 #endif
 
+#ifndef HAVE_COPYWIN
+#define HAVE_COPYWIN 0
+#endif
+
 #ifndef HAVE_COLOR_SET
 #define HAVE_COLOR_SET 0
+#endif
+
+#ifndef HAVE_DELSCREEN
+#define HAVE_DELSCREEN 0
+#endif
+
+#ifndef HAVE_DUPWIN
+#define HAVE_DUPWIN 0
 #endif
 
 #ifndef HAVE_FILTER
@@ -122,6 +134,10 @@
 #define HAVE_GETWIN 0
 #endif
 
+#ifndef HAVE_HALFDELAY
+#define HAVE_HALFDELAY 0
+#endif
+
 #ifndef HAVE_INIT_EXTENDED_COLOR
 #define HAVE_INIT_EXTENDED_COLOR 0
 #endif
@@ -154,8 +170,16 @@
 #define HAVE_MENU_H 0
 #endif
 
+#ifndef HAVE_MVDERWIN
+#define HAVE_MVDERWIN 0
+#endif
+
 #ifndef HAVE_MVVLINE
 #define HAVE_MVVLINE 0
+#endif
+
+#ifndef HAVE_MVWIN
+#define HAVE_MVWIN 0
 #endif
 
 #ifndef HAVE_MVWVLINE
@@ -168,6 +192,10 @@
 
 #ifndef HAVE_NC_ALLOC_H
 #define HAVE_NC_ALLOC_H 0
+#endif
+
+#ifndef HAVE_NEWPAD
+#define HAVE_NEWPAD 0
 #endif
 
 #ifndef HAVE_PANEL_H
@@ -292,6 +320,10 @@
 
 #ifndef HAVE_VID_PUTS
 #define HAVE_VID_PUTS 0
+#endif
+
+#ifndef HAVE_WINSDELLN
+#define HAVE_WINSDELLN 0
 #endif
 
 #ifndef HAVE_WRESIZE
@@ -539,38 +571,46 @@ extern int optind;
 #undef	WACS_NEQUAL
 #undef	WACS_STERLING
 
-#define	WACS_RARROW     &(CURSES_WACS_ARRAY['+'])
-#define	WACS_LARROW     &(CURSES_WACS_ARRAY[','])
-#define	WACS_UARROW     &(CURSES_WACS_ARRAY['-'])
-#define	WACS_DARROW     &(CURSES_WACS_ARRAY['.'])
-#define	WACS_BLOCK      &(CURSES_WACS_ARRAY['0'])
-#define	WACS_DIAMOND    &(CURSES_WACS_ARRAY['`'])
-#define	WACS_CKBOARD    &(CURSES_WACS_ARRAY['a'])
-#define	WACS_DEGREE     &(CURSES_WACS_ARRAY['f'])
-#define	WACS_PLMINUS    &(CURSES_WACS_ARRAY['g'])
-#define	WACS_BOARD      &(CURSES_WACS_ARRAY['h'])
-#define	WACS_LANTERN    &(CURSES_WACS_ARRAY['i'])
-#define	WACS_LRCORNER   &(CURSES_WACS_ARRAY['j'])
-#define	WACS_URCORNER   &(CURSES_WACS_ARRAY['k'])
-#define	WACS_ULCORNER   &(CURSES_WACS_ARRAY['l'])
-#define	WACS_LLCORNER   &(CURSES_WACS_ARRAY['m'])
-#define	WACS_PLUS       &(CURSES_WACS_ARRAY['n'])
-#define	WACS_HLINE      &(CURSES_WACS_ARRAY['q'])
-#define	WACS_S1         &(CURSES_WACS_ARRAY['o'])
-#define	WACS_S9         &(CURSES_WACS_ARRAY['s'])
-#define	WACS_LTEE       &(CURSES_WACS_ARRAY['t'])
-#define	WACS_RTEE       &(CURSES_WACS_ARRAY['u'])
-#define	WACS_BTEE       &(CURSES_WACS_ARRAY['v'])
-#define	WACS_TTEE       &(CURSES_WACS_ARRAY['w'])
-#define	WACS_VLINE      &(CURSES_WACS_ARRAY['x'])
-#define	WACS_BULLET     &(CURSES_WACS_ARRAY['~'])
-#define	WACS_S3		&(CURSES_WACS_ARRAY['p'])
-#define	WACS_S7		&(CURSES_WACS_ARRAY['r'])
-#define	WACS_LEQUAL	&(CURSES_WACS_ARRAY['y'])
-#define	WACS_GEQUAL	&(CURSES_WACS_ARRAY['z'])
-#define	WACS_PI		&(CURSES_WACS_ARRAY['{'])
-#define	WACS_NEQUAL	&(CURSES_WACS_ARRAY['|'])
-#define	WACS_STERLING	&(CURSES_WACS_ARRAY['}'])
+#define WACS_RARROW     &(CURSES_WACS_ARRAY['+'])
+#define WACS_LARROW     &(CURSES_WACS_ARRAY[','])
+#define WACS_UARROW     &(CURSES_WACS_ARRAY['-'])
+#define WACS_DARROW     &(CURSES_WACS_ARRAY['.'])
+#define WACS_BLOCK      &(CURSES_WACS_ARRAY['0'])
+#define WACS_DIAMOND    &(CURSES_WACS_ARRAY['`'])
+#define WACS_CKBOARD    &(CURSES_WACS_ARRAY['a'])
+#define WACS_DEGREE     &(CURSES_WACS_ARRAY['f'])
+#define WACS_PLMINUS    &(CURSES_WACS_ARRAY['g'])
+#define WACS_BOARD      &(CURSES_WACS_ARRAY['h'])
+#define WACS_LANTERN    &(CURSES_WACS_ARRAY['i'])
+#define WACS_LRCORNER   &(CURSES_WACS_ARRAY['j'])
+#define WACS_URCORNER   &(CURSES_WACS_ARRAY['k'])
+#define WACS_ULCORNER   &(CURSES_WACS_ARRAY['l'])
+#define WACS_LLCORNER   &(CURSES_WACS_ARRAY['m'])
+#define WACS_PLUS       &(CURSES_WACS_ARRAY['n'])
+#define WACS_HLINE      &(CURSES_WACS_ARRAY['q'])
+#define WACS_S1         &(CURSES_WACS_ARRAY['o'])
+#define WACS_S9         &(CURSES_WACS_ARRAY['s'])
+#define WACS_LTEE       &(CURSES_WACS_ARRAY['t'])
+#define WACS_RTEE       &(CURSES_WACS_ARRAY['u'])
+#define WACS_BTEE       &(CURSES_WACS_ARRAY['v'])
+#define WACS_TTEE       &(CURSES_WACS_ARRAY['w'])
+#define WACS_VLINE      &(CURSES_WACS_ARRAY['x'])
+#define WACS_BULLET     &(CURSES_WACS_ARRAY['~'])
+#define WACS_S3         &(CURSES_WACS_ARRAY['p'])
+#define WACS_S7         &(CURSES_WACS_ARRAY['r'])
+#define WACS_LEQUAL     &(CURSES_WACS_ARRAY['y'])
+#define WACS_GEQUAL     &(CURSES_WACS_ARRAY['z'])
+#define WACS_PI         &(CURSES_WACS_ARRAY['{'])
+#define WACS_NEQUAL     &(CURSES_WACS_ARRAY['|'])
+#define WACS_STERLING   &(CURSES_WACS_ARRAY['}'])
+#endif
+
+#ifndef WA_NORMAL
+#define WA_NORMAL       A_NORMAL
+#define WA_BOLD         A_BOLD
+#define WA_REVERSE      A_REVERSE
+#define WA_UNDERLINE    A_UNDERLINE
+#define WA_BLINK        A_BLINK
 #endif
 
 #ifndef OK
@@ -651,7 +691,15 @@ extern char *numnames[], *numcodes[], *numfnames[];
 extern char *strnames[], *strcodes[], *strfnames[];
 #endif
 
-#ifdef DECL_CURSES_DATA_TTYTYPE
+#ifndef HAVE_CURSES_DATA_TTYTYPE
+#define HAVE_CURSES_DATA_TTYTYPE 0
+#endif
+
+#ifndef DECL_CURSES_DATA_TTYTYPE
+#define DECL_CURSES_DATA_TTYTYPE 0
+#endif
+
+#if !defined(ttytype) && (!HAVE_CURSES_DATA_TTYTYPE || DECL_CURSES_DATA_TTYTYPE)
 #define ttytype termname()
 #endif
 
@@ -695,18 +743,18 @@ extern char *strnames[], *strcodes[], *strfnames[];
  * These usually are implemented as macros, but may be functions.
  */
 #if !defined(getcurx) && !HAVE_GETCURX
-#define getcurx(win)            ((win)?(win)->_curx:ERR)
-#define getcury(win)            ((win)?(win)->_cury:ERR)
+#define getcurx(win)            ((win) ? ((int)(win)->_curx) : ERR)
+#define getcury(win)            ((win) ? ((int)(win)->_cury) : ERR)
 #endif
 
 #if !defined(getbegx) && !HAVE_GETBEGX
-#define getbegx(win)            ((win)?(win)->_begx:ERR)
-#define getbegy(win)            ((win)?(win)->_begy:ERR)
+#define getbegx(win)            ((win) ? ((int)(win)->_begx) : ERR)
+#define getbegy(win)            ((win) ? ((int)(win)->_begy) : ERR)
 #endif
 
 #if !defined(getmaxx) && !HAVE_GETMAXX
-#define getmaxx(win)            ((win)?((win)->_maxx + 1):ERR)
-#define getmaxy(win)            ((win)?((win)->_maxy + 1):ERR)
+#define getmaxx(win)            ((win) ? ((int)(win)->_maxx + 1) : ERR)
+#define getmaxy(win)            ((win) ? ((int)(win)->_maxy + 1) : ERR)
 #endif
 
 /*
@@ -758,6 +806,15 @@ extern char *strnames[], *strcodes[], *strfnames[];
 #define NCURSES_XNAMES 1
 #else
 #define NCURSES_XNAMES 0
+#endif
+
+/*
+ * ncurses restores the cursor in endwin().  Other libraries may not.
+ */
+#ifdef NCURSES_VERSION
+#define exit_curses() endwin()
+#else
+#define exit_curses() do { endwin(); curs_set(1); } while (0)
 #endif
 
 /* ncurses implements tparm() with varargs, X/Open with a fixed-parameter list
@@ -849,12 +906,18 @@ extern char *strnames[], *strcodes[], *strfnames[];
 
 #define VT_ACSC "``aaffggiijjkkllmmnnooppqqrrssttuuvvwwxxyyzz{{||}}~~"
 
-#define CATCHALL(handler) { \
+#define CATCHALL(handler) do { \
 		int nsig; \
 		for (nsig = SIGHUP; nsig < SIGTERM; ++nsig) \
 		    if (nsig != SIGKILL) \
 			signal(nsig, handler); \
-	    }
+	    } while(0)
+
+#ifdef NCURSES_VERSION
+#define InitAndCatch(init,handler) do { CATCHALL(handler); init; } while (0)
+#else
+#define InitAndCatch(init,handler) do { init; CATCHALL(handler); } while (0)
+#endif
 
 /*
  * Workaround for clean(er) compile with Solaris's legacy curses.
@@ -977,9 +1040,9 @@ extern int _nc_getenv_num(const char *);
  * The macro likely uses unsigned values, while X/Open prototype uses int.
  */
 #if defined(wattrset) || defined(PDCURSES)
-#define AttrArg(p,a)    (attr_t) ((attr_t)(p) | (attr_t)(a))
+#define AttrArg(p,a)    (chtype) ((chtype)(p) | (chtype)(a))
 #else
-#define AttrArg(p,a)    (int) ((attr_t)(p) | (attr_t)(a))
+#define AttrArg(p,a)    (int) ((chtype)(p) | (chtype)(a))
 #endif
 
 /*
