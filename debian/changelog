@@ -1,6 +1,8 @@
 ncurses (6.0+20171125-1) UNRELEASED; urgency=medium
 
   * New upstream patchlevel.
+    - Modify _nc_write_entry() to truncate too-long filename (report by
+      Hosein Askari (CVE-2017-16879), Closes: #882620).
 
  -- Sven Joachim <svenjoac@gmx.de>  Sun, 26 Nov 2017 14:22:46 +0100
 
