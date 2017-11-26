@@ -156,6 +156,7 @@ CONFARGS-TEST =	--prefix=/usr \
 		--build=$(DEB_BUILD_GNU_TYPE) \
 		--bindir=/usr/lib/ncurses/examples \
 		--datadir=/usr/share/ncurses-examples \
+		--with-x11-rgb=/etc/X11/rgb.txt \
 		--with-ncursesw \
 		--with-curses-dir=$(wobjdir)
 
