@@ -1,3 +1,9 @@
+ncurses (5.9+20140913-1+deb8u2) jessie; urgency=medium
+
+  * Re-upload with no changes to work around #826161.
+
+ -- Sven Joachim <svenjoac@gmx.de>  Sun, 03 Dec 2017 11:20:45 +0100
+
 ncurses (5.9+20140913-1+deb8u1) jessie; urgency=medium
 
   * Cherry-pick upstream fixes from the 20170701 and 20170708 patchlevels
