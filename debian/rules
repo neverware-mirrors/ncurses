@@ -133,6 +133,7 @@ CONFARGS =	--prefix=/usr \
 		--with-manpage-format=normal \
 		--without-profile --without-debug \
 		--disable-rpath --enable-echo \
+		--disable-stripping \
 		--enable-const \
 		--enable-pc-files \
 		--with-pkg-config-libdir=/usr/lib/$(DEB_HOST_MULTIARCH)/pkgconfig \
@@ -156,6 +157,7 @@ CONFARGS-TEST =	--prefix=/usr \
 		--build=$(DEB_BUILD_GNU_TYPE) \
 		--bindir=/usr/lib/ncurses/examples \
 		--datadir=/usr/share/ncurses-examples \
+		--disable-stripping \
 		--with-x11-rgb=/etc/X11/rgb.txt \
 		--with-ncursesw \
 		--with-curses-dir=$(wobjdir)
