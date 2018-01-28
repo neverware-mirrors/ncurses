@@ -8,6 +8,7 @@ ncurses (6.1-1) UNRELEASED; urgency=low
     - Reset the minimal version of _nc_read_entry to back to 6.
   * Pass --disable-stripping to the configure scripts.
   * Update xterm.ti from xterm 331.
+  * Use https in the Homepage field.
 
  -- Sven Joachim <svenjoac@gmx.de>  Sun, 28 Jan 2018 19:10:25 +0100
 
