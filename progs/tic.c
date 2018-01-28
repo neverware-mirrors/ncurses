@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright (c) 1998-2016,2017 Free Software Foundation, Inc.              *
+ * Copyright (c) 1998-2017,2018 Free Software Foundation, Inc.              *
  *                                                                          *
  * Permission is hereby granted, free of charge, to any person obtaining a  *
  * copy of this software and associated documentation files (the            *
@@ -48,7 +48,7 @@
 #include <parametrized.h>
 #include <transform.h>
 
-MODULE_ID("$Id: tic.c,v 1.247 2017/10/09 15:16:15 tom Exp $")
+MODULE_ID("$Id: tic.c,v 1.252 2018/01/25 19:16:50 tom Exp $")
 
 #define STDIN_NAME "<stdin>"
 
@@ -1614,6 +1614,9 @@ check_screen(TERMTYPE2 *tp)
 	bool have_kmouse = FALSE;
 	bool use_sgr_39_49 = FALSE;
 	char *name = _nc_first_name(tp->term_names);
+	bool is_screen = !strncmp(name, "screen", 6);
+	bool screen_base = (is_screen
+			    && strchr(name, '.') == 0);
 
 	if (!VALID_BOOLEAN(have_bce)) {
 	    have_bce = FALSE;
@@ -1635,12 +1638,10 @@ check_screen(TERMTYPE2 *tp)
 
 	if (have_XM && have_XT) {
 	    _nc_warning("Screen's XT capability conflicts with XM");
-	} else if (have_XT
-		   && strstr(name, "screen") != 0
-		   && strchr(name, '.') != 0) {
+	} else if (have_XT && screen_base) {
 	    _nc_warning("Screen's \"screen\" entries should not have XT set");
 	} else if (have_XT) {
-	    if (!have_kmouse && have_bce) {
+	    if (!have_kmouse && is_screen) {
 		if (VALID_STRING(key_mouse)) {
 		    _nc_warning("Value of kmous inconsistent with screen's usage");
 		} else {
@@ -1654,8 +1655,11 @@ check_screen(TERMTYPE2 *tp)
 	    if (VALID_STRING(to_status_line))
 		_nc_warning("\"tsl\" capability is redundant, given XT");
 	} else {
-	    if (have_kmouse && !have_XM)
+	    if (have_kmouse
+		&& !have_XM
+		&& !screen_base && strchr(name, '+') == 0) {
 		_nc_warning("Expected XT to be set, given kmous");
+	    }
 	}
     }
 #endif
@@ -1755,14 +1759,22 @@ expected_params(const char *name)
     return result;
 }
 
+/*
+ * ncurses assumes that u6 could be used for getting the cursor-position, but
+ * that is not implemented.  Make a special case for that, to quiet needless
+ * warnings.
+ *
+ * There are other string-capability extensions (see terminfo.src) which could
+ * have parameters such as "Ss", "%u", but are not used by ncurses.
+ */
 static int
 is_user_capability(const char *name)
 {
-    int result = 0;
+    int result = -1;
     if (name[0] == 'u' &&
 	(name[1] >= '0' && name[1] <= '9') &&
 	name[2] == '\0')
-	result = 1;
+	result = (name[1] == '6') ? 2 : 0;
     return result;
 }
 
@@ -1844,7 +1856,10 @@ check_params(TERMTYPE2 *tp, const char *name, char *value, int extended)
 	    analyzed = popcount;
 	}
 	if (actual != analyzed && expected != analyzed) {
-	    if (is_user_capability(name)) {
+	    int user_cap = is_user_capability(name);
+	    if ((user_cap == analyzed) && using_extensions) {
+		;		/* ignore */
+	    } else if (user_cap >= 0) {
 		_nc_warning("tparm will use %d parameters for %s",
 			    analyzed, name);
 	    } else {
@@ -2705,7 +2720,7 @@ check_termtype(TERMTYPE2 *tp, bool literal)
 	     * check for consistent number of parameters.
 	     */
 	    if (j >= SIZEOF(parametrized) ||
-		is_user_capability(name) ||
+		is_user_capability(name) > 0 ||
 		parametrized[j] > 0) {
 		check_params(tp, name, a, (j >= STRCOUNT));
 	    }

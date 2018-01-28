@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright (c) 2017 Free Software Foundation, Inc.                        *
+ * Copyright (c) 2017,2018 Free Software Foundation, Inc.                   *
  *                                                                          *
  * Permission is hereby granted, free of charge, to any person obtaining a  *
  * copy of this software and associated documentation files (the            *
@@ -26,7 +26,7 @@
  * authorization.                                                           *
  ****************************************************************************/
 /*
- * $Id: picsmap.c,v 1.112 2017/11/26 00:10:57 tom Exp $
+ * $Id: picsmap.c,v 1.116 2018/01/16 09:14:52 tom Exp $
  *
  * Author: Thomas E. Dickey
  *
@@ -52,7 +52,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#ifdef HAVE_STDINT_H
+#if HAVE_STDINT_H
 #include <stdint.h>
 #define my_intptr_t	intptr_t
 #else
@@ -1160,6 +1160,7 @@ parse_xpm(char **data)
 		break;
 	    }
 	    num_colors++;
+	    free(list[reading_last]);
 	    list[reading_last] = strdup(arg1);
 	    if ((by_name = lookup_rgb(arg3)) != 0) {
 		found = gather_c_values(by_name->value);
@@ -1473,7 +1474,8 @@ show_picture(PICS_HEAD * pics)
     int my_pair, my_color;
 
     debugmsg("called show_picture");
-#if USE_EXTENDED_COLORS
+    logmsg("...using %dx%d screen", LINES, COLS);
+#if HAVE_RESET_COLOR_PAIRS
     reset_color_pairs();
 #elif HAVE_CURSCR
     wclear(curscr);

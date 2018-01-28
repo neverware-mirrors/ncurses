@@ -1,20 +1,20 @@
 Summary: ncurses-examples - example/test programs from ncurses
 %define AppProgram ncurses-examples
-%define AppVersion 6.0
-%define AppRelease 20171111
-# $Id: ncurses-examples.spec,v 1.7 2017/11/11 15:21:19 tom Exp $
+%define AppVersion MAJOR.MINOR
+%define AppRelease YYYYMMDD
+# $Id: ncurses-examples.spec,v 1.11 2018/01/15 16:14:16 tom Exp $
 Name: %{AppProgram}
 Version: %{AppVersion}
 Release: %{AppRelease}
 License: MIT
 Group: Applications/Development
-URL: ftp://invisible-island.net/%{AppProgram}
+URL: ftp://ftp.invisible-island.net/%{AppProgram}
 Source0: %{AppProgram}-%{AppRelease}.tgz
 Packager: Thomas Dickey <dickey@invisible-island.net>
 
 %description
-These are the example/test programs from the ncurses 6.0 distribution,
-for patch-date 20171111.
+These are the example/test programs from the ncurses MAJOR.MINOR distribution,
+for patch-date YYYYMMDD.
 
 This package installs in "bin/ncurses-examples" to avoid conflict with other
 packages.
@@ -27,6 +27,7 @@ packages.
 %build
 
 INSTALL_PROGRAM='${INSTALL}' \
+NCURSES_CONFIG_SUFFIX=dev \
 %configure \
 	--target %{_target_platform} \
 	--prefix=%{_prefix} \
@@ -41,8 +42,6 @@ make
 [ "$RPM_BUILD_ROOT" != "/" ] && rm -rf $RPM_BUILD_ROOT
 
 make install               DESTDIR=$RPM_BUILD_ROOT
-
-strip $RPM_BUILD_ROOT%{_bindir}/%{AppProgram}/*
 
 %clean
 [ "$RPM_BUILD_ROOT" != "/" ] && rm -rf $RPM_BUILD_ROOT

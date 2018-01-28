@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright (c) 1998-2016,2017 Free Software Foundation, Inc.              *
+ * Copyright (c) 1998-2017,2018 Free Software Foundation, Inc.              *
  *                                                                          *
  * Permission is hereby granted, free of charge, to any person obtaining a  *
  * copy of this software and associated documentation files (the            *
@@ -29,7 +29,7 @@
 /****************************************************************************
  *  Author: Thomas E. Dickey                    1996-on                     *
  ****************************************************************************/
-/* $Id: test.priv.h,v 1.160 2017/10/12 01:00:59 tom Exp $ */
+/* $Id: test.priv.h,v 1.164 2018/01/27 20:27:16 tom Exp $ */
 
 #ifndef __TEST_PRIV_H
 #define __TEST_PRIV_H 1
@@ -204,6 +204,10 @@
 
 #ifndef HAVE_PUTWIN
 #define HAVE_PUTWIN 0
+#endif
+
+#ifndef HAVE_RESET_COLOR_PAIRS
+#define HAVE_RESET_COLOR_PAIRS 0
 #endif
 
 #ifndef HAVE_RESIZE_TERM
@@ -438,6 +442,9 @@ extern int optind;
 #ifndef GCC_PRINTFLIKE
 #define GCC_PRINTFLIKE(a,b)	/* nothing */
 #endif
+#ifndef GCC_SCANFLIKE
+#define GCC_SCANFLIKE(a,b)	/* nothing */
+#endif
 #ifndef GCC_UNUSED
 #define GCC_UNUSED		/* nothing */
 #endif
@@ -607,9 +614,17 @@ extern int optind;
 
 #ifndef WA_NORMAL
 #define WA_NORMAL       A_NORMAL
+#endif
+#ifndef WA_BOLD
 #define WA_BOLD         A_BOLD
+#endif
+#ifndef WA_REVERSE
 #define WA_REVERSE      A_REVERSE
+#endif
+#ifndef WA_UNDERLINE
 #define WA_UNDERLINE    A_UNDERLINE
+#endif
+#ifndef WA_BLINK
 #define WA_BLINK        A_BLINK
 #endif
 
@@ -887,7 +902,11 @@ extern char *strnames[], *strcodes[], *strfnames[];
  * that XSI shows.
  */
 #ifndef NCURSES_CONST
+#ifdef PDCURSES
+#define NCURSES_CONST		const /* close enough */
+#else
 #define NCURSES_CONST		/* nothing */
+#endif
 #endif
 
 /* out-of-band values for representing absent capabilities */
@@ -974,7 +993,7 @@ extern char *tgoto(char *, int, int);	/* available, but not prototyped */
 /*
  * ncurses uses const in some places where X/Open does (or did) not allow.
  */
-#ifdef NCURSES_VERSION
+#if defined(NCURSES_VERSION) || defined(PDCURSES)
 #define CONST_MENUS const
 #else
 #define CONST_MENUS		/* nothing */
