@@ -2,6 +2,9 @@ ncurses (6.1-1) UNRELEASED; urgency=low
 
   * New upstream release.
   * Refresh Debian patches.
+  * Update symbols files.
+    - Bump the minimal version of symbols introduced after the 6.0
+      release to 6.1.
 
  -- Sven Joachim <svenjoac@gmx.de>  Sun, 28 Jan 2018 19:10:25 +0100
 
