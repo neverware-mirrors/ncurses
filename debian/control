@@ -15,6 +15,7 @@ Homepage: https://invisible-island.net/ncurses/
 
 Package: libtinfo5
 Architecture: any
+Priority: optional
 Pre-Depends: ${misc:Pre-Depends}
 Multi-Arch: same
 Depends: ${shlibs:Depends}, ${misc:Depends}
@@ -121,7 +122,7 @@ Description: debugging/profiling libraries for ncurses
 
 Package: libncursesw5
 Architecture: any
-Priority: important
+Priority: optional
 Pre-Depends: ${misc:Pre-Depends}
 Multi-Arch: same
 Depends: libtinfo5 (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}

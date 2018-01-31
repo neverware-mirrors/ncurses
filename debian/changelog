@@ -9,6 +9,7 @@ ncurses (6.1-1) UNRELEASED; urgency=low
   * Pass --disable-stripping to the configure scripts.
   * Update xterm.ti from xterm 331.
   * Use https in the Homepage field.
+  * Change priority of all library packages to optional.
 
  -- Sven Joachim <svenjoac@gmx.de>  Sun, 28 Jan 2018 19:10:25 +0100
 
