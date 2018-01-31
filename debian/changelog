@@ -2,7 +2,7 @@ ncurses (6.1-1) UNRELEASED; urgency=low
 
   * New upstream release.
   * Refresh Debian patches.
-  * Update symbols files.
+  * Update symbols files and bump shlibs.
     - Bump the minimal version of symbols introduced after the 6.0
       release to 6.1.
     - Reset the minimal version of _nc_read_entry to back to 6.
