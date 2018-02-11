@@ -9,8 +9,8 @@ Build-Depends: debhelper (>= 10),
                pkg-config,
 Standards-Version: 3.9.8
 Rules-Requires-Root: no
-Vcs-Browser: https://anonscm.debian.org/cgit/collab-maint/ncurses.git
-Vcs-Git: https://anonscm.debian.org/git/collab-maint/ncurses.git
+Vcs-Browser: https://salsa.debian.org/debian/ncurses
+Vcs-Git: https://salsa.debian.org/debian/ncurses.git
 Homepage: https://invisible-island.net/ncurses/
 
 Package: libtinfo5

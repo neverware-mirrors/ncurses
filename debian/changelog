@@ -9,6 +9,7 @@ ncurses (6.1-1) UNRELEASED; urgency=low
   * Pass --disable-stripping to the configure scripts.
   * Update xterm.ti from xterm 331.
   * Use https in the Homepage field.
+  * Update Vcs-{Browser,Git} URLs to point at salsa.debian.org.
   * Change priority of all library packages to optional.
   * Update years in debian/copyright.
 
