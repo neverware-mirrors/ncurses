@@ -52,22 +52,37 @@ Description: shared libraries for terminal handling
  This package contains the shared libraries necessary to run programs
  compiled with ncurses.
 
-Package: libtinfo-dev
+Package: libncurses-dev
 Architecture: any
 Section: libdevel
 Priority: optional
 Multi-Arch: same
-Depends: libtinfo6 (= ${binary:Version}), ${misc:Depends},
+Depends: libtinfo6 (= ${binary:Version}), libncurses6 (= ${binary:Version}),
+         libncursesw6 (= ${binary:Version}), ${misc:Depends},
          ncurses-bin (>= 6.0+20151017)
-Replaces: libncurses5-dev (<< 5.9-3)
-Breaks: binutils-gold (<< 2.21.53.20110910)
-Description: developer's library for the low-level terminfo library
+Conflicts: ncurses-dev
+Replaces: ncurses-dev, libncurses5-dev (<< 6.1+20180210),
+          libncursesw5-dev (<< 6.1+20180210), libtinfo-dev (<< 6.1+20180210),
+          ncurses-bin (<< 6.0+20151017)
+Provides: libncurses5-dev, libncursesw5-dev, libtinfo-dev, ncurses-dev
+Breaks: libncurses5-dev (<< 6.1+20180210), libncursesw5-dev (<< 6.1+20180210),
+        libtinfo-dev (<< 6.1+20180210), binutils-gold (<< 2.21.53.20110910)
+Description: developer's libraries for ncurses
  The ncurses library routines are a terminal-independent method of
  updating character screens with reasonable optimization.
  .
- This package contains the static library and symbolic link that developers
- using the low-level terminfo library will need.  Packages should not
- build-depend on this package.
+ This package contains the header files, static libraries
+ and symbolic links that developers using ncurses will need.
+
+Package: libtinfo-dev
+Architecture: any
+Section: oldlibs
+Priority: optional
+Multi-Arch: same
+Depends: libtinfo6 (= ${binary:Version}), libncurses-dev (= ${binary:Version}),
+         ${misc:Depends}
+Description: transitional package for libncurses-dev
+ This is a transitional package that can safely be removed.
 
 Package: libtinfo6-dbg
 Architecture: any
@@ -85,22 +100,13 @@ Description: debugging/profiling library for the low-level terminfo library
 
 Package: libncurses5-dev
 Architecture: any
-Section: libdevel
+Section: oldlibs
 Priority: optional
 Multi-Arch: same
-Depends: libtinfo6 (= ${binary:Version}), libncurses6 (= ${binary:Version}),
-         libtinfo-dev (= ${binary:Version}),
-         libc6-dev | libc-dev, ${misc:Depends}
-Conflicts: ncurses-dev, libncurses-dev
-Replaces: ncurses-dev, libncurses-dev, ncurses-bin (<< 6.0+20151017)
-Provides: libncurses-dev, ncurses-dev
-Suggests: ncurses-doc
-Description: developer's libraries for ncurses
- The ncurses library routines are a terminal-independent method of
- updating character screens with reasonable optimization.
- .
- This package contains the header files, static libraries
- and symbolic links that developers using ncurses will need.
+Depends: libtinfo6 (= ${binary:Version}), libncurses-dev (= ${binary:Version}),
+         ${misc:Depends}
+Description: transitional package for libncurses-dev
+ This is a transitional package that can safely be removed.
 
 Package: libncurses6-dbg
 Architecture: any
@@ -132,22 +138,13 @@ Description: shared libraries for terminal handling (wide character support)
 
 Package: libncursesw5-dev
 Architecture: any
-Section: libdevel
+Section: oldlibs
 Priority: optional
 Multi-Arch: same
-Depends: libtinfo6 (= ${binary:Version}), libncursesw6 (= ${binary:Version}),
-         libtinfo-dev (= ${binary:Version}),
-         libc6-dev | libc-dev, ${misc:Depends}
-Replaces: ncurses-bin (<< 6.0+20151017)
-Suggests: ncurses-doc
-Description: developer's libraries for ncursesw
- The ncurses library routines are a terminal-independent method of
- updating character screens with reasonable optimization.
- .
- This package contains the header files, static libraries
- and symbolic links that developers using ncursesw will need.
- .
- This package includes support for wide characters.
+Depends: libtinfo6 (= ${binary:Version}), libncurses-dev (= ${binary:Version}),
+         ${misc:Depends}
+Description: transitional package for libncurses-dev
+ This is a transitional package that can safely be removed.
 
 Package: libncursesw6-dbg
 Architecture: any
@@ -187,7 +184,7 @@ Section: libdevel
 Priority: optional
 Depends: lib64ncurses6 (= ${binary:Version}),
          lib64tinfo6 (= ${binary:Version}),
-         libncurses5-dev (= ${binary:Version}), lib64c-dev, ${misc:Depends}
+         libncurses-dev (= ${binary:Version}), lib64c-dev, ${misc:Depends}
 Suggests: ncurses-doc
 Replaces: amd64-libs-dev (<= 1.2), lib64tinfo5-dev
 Build-Profiles: <!nobiarch>
@@ -223,7 +220,7 @@ Section: libdevel
 Priority: optional
 Depends: lib32tinfo6 (= ${binary:Version}), lib32ncurses6 (= ${binary:Version}),
          lib32tinfo-dev (= ${binary:Version}),
-         libncurses5-dev (= ${binary:Version}), lib32c-dev, ${misc:Depends}
+         libncurses-dev (= ${binary:Version}), lib32c-dev, ${misc:Depends}
 Suggests: ncurses-doc
 Build-Profiles: <!nobiarch>
 Description: developer's libraries for ncurses (32-bit)
@@ -258,7 +255,7 @@ Section: libdevel
 Priority: optional
 Depends: lib32tinfo6 (= ${binary:Version}), lib32ncursesw6 (= ${binary:Version}),
          lib32tinfo-dev (= ${binary:Version}),
-         libncursesw5-dev (= ${binary:Version}), lib32c-dev, ${misc:Depends}
+         libncurses-dev (= ${binary:Version}), lib32c-dev, ${misc:Depends}
 Suggests: ncurses-doc
 Build-Profiles: <!nobiarch>
 Description: developer's libraries for ncursesw (32-bit)
