@@ -398,42 +398,47 @@ Description: developer's guide and documentation for ncurses
 
 Package: libtinfo5
 Architecture: any
+Section: oldlibs
 Priority: optional
 Pre-Depends: ${misc:Pre-Depends}
 Multi-Arch: same
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Replaces: libncurses5 (<< 5.9-3)
 Breaks: dialog (<< 1.2-20130523)
-Description: shared low-level terminfo library for terminal handling
+Description: shared low-level terminfo library (legacy version)
  The ncurses library routines are a terminal-independent method of
  updating character screens with reasonable optimization.
  .
- This package contains the shared low-level terminfo library.
+ This package contains the legacy version of the shared low-level
+ terminfo library.
 
 Package: libncurses5
 Architecture: any
+Section: oldlibs
 Priority: optional
 Pre-Depends: ${misc:Pre-Depends}
 Multi-Arch: same
 Depends: libtinfo5 (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
 Recommends: libgpm2 [linux-any]
-Description: shared libraries for terminal handling
+Description: shared libraries for terminal handling (legacy version)
  The ncurses library routines are a terminal-independent method of
  updating character screens with reasonable optimization.
  .
- This package contains the shared libraries necessary to run programs
- compiled with ncurses.
+ This package contains the legacy shared libraries necessary to run
+ programs compiled with ncurses.
 
 Package: libncursesw5
 Architecture: any
+Section: oldlibs
 Priority: optional
 Pre-Depends: ${misc:Pre-Depends}
 Multi-Arch: same
 Depends: libtinfo5 (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
 Recommends: libgpm2 [linux-any]
-Description: shared libraries for terminal handling (wide character support)
+Description: shared libraries for terminal handling (wide character legacy version)
  The ncurses library routines are a terminal-independent method of
  updating character screens with reasonable optimization.
  .
- This package contains the shared libraries necessary to run programs
- compiled with ncursesw, which includes support for wide characters.
+ This package contains the legacy shared libraries necessary to run
+ programs compiled with ncursesw, which includes support for wide
+ characters.
