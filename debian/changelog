@@ -7,6 +7,8 @@ ncurses (6.1+20180210-1) UNRELEASED; urgency=low
     their descriptions accordingly.
   * Merge lib{tinfo,ncurses5,ncursesw5}-dev into a new libncurses-dev
     package and turn them into transitional packages (Closes: #840429).
+    Add a lintian override for the resulting duplicate-short-description
+    notices.
 
  -- Sven Joachim <svenjoac@gmx.de>  Mon, 12 Feb 2018 18:04:50 +0100
 
