@@ -547,10 +547,6 @@ binary-indep: build install $(autogen-files)
 	dh_testroot
 
 	dh_installdocs -i -Xhtml/Ada95.html -Xhtml/ada/
-	mv debian/ncurses-doc/usr/share/doc/ncurses-doc/html/man/ncurses6-config.1.html \
-	   debian/ncurses-doc/usr/share/doc/ncurses-doc/html/man/ncurses5-config.1.html
-	sed -i 's/ncurses6-config/ncurses5-config/g' \
-	       debian/ncurses-doc/usr/share/doc/ncurses-doc/html/man/ncurses5-config.1.html
 	dh_installchangelogs -i NEWS
 	dh_install -i --fail-missing
 	dh_installdirs -i
