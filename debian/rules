@@ -152,6 +152,7 @@ CONFARGS =	--prefix=/usr \
 		--with-ticlib=tic \
 		--with-termlib=tinfo \
 		--with-versioned-syms \
+		--disable-wattr-macros \
 		--with-xterm-kbs=del
 
 CONFARGS-LEGACY =	$(CONFARGS) \

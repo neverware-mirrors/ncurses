@@ -11,6 +11,8 @@ ncurses (6.1+20180210-1) UNRELEASED; urgency=low
     notices.
   * Install only one set of headers of headers, built from the wide
     configuration.  Provide compatibility symlinks in usr/include/ncursesw.
+    - Configure with --disable-wattr-macros to avoid potential crashes, see
+      https://bugzilla.redhat.com/show_bug.cgi?id=1270534 for details.
 
  -- Sven Joachim <svenjoac@gmx.de>  Mon, 12 Feb 2018 18:04:50 +0100
 
