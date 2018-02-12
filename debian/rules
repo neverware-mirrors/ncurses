@@ -263,7 +263,7 @@ $(wobjdir)/config.status: config.guess-stamp
 	cd $(wobjdir) && CFLAGS="$(CFLAGS)" $(relsrcdir)/configure \
 		$(CONFARGS) \
 		--with-install-prefix=$(fulltempdir) \
-		--disable-overwrite --enable-widec \
+		--enable-overwrite --enable-widec \
 		--libdir=/usr/lib/$(DEB_HOST_MULTIARCH)
 
 $(wobjdir-static)/config.status: config.guess-stamp
@@ -273,7 +273,7 @@ $(wobjdir-static)/config.status: config.guess-stamp
 		--without-shared \
 		--without-dlsym \
 		--with-install-prefix=$(fulltempdir) \
-		--disable-overwrite --enable-widec \
+		--enable-overwrite --enable-widec \
 		--libdir=/usr/lib/$(DEB_HOST_MULTIARCH)
 
 $(wobjdir-debug)/config.status: config.guess-stamp
@@ -283,7 +283,7 @@ $(wobjdir-debug)/config.status: config.guess-stamp
 		$(CONFARGS) \
 		--without-normal \
 		--with-install-prefix=$(fulltempdir) \
-		--disable-overwrite --enable-widec \
+		--enable-overwrite --enable-widec \
 		--libdir=/usr/lib/$(DEB_HOST_MULTIARCH)
 
 $(wobjdir-32)/config.status: config.guess-stamp
@@ -298,7 +298,7 @@ $(wobjdir-32)/config.status: config.guess-stamp
 		--host=$(build_32_target) \
 		--without-gpm \
 		--with-install-prefix=$(fulltempdir) \
-		--disable-overwrite --enable-widec \
+		--enable-overwrite --enable-widec \
 		--libdir=$(usr_lib32)
 
 $(objdir-legacy)/config.status: config.guess-stamp
@@ -439,6 +439,14 @@ endif
 	rm -f $(tempdir)/usr/lib/terminfo \
 	      $(tempdir)/usr/lib/$(DEB_HOST_MULTIARCH)/libcurses.so \
 	      $(tempdir)/usr/lib/$(DEB_HOST_MULTIARCH)/libtinfo.so
+	rm -rf $(tempdir)/usr/include/ncurses
+
+	# Provide header file symlinks under usr/include/ncursesw
+	install -d $(fulltempdir)/usr/include/ncursesw
+	set -e; \
+	for file in $(tempdir)/usr/include/*.h; do \
+		ln -s ../$${file##*/} $(tempdir)/usr/include/ncursesw; \
+	done
 
 	# Compile Debian-specific terminfo entries before copying files
 	# into their packages.  Hurd uses gsbom/grbom, so pass -x to tic.
