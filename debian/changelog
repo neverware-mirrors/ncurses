@@ -1,6 +1,8 @@
 ncurses (6.1+20180210-1) UNRELEASED; urgency=low
 
   * New upstream patchlevel.
+  * Switch to the ncurses 6 ABI (Closes: #230990), but continue to ship
+    ABI 5 shared library packages for now.
 
  -- Sven Joachim <svenjoac@gmx.de>  Mon, 12 Feb 2018 18:04:50 +0100
 

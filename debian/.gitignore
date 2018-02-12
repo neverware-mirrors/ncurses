@@ -1,4 +1,7 @@
 files
+libncurses6.install
+libncursesw6.install
+libtinfo6.install
 libncurses5-dev.links
 libncurses5.install
 libncursesw5.install
