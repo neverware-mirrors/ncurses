@@ -162,6 +162,19 @@ Description: debugging/profiling libraries for ncursesw
  .
  This package includes support for wide characters.
 
+Package: lib64tinfo6
+Architecture: i386 powerpc sparc s390
+Priority: optional
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Build-Profiles: <!nobiarch>
+Description: shared low-level terminfo library for terminal handling (64-bit)
+ The ncurses library routines are a terminal-independent method of
+ updating character screens with reasonable optimization.
+ .
+ This package contains the shared low-level terminfo library.
+ .
+ This package supports the 64-bit ABI variant of your system's architecture.
+
 Package: lib64ncurses6
 Architecture: i386 powerpc sparc s390
 Priority: optional
@@ -287,19 +300,6 @@ Description: developer's libraries for ncursesw (32-bit)
  This package includes support for wide characters.
  This package supports the 32-bit ABI variant of your system's
  architecture.
-
-Package: lib64tinfo6
-Architecture: i386 powerpc sparc s390
-Priority: optional
-Depends: ${shlibs:Depends}, ${misc:Depends}
-Build-Profiles: <!nobiarch>
-Description: shared low-level terminfo library for terminal handling (64-bit)
- The ncurses library routines are a terminal-independent method of
- updating character screens with reasonable optimization.
- .
- This package contains the shared low-level terminfo library.
- .
- This package supports the 64-bit ABI variant of your system's architecture.
 
 Package: lib32tinfo6
 Architecture: amd64 ppc64
