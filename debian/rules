@@ -106,15 +106,11 @@ endif
 ifeq ($(DEB_HOST_ARCH),amd64)
 build_32_target = i486-$(DEB_HOST_GNU_SYSTEM)
 build_32 = build-32 build-wide-32
-lib32 = /lib32
-usr_lib32 = /usr/lib32
 endif
 
 ifeq ($(DEB_HOST_ARCH),ppc64)
 build_32_target = powerpc-$(DEB_HOST_GNU_SYSTEM)
 build_32 = build-32 build-wide-32
-lib32 = /lib32
-usr_lib32 = /usr/lib32
 endif
 
 ifneq (,$(filter nobiarch,$(DEB_BUILD_PROFILES)))
@@ -233,7 +229,7 @@ $(objdir-32)/config.status: config.guess-stamp
 		$(CONFARGS) \
 		--host=$(build_32_target) \
 		--without-gpm \
-		--libdir=$(usr_lib32)
+		--libdir=/usr/lib32
 
 $(objdir-64)/config.status: config.guess-stamp
 	test -d $(objdir-64) || mkdir $(objdir-64)
@@ -289,7 +285,7 @@ $(wobjdir-32)/config.status: config.guess-stamp
 		--host=$(build_32_target) \
 		--without-gpm \
 		--enable-widec \
-		--libdir=$(usr_lib32)
+		--libdir=/usr/lib32
 
 $(objdir-legacy)/config.status: config.guess-stamp
 	test -d $(objdir-legacy) || mkdir $(objdir-legacy)
@@ -405,11 +401,11 @@ install: build
 	rm -f $(tempdir)/usr/lib/$(DEB_HOST_MULTIARCH)/libncursesw.so
 	echo "INPUT(libncursesw.so.6 -ltinfo)" > $(tempdir)/usr/lib/$(DEB_HOST_MULTIARCH)/libncursesw.so
 ifneq (,$(build_32))
-	mkdir -p $(tempdir)/$(usr_lib32)
-	rm -f $(tempdir)/$(usr_lib32)/libncurses.so
-	echo "INPUT(libncurses.so.6 -ltinfo)" > $(tempdir)/$(usr_lib32)/libncurses.so
-	rm -f $(tempdir)/$(usr_lib32)/libncursesw.so
-	echo "INPUT(libncursesw.so.6 -ltinfo)" > $(tempdir)/$(usr_lib32)/libncursesw.so
+	mkdir -p $(tempdir)/usr/lib32
+	rm -f $(tempdir)/usr/lib32/libncurses.so
+	echo "INPUT(libncurses.so.6 -ltinfo)" > $(tempdir)/usr/lib32/libncurses.so
+	rm -f $(tempdir)/usr/lib32/libncursesw.so
+	echo "INPUT(libncursesw.so.6 -ltinfo)" > $(tempdir)/usr/lib32/libncursesw.so
 endif
 ifneq (,$(build_64))
 	mkdir -p $(tempdir)/usr/lib64
