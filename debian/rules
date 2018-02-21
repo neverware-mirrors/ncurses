@@ -209,8 +209,7 @@ config.guess-stamp:
 $(objdir)/config.status: config.guess-stamp
 	test -d $(objdir) || mkdir $(objdir)
 	cd $(objdir) && $(relsrcdir)/configure \
-		$(CONFARGS) \
-		--with-progs
+		$(CONFARGS)
 
 $(objdir-static)/config.status: config.guess-stamp
 	test -d $(objdir-static) || mkdir $(objdir-static)
@@ -257,6 +256,7 @@ $(wobjdir)/config.status: config.guess-stamp
 	test -d $(wobjdir) || mkdir $(wobjdir)
 	cd $(wobjdir) && $(relsrcdir)/configure \
 		$(CONFARGS) \
+		--with-progs \
 		--enable-widec
 
 $(wobjdir-static)/config.status: config.guess-stamp
@@ -411,8 +411,8 @@ install: build
 	dh_prep
 
 	# Install non -DTRACE versions.
-	$(MAKE) -C $(wobjdir) install.libs
-	$(MAKE) -C $(objdir) install
+	$(MAKE) -C $(objdir) install.libs
+	$(MAKE) -C $(wobjdir) install
 
 	install -m 644 -t $(fulltempdir)/usr/lib/$(DEB_HOST_MULTIARCH) $(objdir-static)/lib/*.a
 	install -m 644 -t $(fulltempdir)/usr/lib/$(DEB_HOST_MULTIARCH) $(wobjdir-static)/lib/*.a
