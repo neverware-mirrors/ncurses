@@ -246,14 +246,18 @@ Description: shared libraries for terminal handling (32-bit)
  This package supports the 32-bit ABI variant of your system's
  architecture.
 
-Package: lib32ncurses5-dev
+Package: lib32ncurses-dev
 Architecture: amd64 ppc64
 Section: libdevel
 Priority: optional
-Depends: lib32tinfo6 (= ${binary:Version}), lib32ncurses6 (= ${binary:Version}),
-         lib32tinfo-dev (= ${binary:Version}),
+Depends: lib32ncurses6 (= ${binary:Version}),
+	 lib32ncursesw6 (= ${binary:Version}),
+         lib32tinfo6 (= ${binary:Version}),
          libncurses-dev (= ${binary:Version}), lib32c-dev, ${misc:Depends}
 Suggests: ncurses-doc
+Replaces: lib32ncurses5-dev, lib32ncursesw5-dev, lib32tinfo-dev
+Conflicts: lib32ncurses5-dev, lib32ncursesw5-dev, lib32tinfo-dev
+Provides: lib32ncurses5-dev, lib32ncursesw5-dev, lib32tinfo-dev
 Build-Profiles: <!nobiarch>
 Description: developer's libraries for ncurses (32-bit)
  The ncurses library routines are a terminal-independent method of
@@ -281,26 +285,6 @@ Description: shared libraries for terminal handling (wide character support) (32
  This package supports the 32-bit ABI variant of your system's
  architecture.
 
-Package: lib32ncursesw5-dev
-Architecture: amd64 ppc64
-Section: libdevel
-Priority: optional
-Depends: lib32tinfo6 (= ${binary:Version}), lib32ncursesw6 (= ${binary:Version}),
-         lib32tinfo-dev (= ${binary:Version}),
-         libncurses-dev (= ${binary:Version}), lib32c-dev, ${misc:Depends}
-Suggests: ncurses-doc
-Build-Profiles: <!nobiarch>
-Description: developer's libraries for ncursesw (32-bit)
- The ncurses library routines are a terminal-independent method of
- updating character screens with reasonable optimization.
- .
- This package contains the header files, static libraries
- and symbolic links that developers using ncursesw will need.
- .
- This package includes support for wide characters.
- This package supports the 32-bit ABI variant of your system's
- architecture.
-
 Package: lib32tinfo6
 Architecture: amd64 ppc64
 Priority: optional
@@ -311,25 +295,6 @@ Description: shared low-level terminfo library for terminal handling (32-bit)
  updating character screens with reasonable optimization.
  .
  This package contains the shared low-level terminfo library.
- .
- This package supports the 32-bit ABI variant of your system's architecture.
-
-Package: lib32tinfo-dev
-Architecture: amd64 ppc64
-Section: libdevel
-Priority: optional
-Depends: lib32tinfo6 (= ${binary:Version}),
-         lib32c-dev, ${misc:Depends}
-Replaces: lib32ncurses5-dev (<< 5.9-3), lib32tinfo5-dev
-Breaks: lib32ncurses5-dev (<< 5.9-3)
-Build-Profiles: <!nobiarch>
-Description: developer's library for the low-level terminfo library (32-bit)
- The ncurses library routines are a terminal-independent method of
- updating character screens with reasonable optimization.
- .
- This package contains the static library and symbolic link that developers
- using the low-level terminfo library will need.  Packages should not
- build-depend on this package.
  .
  This package supports the 32-bit ABI variant of your system's architecture.
 

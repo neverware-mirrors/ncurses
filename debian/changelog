@@ -10,6 +10,8 @@ ncurses (6.1+20180210-1) UNRELEASED; urgency=low
     Add a lintian override for the resulting duplicate-short-description
     notices.
   * Build a lib64ncursesw6 package on i386 and powerpc.
+  * Merge the multilib -dev packages into single lib{32,64}ncurses-dev
+    packages which have Conflicts/Replaces/Provides on the old ones.
   * Install only one set of headers of headers, built from the wide
     configuration.  Provide compatibility symlinks in usr/include/ncursesw.
     - Configure with --disable-wattr-macros to avoid potential crashes, see

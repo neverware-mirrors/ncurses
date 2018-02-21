@@ -37,12 +37,10 @@ package-libw=libncursesw$(soname)
 package-libw-32=lib32ncursesw$(soname)
 package-libw-64=lib64ncursesw$(soname)
 package-dev=libncurses5-dev
-package-dev-32=lib32ncurses5-dev
+package-dev-32=lib32ncurses-dev
 package-dev-64=lib64ncurses-dev
 package-devti=libtinfo-dev
-package-devti-32=lib32tinfo-dev
 package-devw=libncursesw5-dev
-package-devw-32=lib32ncursesw5-dev
 package-dbg=libncurses$(soname)-dbg
 package-dbgw=libncursesw$(soname)-dbg
 package-dbgti=libtinfo$(soname)-dbg
@@ -503,8 +501,7 @@ binary-arch: build install $(autogen-files)
 	dh_installdocs -p$(package-ti) -p$(package-bin) -p$(package-examples) debian/FAQ
 	dh_installdocs -a -N$(package-bin) -N$(package-ti) -N$(package-examples) \
 		       -N$(package-ti-legacy) -N$(package-lib-legacy) -N$(package-libw-legacy) \
-		       -N$(package-lib-32) -N$(package-libw-32) -N$(package-dev-32) \
-		       -N$(package-devw-32) -N$(package-devti-32) -N$(package-ti-32) \
+		       -N$(package-lib-32) -N$(package-libw-32) -N$(package-dev-32) -N$(package-ti-32) \
 		       -N$(package-lib-64) -N$(package-libw-64) -N$(package-dev-64) -N$(package-ti-64) \
 		       --link-doc=$(package-ti)
 	dh_installdocs -p$(package-ti-legacy)
@@ -513,7 +510,6 @@ binary-arch: build install $(autogen-files)
 ifneq ($(build_32),)
 	dh_installdocs -p$(package-ti-32)
 	dh_installdocs -p$(package-lib-32) -p$(package-libw-32) -p$(package-dev-32) \
-		       -p$(package-devw-32) -p$(package-devti-32) \
 		       --link-doc=$(package-ti-32)
 endif
 ifneq ($(build_64),)
