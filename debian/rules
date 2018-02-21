@@ -141,6 +141,7 @@ CONFARGS =	--prefix=/usr \
 		--enable-const \
 		--enable-pc-files \
 		--with-pkg-config-libdir=/usr/lib/$(DEB_HOST_MULTIARCH)/pkgconfig \
+		--with-install-prefix=$(fulltempdir) \
 		--without-ada \
 		--without-tests \
 		--without-progs \
@@ -212,7 +213,6 @@ $(objdir)/config.status: config.guess-stamp
 	cd $(objdir) && CFLAGS="$(CFLAGS)" $(relsrcdir)/configure \
 		$(CONFARGS) \
 		--with-progs \
-		--with-install-prefix=$(fulltempdir) \
 		--libdir=/usr/lib/$(DEB_HOST_MULTIARCH)
 
 $(objdir-static)/config.status: config.guess-stamp
@@ -221,7 +221,6 @@ $(objdir-static)/config.status: config.guess-stamp
 		$(CONFARGS) \
 		--without-shared \
 		--without-dlsym \
-		--with-install-prefix=$(fulltempdir) \
 		--libdir=/usr/lib/$(DEB_HOST_MULTIARCH)
 
 $(objdir-32)/config.status: config.guess-stamp
@@ -235,7 +234,6 @@ $(objdir-32)/config.status: config.guess-stamp
 		$(CONFARGS) \
 		--host=$(build_32_target) \
 		--without-gpm \
-		--with-install-prefix=$(fulltempdir) \
 		--libdir=$(usr_lib32)
 
 $(objdir-64)/config.status: config.guess-stamp
@@ -249,7 +247,6 @@ $(objdir-64)/config.status: config.guess-stamp
 		$(CONFARGS) \
 		--host=$(build_64_target) \
 		--without-gpm \
-		--with-install-prefix=$(fulltempdir) \
 		--libdir=/usr/lib64
 
 $(objdir-debug)/config.status: config.guess-stamp
@@ -258,14 +255,12 @@ $(objdir-debug)/config.status: config.guess-stamp
 		CFLAGS="$(CFLAGS) -DTRACE" $(relsrcdir)/configure \
 		$(CONFARGS) \
 		--without-normal \
-		--with-install-prefix=$(fulltempdir) \
 		--libdir=/usr/lib/$(DEB_HOST_MULTIARCH)
 
 $(wobjdir)/config.status: config.guess-stamp
 	test -d $(wobjdir) || mkdir $(wobjdir)
 	cd $(wobjdir) && CFLAGS="$(CFLAGS)" $(relsrcdir)/configure \
 		$(CONFARGS) \
-		--with-install-prefix=$(fulltempdir) \
 		--enable-widec \
 		--libdir=/usr/lib/$(DEB_HOST_MULTIARCH)
 
@@ -275,7 +270,6 @@ $(wobjdir-static)/config.status: config.guess-stamp
 		$(CONFARGS) \
 		--without-shared \
 		--without-dlsym \
-		--with-install-prefix=$(fulltempdir) \
 		--enable-widec \
 		--libdir=/usr/lib/$(DEB_HOST_MULTIARCH)
 
@@ -285,7 +279,6 @@ $(wobjdir-debug)/config.status: config.guess-stamp
 		CFLAGS="$(CFLAGS) -DTRACE" $(relsrcdir)/configure \
 		$(CONFARGS) \
 		--without-normal \
-		--with-install-prefix=$(fulltempdir) \
 		--enable-widec \
 		--libdir=/usr/lib/$(DEB_HOST_MULTIARCH)
 
@@ -300,7 +293,6 @@ $(wobjdir-32)/config.status: config.guess-stamp
 		$(CONFARGS) \
 		--host=$(build_32_target) \
 		--without-gpm \
-		--with-install-prefix=$(fulltempdir) \
 		--enable-widec \
 		--libdir=$(usr_lib32)
 
@@ -308,14 +300,12 @@ $(objdir-legacy)/config.status: config.guess-stamp
 	test -d $(objdir-legacy) || mkdir $(objdir-legacy)
 	cd $(objdir-legacy) && CFLAGS="$(CFLAGS)" $(relsrcdir)/configure \
 		$(CONFARGS-LEGACY) \
-		--with-install-prefix=$(fulltempdir) \
 		--libdir=/usr/lib/$(DEB_HOST_MULTIARCH)
 
 $(wobjdir-legacy)/config.status: config.guess-stamp
 	test -d $(wobjdir-legacy) || mkdir $(wobjdir-legacy)
 	cd $(wobjdir-legacy) && CFLAGS="$(CFLAGS)" $(relsrcdir)/configure \
 		$(CONFARGS-LEGACY) \
-		--with-install-prefix=$(fulltempdir) \
 		--enable-widec \
 		--libdir=/usr/lib/$(DEB_HOST_MULTIARCH)
 
