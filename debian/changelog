@@ -9,6 +9,7 @@ ncurses (6.1+20180210-1) UNRELEASED; urgency=low
     package and turn them into transitional packages (Closes: #840429).
     Add a lintian override for the resulting duplicate-short-description
     notices.
+  * Build a lib64ncursesw6 package on i386 and powerpc.
   * Install only one set of headers of headers, built from the wide
     configuration.  Provide compatibility symlinks in usr/include/ncursesw.
     - Configure with --disable-wattr-macros to avoid potential crashes, see

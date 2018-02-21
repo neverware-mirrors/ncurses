@@ -35,6 +35,7 @@ package-ti-32=lib32tinfo$(soname)
 package-ti-64=lib64tinfo$(soname)
 package-libw=libncursesw$(soname)
 package-libw-32=lib32ncursesw$(soname)
+package-libw-64=lib64ncursesw$(soname)
 package-dev=libncurses5-dev
 package-dev-32=lib32ncurses5-dev
 package-dev-64=lib64ncurses5-dev
@@ -64,6 +65,7 @@ objdir-64=$(srcdir)/obj-64
 wobjdir=$(srcdir)/obj-wide
 wobjdir-static=$(srcdir)/obj-wide-static
 wobjdir-32=$(srcdir)/obj-wide-32
+wobjdir-64=$(srcdir)/obj-wide-64
 objdir-debug=$(srcdir)/obj-debug
 wobjdir-debug=$(srcdir)/obj-wide-debug
 objdir-test=$(srcdir)/obj-test
@@ -85,22 +87,22 @@ autogen-files := debian/libncurses-dev.links debian/libncurses-dev.install \
 
 ifeq ($(DEB_HOST_ARCH),i386)
 build_64_target = x86_64-$(DEB_HOST_GNU_SYSTEM)
-build_64 = build-64
+build_64 = build-64 build-wide-64
 endif
 
 ifeq ($(DEB_HOST_ARCH),powerpc)
 build_64_target = powerpc64-$(DEB_HOST_GNU_SYSTEM)
-build_64 = build-64
+build_64 = build-64 build-wide-64
 endif
 
 ifeq ($(DEB_HOST_ARCH),s390)
 build_64_target = s390x-$(DEB_HOST_GNU_SYSTEM)
-build_64 = build-64
+build_64 = build-64 build-wide-64
 endif
 
 ifeq ($(DEB_HOST_ARCH),sparc)
 build_64_target = sparc64-$(DEB_HOST_GNU_SYSTEM)
-build_64 = build-64
+build_64 = build-64 build-wide-64
 endif
 
 ifeq ($(DEB_HOST_ARCH),amd64)
@@ -290,6 +292,20 @@ $(wobjdir-32)/config.status: config.guess-stamp
 		--enable-widec \
 		--libdir=/usr/lib32
 
+$(wobjdir-64)/config.status: config.guess-stamp
+	test -d $(wobjdir-64) || mkdir $(wobjdir-64)
+
+	cf_cv_type_of_bool='unsigned char'; export cf_cv_type_of_bool; \
+	cf_cv_working_poll=yes; export cf_cv_working_poll; \
+	cd $(wobjdir-64) && CC="$(HOST_CC) -m64" \
+		BUILD_CC="gcc" BUILD_CPPFLAGS="-D_GNU_SOURCE" CXX="$(HOST_CXX) -m64" \
+		$(relsrcdir)/configure \
+		$(CONFARGS) \
+		--host=$(build_64_target) \
+		--without-gpm \
+		--enable-widec \
+		--libdir=/usr/lib64
+
 $(objdir-legacy)/config.status: config.guess-stamp
 	test -d $(objdir-legacy) || mkdir $(objdir-legacy)
 	cd $(objdir-legacy) && $(relsrcdir)/configure \
@@ -349,6 +365,10 @@ build-wide-32: $(wobjdir-32)/config.status
 	cd $(wobjdir-32) && $(MAKE) CC="$(HOST_CC) -m32" CXX="$(HOST_CXX) -m32"
 	touch $@
 
+build-wide-64: $(wobjdir-64)/config.status
+	cd $(wobjdir-64) && $(MAKE) CC="$(HOST_CC) -m64" CXX="$(HOST_CXX) -m64"
+	touch $@
+
 build-wide-debug: $(wobjdir-debug)/config.status
 	cd $(wobjdir-debug) && $(MAKE)
 	touch $@
@@ -377,6 +397,7 @@ clean:
 	rm -rf $(wobjdir)
 	rm -rf $(wobjdir-static)
 	rm -rf $(wobjdir-32)
+	rm -rf $(wobjdir-64)
 	rm -rf $(objdir-debug)
 	rm -rf $(wobjdir-debug)
 	rm -rf $(objdir-legacy)
@@ -414,6 +435,8 @@ ifneq (,$(build_64))
 	mkdir -p $(tempdir)/usr/lib64
 	rm -f $(tempdir)/usr/lib64/libncurses.so
 	echo "INPUT(libncurses.so.6 -ltinfo)" > $(tempdir)/usr/lib64/libncurses.so
+	rm -f $(tempdir)/usr/lib64/libncursesw.so
+	echo "INPUT(libncursesw.so.6 -ltinfo)" > $(tempdir)/usr/lib64/libncursesw.so
 endif
 
 	# Move terminfo files to the right place.
@@ -482,7 +505,7 @@ binary-arch: build install $(autogen-files)
 		       -N$(package-ti-legacy) -N$(package-lib-legacy) -N$(package-libw-legacy) \
 		       -N$(package-lib-32) -N$(package-libw-32) -N$(package-dev-32) \
 		       -N$(package-devw-32) -N$(package-devti-32) -N$(package-ti-32) \
-		       -N$(package-lib-64) -N$(package-dev-64) -N$(package-ti-64) \
+		       -N$(package-lib-64) -N$(package-libw-64) -N$(package-dev-64) -N$(package-ti-64) \
 		       --link-doc=$(package-ti)
 	dh_installdocs -p$(package-ti-legacy)
 	dh_installdocs -p$(package-lib-legacy) -p$(package-libw-legacy) \
@@ -495,7 +518,7 @@ ifneq ($(build_32),)
 endif
 ifneq ($(build_64),)
 	dh_installdocs -p$(package-ti-64)
-	dh_installdocs -p$(package-lib-64) -p$(package-dev-64) \
+	dh_installdocs -p$(package-lib-64) -p$(package-libw-64) -p$(package-dev-64) \
 		       --link-doc=$(package-ti-64)
 endif
 	dh_installchangelogs -a NEWS
@@ -525,6 +548,7 @@ endif
 ifneq ($(build_64),)
 	dh_makeshlibs -p$(package-ti-64) -V "$(package-ti-64) $(sodepver)" -- -c4
 	dh_makeshlibs -p$(package-lib-64) -V "$(package-lib-64) $(sodepver)" -- -c4
+	dh_makeshlibs -p$(package-libw-64) -V "$(package-libw-64) $(sodepver)" -- -c4
 endif
 	dh_shlibdeps -a
 	dh_gencontrol -a

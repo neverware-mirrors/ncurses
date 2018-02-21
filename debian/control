@@ -178,11 +178,28 @@ Description: shared libraries for terminal handling (64-bit)
  This package supports the 64-bit ABI variant of your system's
  architecture.
 
+Package: lib64ncursesw6
+Architecture: i386 powerpc sparc s390
+Priority: optional
+Depends: lib64tinfo6 (= ${binary:Version}),
+         ${shlibs:Depends}, ${misc:Depends}
+Build-Profiles: <!nobiarch>
+Description: shared libraries for terminal handling (wide character support) (64-bit)
+ The ncurses library routines are a terminal-independent method of
+ updating character screens with reasonable optimization.
+ .
+ This package contains the shared libraries necessary to run programs
+ compiled with ncursesw, which includes support for wide characters.
+ .
+ This package supports the 64-bit ABI variant of your system's
+ architecture.
+
 Package: lib64ncurses5-dev
 Architecture: i386 powerpc sparc s390
 Section: libdevel
 Priority: optional
 Depends: lib64ncurses6 (= ${binary:Version}),
+	 lib64ncursesw6 (= ${binary:Version}),
          lib64tinfo6 (= ${binary:Version}),
          libncurses-dev (= ${binary:Version}), lib64c-dev, ${misc:Depends}
 Suggests: ncurses-doc
