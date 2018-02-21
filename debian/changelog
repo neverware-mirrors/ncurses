@@ -11,6 +11,8 @@ ncurses (6.1+20180210-1) UNRELEASED; urgency=low
     notices.
   * Install the tinfo/tic libraries and the programs from the wide build,
     enabling the extended terminfo format introduced in ncurses 6.1.
+    - Add Breaks against libslang2 (<< 2.3.1a-3) to ncurses-{base,term},
+      since it chokes on the new terminfo format (see #890769).
   * Build a lib64ncursesw6 package on i386 and powerpc.
   * Merge the multilib -dev packages into single lib{32,64}ncurses-dev
     packages which have Conflicts/Replaces/Provides on the old ones.
