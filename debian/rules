@@ -153,6 +153,7 @@ CONFARGS =	--prefix=/usr \
 		--with-termlib=tinfo \
 		--with-versioned-syms \
 		--disable-wattr-macros \
+		--enable-overwrite \
 		--with-xterm-kbs=del
 
 CONFARGS-LEGACY =	$(CONFARGS) \
@@ -160,6 +161,7 @@ CONFARGS-LEGACY =	$(CONFARGS) \
 			--disable-lp64 \
 			--with-chtype='long' \
 			--with-mmask-t='long' \
+			--disable-overwrite \
 			--without-normal
 
 CONFARGS-TEST =	--prefix=/usr \
@@ -211,7 +213,7 @@ $(objdir)/config.status: config.guess-stamp
 		$(CONFARGS) \
 		--with-progs \
 		--with-install-prefix=$(fulltempdir) \
-		--enable-overwrite --libdir=/usr/lib/$(DEB_HOST_MULTIARCH)
+		--libdir=/usr/lib/$(DEB_HOST_MULTIARCH)
 
 $(objdir-static)/config.status: config.guess-stamp
 	test -d $(objdir-static) || mkdir $(objdir-static)
@@ -220,7 +222,7 @@ $(objdir-static)/config.status: config.guess-stamp
 		--without-shared \
 		--without-dlsym \
 		--with-install-prefix=$(fulltempdir) \
-		--enable-overwrite --libdir=/usr/lib/$(DEB_HOST_MULTIARCH)
+		--libdir=/usr/lib/$(DEB_HOST_MULTIARCH)
 
 $(objdir-32)/config.status: config.guess-stamp
 	test -d $(objdir-32) || mkdir $(objdir-32)
@@ -234,7 +236,7 @@ $(objdir-32)/config.status: config.guess-stamp
 		--host=$(build_32_target) \
 		--without-gpm \
 		--with-install-prefix=$(fulltempdir) \
-		--enable-overwrite --libdir=$(usr_lib32)
+		--libdir=$(usr_lib32)
 
 $(objdir-64)/config.status: config.guess-stamp
 	test -d $(objdir-64) || mkdir $(objdir-64)
@@ -248,7 +250,7 @@ $(objdir-64)/config.status: config.guess-stamp
 		--host=$(build_64_target) \
 		--without-gpm \
 		--with-install-prefix=$(fulltempdir) \
-		--enable-overwrite --libdir=/usr/lib64
+		--libdir=/usr/lib64
 
 $(objdir-debug)/config.status: config.guess-stamp
 	test -d $(objdir-debug) || mkdir $(objdir-debug)
@@ -257,14 +259,14 @@ $(objdir-debug)/config.status: config.guess-stamp
 		$(CONFARGS) \
 		--without-normal \
 		--with-install-prefix=$(fulltempdir) \
-		--enable-overwrite --libdir=/usr/lib/$(DEB_HOST_MULTIARCH)
+		--libdir=/usr/lib/$(DEB_HOST_MULTIARCH)
 
 $(wobjdir)/config.status: config.guess-stamp
 	test -d $(wobjdir) || mkdir $(wobjdir)
 	cd $(wobjdir) && CFLAGS="$(CFLAGS)" $(relsrcdir)/configure \
 		$(CONFARGS) \
 		--with-install-prefix=$(fulltempdir) \
-		--enable-overwrite --enable-widec \
+		--enable-widec \
 		--libdir=/usr/lib/$(DEB_HOST_MULTIARCH)
 
 $(wobjdir-static)/config.status: config.guess-stamp
@@ -274,7 +276,7 @@ $(wobjdir-static)/config.status: config.guess-stamp
 		--without-shared \
 		--without-dlsym \
 		--with-install-prefix=$(fulltempdir) \
-		--enable-overwrite --enable-widec \
+		--enable-widec \
 		--libdir=/usr/lib/$(DEB_HOST_MULTIARCH)
 
 $(wobjdir-debug)/config.status: config.guess-stamp
@@ -284,7 +286,7 @@ $(wobjdir-debug)/config.status: config.guess-stamp
 		$(CONFARGS) \
 		--without-normal \
 		--with-install-prefix=$(fulltempdir) \
-		--enable-overwrite --enable-widec \
+		--enable-widec \
 		--libdir=/usr/lib/$(DEB_HOST_MULTIARCH)
 
 $(wobjdir-32)/config.status: config.guess-stamp
@@ -299,7 +301,7 @@ $(wobjdir-32)/config.status: config.guess-stamp
 		--host=$(build_32_target) \
 		--without-gpm \
 		--with-install-prefix=$(fulltempdir) \
-		--enable-overwrite --enable-widec \
+		--enable-widec \
 		--libdir=$(usr_lib32)
 
 $(objdir-legacy)/config.status: config.guess-stamp
@@ -307,14 +309,14 @@ $(objdir-legacy)/config.status: config.guess-stamp
 	cd $(objdir-legacy) && CFLAGS="$(CFLAGS)" $(relsrcdir)/configure \
 		$(CONFARGS-LEGACY) \
 		--with-install-prefix=$(fulltempdir) \
-		--disable-overwrite --libdir=/usr/lib/$(DEB_HOST_MULTIARCH)
+		--libdir=/usr/lib/$(DEB_HOST_MULTIARCH)
 
 $(wobjdir-legacy)/config.status: config.guess-stamp
 	test -d $(wobjdir-legacy) || mkdir $(wobjdir-legacy)
 	cd $(wobjdir-legacy) && CFLAGS="$(CFLAGS)" $(relsrcdir)/configure \
 		$(CONFARGS-LEGACY) \
 		--with-install-prefix=$(fulltempdir) \
-		--disable-overwrite --enable-widec \
+		--enable-widec \
 		--libdir=/usr/lib/$(DEB_HOST_MULTIARCH)
 
 $(objdir-test)/config.status: build-wide config.guess-stamp
