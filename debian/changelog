@@ -21,6 +21,7 @@ ncurses (6.1+20180210-1) UNRELEASED; urgency=low
     - Configure with --disable-wattr-macros to avoid potential crashes, see
       https://bugzilla.redhat.com/show_bug.cgi?id=1270534 for details.
   * Update debian/TODO.
+  * Upgrade Standards-Version to 4.1.3, no further changes needed.
 
  -- Sven Joachim <svenjoac@gmx.de>  Mon, 12 Feb 2018 18:04:50 +0100
 
