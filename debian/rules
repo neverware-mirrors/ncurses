@@ -141,6 +141,7 @@ CONFARGS =	--prefix=/usr \
 		--enable-const \
 		--enable-pc-files \
 		--with-pkg-config-libdir=/usr/lib/$(DEB_HOST_MULTIARCH)/pkgconfig \
+		--libdir=/usr/lib/$(DEB_HOST_MULTIARCH) \
 		--with-install-prefix=$(fulltempdir) \
 		--without-ada \
 		--without-tests \
@@ -212,16 +213,14 @@ $(objdir)/config.status: config.guess-stamp
 	test -d $(objdir) || mkdir $(objdir)
 	cd $(objdir) && CFLAGS="$(CFLAGS)" $(relsrcdir)/configure \
 		$(CONFARGS) \
-		--with-progs \
-		--libdir=/usr/lib/$(DEB_HOST_MULTIARCH)
+		--with-progs
 
 $(objdir-static)/config.status: config.guess-stamp
 	test -d $(objdir-static) || mkdir $(objdir-static)
 	cd $(objdir-static) && CFLAGS="$(CFLAGS)" $(relsrcdir)/configure \
 		$(CONFARGS) \
 		--without-shared \
-		--without-dlsym \
-		--libdir=/usr/lib/$(DEB_HOST_MULTIARCH)
+		--without-dlsym
 
 $(objdir-32)/config.status: config.guess-stamp
 	test -d $(objdir-32) || mkdir $(objdir-32)
@@ -254,15 +253,13 @@ $(objdir-debug)/config.status: config.guess-stamp
 	cd $(objdir-debug) && \
 		CFLAGS="$(CFLAGS) -DTRACE" $(relsrcdir)/configure \
 		$(CONFARGS) \
-		--without-normal \
-		--libdir=/usr/lib/$(DEB_HOST_MULTIARCH)
+		--without-normal
 
 $(wobjdir)/config.status: config.guess-stamp
 	test -d $(wobjdir) || mkdir $(wobjdir)
 	cd $(wobjdir) && CFLAGS="$(CFLAGS)" $(relsrcdir)/configure \
 		$(CONFARGS) \
-		--enable-widec \
-		--libdir=/usr/lib/$(DEB_HOST_MULTIARCH)
+		--enable-widec
 
 $(wobjdir-static)/config.status: config.guess-stamp
 	test -d $(wobjdir-static) || mkdir $(wobjdir-static)
@@ -270,8 +267,7 @@ $(wobjdir-static)/config.status: config.guess-stamp
 		$(CONFARGS) \
 		--without-shared \
 		--without-dlsym \
-		--enable-widec \
-		--libdir=/usr/lib/$(DEB_HOST_MULTIARCH)
+		--enable-widec
 
 $(wobjdir-debug)/config.status: config.guess-stamp
 	test -d $(wobjdir-debug) || mkdir $(wobjdir-debug)
@@ -279,8 +275,7 @@ $(wobjdir-debug)/config.status: config.guess-stamp
 		CFLAGS="$(CFLAGS) -DTRACE" $(relsrcdir)/configure \
 		$(CONFARGS) \
 		--without-normal \
-		--enable-widec \
-		--libdir=/usr/lib/$(DEB_HOST_MULTIARCH)
+		--enable-widec
 
 $(wobjdir-32)/config.status: config.guess-stamp
 	test -d $(wobjdir-32) || mkdir $(wobjdir-32)
@@ -299,15 +294,13 @@ $(wobjdir-32)/config.status: config.guess-stamp
 $(objdir-legacy)/config.status: config.guess-stamp
 	test -d $(objdir-legacy) || mkdir $(objdir-legacy)
 	cd $(objdir-legacy) && CFLAGS="$(CFLAGS)" $(relsrcdir)/configure \
-		$(CONFARGS-LEGACY) \
-		--libdir=/usr/lib/$(DEB_HOST_MULTIARCH)
+		$(CONFARGS-LEGACY)
 
 $(wobjdir-legacy)/config.status: config.guess-stamp
 	test -d $(wobjdir-legacy) || mkdir $(wobjdir-legacy)
 	cd $(wobjdir-legacy) && CFLAGS="$(CFLAGS)" $(relsrcdir)/configure \
 		$(CONFARGS-LEGACY) \
-		--enable-widec \
-		--libdir=/usr/lib/$(DEB_HOST_MULTIARCH)
+		--enable-widec
 
 $(objdir-test)/config.status: build-wide config.guess-stamp
 	test -d $(objdir-test) || mkdir $(objdir-test)
