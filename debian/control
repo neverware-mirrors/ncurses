@@ -3,7 +3,7 @@ Section: libs
 Priority: required
 Maintainer: Craig Small <csmall@debian.org>
 Uploaders: Sven Joachim <svenjoac@gmx.de>
-Build-Depends: debhelper (>= 10),
+Build-Depends: debhelper (>= 11~),
                g++-multilib [amd64 i386 powerpc ppc64 s390 sparc] <!nobiarch>,
                libgpm-dev [linux-any],
                pkg-config,
