@@ -3,6 +3,7 @@ ncurses (6.1+20180210-2) UNRELEASED; urgency=low
   * Run dh_autoreconf at build time to regenerate configure scripts.
     - Add a build-dependency on autoconf-dickey (>= 2.52+20170501).
     - Drop debian/README.source.
+  * Drop Replaces/Breaks relationships on pre-wheezy packages.
 
  -- Sven Joachim <svenjoac@gmx.de>  Sun, 11 Mar 2018 09:05:14 +0100
 

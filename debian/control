@@ -67,7 +67,7 @@ Replaces: ncurses-dev, libncurses5-dev (<< 6.1+20180210),
           ncurses-bin (<< 6.0+20151017)
 Provides: libncurses5-dev, libncursesw5-dev, libtinfo-dev, ncurses-dev
 Breaks: libncurses5-dev (<< 6.1+20180210), libncursesw5-dev (<< 6.1+20180210),
-        libtinfo-dev (<< 6.1+20180210), binutils-gold (<< 2.21.53.20110910)
+        libtinfo-dev (<< 6.1+20180210)
 Description: developer's libraries for ncurses
  The ncurses library routines are a terminal-independent method of
  updating character screens with reasonable optimization.
@@ -320,7 +320,7 @@ Essential: yes
 Multi-Arch: foreign
 Depends: ${misc:Depends}
 Provides: ncurses-runtime
-Breaks: ncurses-term (<< 5.7+20100313-3), libslang2 (<< 2.3.1a-3)
+Breaks: libslang2 (<< 2.3.1a-3)
 Description: basic terminal type definitions
  The ncurses library routines are a terminal-independent method of
  updating character screens with reasonable optimization.
@@ -335,10 +335,8 @@ Section: misc
 Priority: standard
 Multi-Arch: foreign
 Depends: ${misc:Depends}
-Replaces: ncurses-base (<< 5.7+20100313-1), mlterm-common (<< 3.0.2-1),
-          bogl-bterm (<< 0.1.18-7), suckless-tools (<< 39)
-Breaks: mlterm-common (<< 3.0.2-1), bogl-bterm (<< 0.1.18-7),
-        suckless-tools (<< 39), libslang2 (<< 2.3.1a-3)
+Replaces: suckless-tools (<< 39)
+Breaks: suckless-tools (<< 39), libslang2 (<< 2.3.1a-3)
 Description: additional terminal type definitions
  The ncurses library routines are a terminal-independent method of
  updating character screens with reasonable optimization.
@@ -367,7 +365,6 @@ Section: doc
 Priority: optional
 Multi-Arch: foreign
 Depends: ${misc:Depends}
-Replaces: libncurses5-dev (<< 5.7+20101128)
 Description: developer's guide and documentation for ncurses
  The ncurses library routines are a terminal-independent method of
  updating character screens with reasonable optimization.
@@ -385,7 +382,6 @@ Priority: optional
 Pre-Depends: ${misc:Pre-Depends}
 Multi-Arch: same
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Replaces: libncurses5 (<< 5.9-3)
 Breaks: dialog (<< 1.2-20130523)
 Description: shared low-level terminfo library (legacy version)
  The ncurses library routines are a terminal-independent method of
