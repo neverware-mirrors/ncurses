@@ -498,7 +498,7 @@ binary-arch: build install $(autogen-files)
 	dh_testdir
 	dh_testroot
 	dh_install -p$(package-bin) -Xncurses6-config -Xncursesw6-config
-	dh_install -a -N$(package-bin) --fail-missing
+	dh_install -a -N$(package-bin)
 	dh_installman -a
 	dh_installdocs -p$(package-ti) -p$(package-bin) -p$(package-examples) debian/FAQ
 	dh_installdocs -a -N$(package-bin) -N$(package-ti) -N$(package-examples) \
@@ -532,6 +532,7 @@ endif
 	dh_compress -p$(package-examples) usr/lib/ncurses/examples/README
 	dh_compress -a -N$(package-examples)
 	dh_fixperms -a
+	dh_missing -a --fail-missing
 	dh_makeshlibs -p$(package-ti) -V "$(package-ti) $(sodepver)" --add-udeb=$(package-ti)-udeb -- -c4
 	dh_makeshlibs -p$(package-lib) -V "$(package-lib) $(sodepver)" -- -c4
 	dh_makeshlibs -p$(package-libw) -V "$(package-libw) $(sodepver)" -- -c4
@@ -562,12 +563,13 @@ binary-indep: build install $(autogen-files)
 
 	dh_installdocs -i -Xhtml/Ada95.html -Xhtml/ada/
 	dh_installchangelogs -i NEWS
-	dh_install -i --fail-missing
+	dh_install -i
 	dh_installdirs -i
 	dh_lintian -i
 	dh_link -i
 	dh_compress -i
 	dh_fixperms -i
+	dh_missing -i --fail-missing
 	dh_gencontrol -i
 	dh_installdeb -i
 	dh_md5sums -i

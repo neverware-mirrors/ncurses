@@ -9,6 +9,7 @@ ncurses (6.1+20180210-2) UNRELEASED; urgency=low
   * Update the watch files to version 4, and look for tarballs on
     https://invisible-mirror.net.
   * Bump debhelper compatibility level to 11.
+  * Use "dh_missing --fail-missing" instead of "dh_install --fail-missing".
 
  -- Sven Joachim <svenjoac@gmx.de>  Sun, 11 Mar 2018 09:05:14 +0100
 
