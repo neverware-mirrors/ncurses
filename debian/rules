@@ -204,6 +204,7 @@ endif
 
 config.guess-stamp:
 	dh_update_autotools_config
+	dh_autoreconf autoreconf-dickey -- -f -i
 	touch $@
 
 $(objdir)/config.status: config.guess-stamp
@@ -402,6 +403,7 @@ clean:
 	rm -rf $(wobjdir-legacy)
 	rm -rf $(objdir-test)
 	rm -f $(autogen-files)
+	dh_autoreconf_clean
 	dh_clean
 
 install: build

@@ -1,3 +1,5 @@
+autoreconf.after
+autoreconf.before
 files
 libncurses6.install
 libncursesw6.install
