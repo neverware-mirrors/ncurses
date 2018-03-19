@@ -320,7 +320,7 @@ Essential: yes
 Multi-Arch: foreign
 Depends: ${misc:Depends}
 Provides: ncurses-runtime
-Breaks: libslang2 (<< 2.3.1a-3), libunibilium0 (<< 2)
+Breaks: libtinfo5 (<< 6.1), libslang2 (<< 2.3.1a-3), libunibilium0 (<< 2)
 Description: basic terminal type definitions
  The ncurses library routines are a terminal-independent method of
  updating character screens with reasonable optimization.
@@ -336,7 +336,8 @@ Priority: standard
 Multi-Arch: foreign
 Depends: ${misc:Depends}
 Replaces: suckless-tools (<< 39)
-Breaks: suckless-tools (<< 39), libslang2 (<< 2.3.1a-3), libunibilium0 (<< 2)
+Breaks: libtinfo5 (<< 6.1), libslang2 (<< 2.3.1a-3), libunibilium0 (<< 2),
+        suckless-tools (<< 39)
 Description: additional terminal type definitions
  The ncurses library routines are a terminal-independent method of
  updating character screens with reasonable optimization.

@@ -4,8 +4,9 @@ ncurses (6.1+20180210-2) UNRELEASED; urgency=low
     - Add a build-dependency on autoconf-dickey (>= 2.52+20170501).
     - Drop debian/README.source.
   * Drop Replaces/Breaks relationships on pre-wheezy packages.
-  * Add Breaks against libunibilium0 to ncurses-base and ncurses-term
-    (Closes: #891380).
+  * Add more Breaks to ncurses-base and ncurses-term against libraries
+    incompatible with the new terminfo format: libtinfo5 (<< 6.1) and
+    libunibilium0 (Closes: #891380).
   * Update the watch files to version 4, and look for tarballs on
     https://invisible-mirror.net.
   * Bump debhelper compatibility level to 11.
