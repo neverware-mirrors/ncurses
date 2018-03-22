@@ -11,6 +11,7 @@ ncurses (6.1+20180210-2) UNRELEASED; urgency=low
     https://invisible-mirror.net.
   * Bump debhelper compatibility level to 11.
   * Use "dh_missing --fail-missing" instead of "dh_install --fail-missing".
+  * Temporarily add ncurses{w,}5-config compatibility symlinks.
 
  -- Sven Joachim <svenjoac@gmx.de>  Sun, 11 Mar 2018 09:05:14 +0100
 
