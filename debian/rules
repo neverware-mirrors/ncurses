@@ -447,7 +447,6 @@ endif
 	rm -f $(tempdir)/usr/lib/terminfo \
 	      $(tempdir)/usr/lib/$(DEB_HOST_MULTIARCH)/libcurses.so \
 	      $(tempdir)/usr/lib/$(DEB_HOST_MULTIARCH)/libtinfo.so
-	rm -rf $(tempdir)/usr/include/ncurses
 
 	# Provide header file symlinks under usr/include/ncursesw
 	install -d $(fulltempdir)/usr/include/ncursesw
