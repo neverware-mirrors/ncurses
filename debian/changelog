@@ -1,4 +1,4 @@
-ncurses (6.1+20180210-2) UNRELEASED; urgency=low
+ncurses (6.1+20180210-2) unstable; urgency=medium
 
   * Run dh_autoreconf at build time to regenerate configure scripts.
     - Add a build-dependency on autoconf-dickey (>= 2.52+20170501).
@@ -13,8 +13,9 @@ ncurses (6.1+20180210-2) UNRELEASED; urgency=low
   * Use "dh_missing --fail-missing" instead of "dh_install --fail-missing".
   * Temporarily add ncurses{w,}5-config compatibility symlinks.
   * Upgrade Standards-Version to 4.1.4, no changes needed.
+  * Upload to unstable.
 
- -- Sven Joachim <svenjoac@gmx.de>  Sun, 11 Mar 2018 09:05:14 +0100
+ -- Sven Joachim <svenjoac@gmx.de>  Thu, 26 Apr 2018 18:07:30 +0200
 
 ncurses (6.1+20180210-1) experimental; urgency=low
 
