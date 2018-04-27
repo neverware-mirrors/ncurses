@@ -68,6 +68,7 @@ Replaces: ncurses-dev, libncurses5-dev (<< 6.1+20180210),
 Provides: libncurses5-dev, libncursesw5-dev, libtinfo-dev, ncurses-dev
 Breaks: libncurses5-dev (<< 6.1+20180210), libncursesw5-dev (<< 6.1+20180210),
         libtinfo-dev (<< 6.1+20180210)
+Suggests: ncurses-doc
 Description: developer's libraries for ncurses
  The ncurses library routines are a terminal-independent method of
  updating character screens with reasonable optimization.
