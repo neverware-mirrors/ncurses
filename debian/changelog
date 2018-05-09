@@ -2,6 +2,9 @@ ncurses (6.1+20180210-3) UNRELEASED; urgency=medium
 
   * Add back "Suggests: ncurses-doc" to libncurses-dev which inadvertently
     got lost in 6.1+20180210-1 (Closes: #897035).
+  * Cherry-pick a fix from the 20180414 patchlevel: add a null-pointer
+    check in _nc_parse_entry to handle an error when a use-name is invalid
+    syntax (report by Chung-Yi Lin, CVE-2018-10754).
 
  -- Sven Joachim <svenjoac@gmx.de>  Fri, 27 Apr 2018 19:30:54 +0200
 
