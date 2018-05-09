@@ -5,6 +5,8 @@ ncurses (6.1+20180210-3) UNRELEASED; urgency=medium
   * Cherry-pick a fix from the 20180414 patchlevel: add a null-pointer
     check in _nc_parse_entry to handle an error when a use-name is invalid
     syntax (report by Chung-Yi Lin, CVE-2018-10754).
+  * Add Breaks against versions of bash-static and zsh-static which were
+    built with libtinfo before 6.1 to ncurses-{base,term}.
 
  -- Sven Joachim <svenjoac@gmx.de>  Fri, 27 Apr 2018 19:30:54 +0200
 
