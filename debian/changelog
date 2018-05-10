@@ -1,4 +1,4 @@
-ncurses (6.1+20180210-3) UNRELEASED; urgency=medium
+ncurses (6.1+20180210-3) unstable; urgency=medium
 
   * Add back "Suggests: ncurses-doc" to libncurses-dev which inadvertently
     got lost in 6.1+20180210-1 (Closes: #897035).
@@ -8,7 +8,7 @@ ncurses (6.1+20180210-3) UNRELEASED; urgency=medium
   * Add Breaks against versions of bash-static and zsh-static which were
     built with libtinfo before 6.1 to ncurses-{base,term}.
 
- -- Sven Joachim <svenjoac@gmx.de>  Fri, 27 Apr 2018 19:30:54 +0200
+ -- Sven Joachim <svenjoac@gmx.de>  Thu, 10 May 2018 16:17:05 +0200
 
 ncurses (6.1+20180210-2) unstable; urgency=medium
 
