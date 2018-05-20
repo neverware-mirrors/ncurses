@@ -2,3 +2,4 @@
 02-debian-backspace.diff
 03-debian-ncursesconfig-omit-L.diff
 cve-2018-10754.diff
+fix-898658.diff

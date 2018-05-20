@@ -2,6 +2,9 @@ ncurses (6.1+20180210-4) UNRELEASED; urgency=medium
 
   * Take over the dvtm and dvtm-256color terminfo entries from the dvtm
     package in ncurses-term (see #897953).
+  * Cherry-pick a fix from the 20180519 patchlevel: add check in
+    pair_content() to handle the case where caller asks for an
+    uninitialized pair (Closes: #898658).
 
  -- Sven Joachim <svenjoac@gmx.de>  Sat, 12 May 2018 18:31:45 +0200
 
