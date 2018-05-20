@@ -5,6 +5,8 @@ ncurses (6.1+20180210-4) UNRELEASED; urgency=medium
   * Cherry-pick a fix from the 20180519 patchlevel: add check in
     pair_content() to handle the case where caller asks for an
     uninitialized pair (Closes: #898658).
+  * Move screen.xterm-256color and rxvt-unicode-256color terminfo entries
+    from ncurses-term to ncurses-base (Closes: #898666, #898948).
 
  -- Sven Joachim <svenjoac@gmx.de>  Sat, 12 May 2018 18:31:45 +0200
 

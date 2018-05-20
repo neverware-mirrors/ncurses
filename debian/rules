@@ -181,12 +181,12 @@ endif
 # Files for /lib/terminfo.
 libterminfofiles=a/ansi c/cons25 c/cons25-debian c/cygwin d/dumb h/hurd l/linux \
 	m/mach m/mach-bold m/mach-color m/mach-gnu m/mach-gnu-color p/pcansi \
-	r/rxvt r/rxvt-m r/rxvt-basic r/rxvt-unicode \
+	r/rxvt r/rxvt-m r/rxvt-basic r/rxvt-unicode r/rxvt-unicode-256color \
 	s/screen s/screen-bce s/screen-s s/screen-w s/sun v/vt100 v/vt102 \
 	v/vt220 v/vt52 x/xterm x/xterm-debian x/xterm-xfree86 x/xterm-color \
 	x/xterm-mono x/xterm-r5 x/xterm-r6 x/xterm-vt220 \
 	x/xterm-256color s/screen-256color s/screen-256color-bce \
-	w/wsvt25 w/wsvt25m E/Eterm E/Eterm-color
+	s/screen.xterm-256color w/wsvt25 w/wsvt25m E/Eterm E/Eterm-color
 
 # Blacklist terminfo entries shipped by other Debian packages so that we do
 # not begin shipping them by accident.
