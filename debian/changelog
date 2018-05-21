@@ -1,4 +1,4 @@
-ncurses (6.1+20180210-4) UNRELEASED; urgency=medium
+ncurses (6.1+20180210-4) unstable; urgency=medium
 
   * Take over the dvtm and dvtm-256color terminfo entries from the dvtm
     package in ncurses-term (see #897953).
@@ -11,7 +11,7 @@ ncurses (6.1+20180210-4) UNRELEASED; urgency=medium
     necessary to install and run tic.
     - Move the g++-muiltilib build dependency to Build-Depends-Arch.
 
- -- Sven Joachim <svenjoac@gmx.de>  Sat, 12 May 2018 18:31:45 +0200
+ -- Sven Joachim <svenjoac@gmx.de>  Mon, 21 May 2018 10:54:08 +0200
 
 ncurses (6.1+20180210-3) unstable; urgency=medium
 
