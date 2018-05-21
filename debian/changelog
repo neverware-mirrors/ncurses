@@ -7,6 +7,8 @@ ncurses (6.1+20180210-4) UNRELEASED; urgency=medium
     uninitialized pair (Closes: #898658).
   * Move screen.xterm-256color and rxvt-unicode-256color terminfo entries
     from ncurses-term to ncurses-base (Closes: #898666, #898948).
+  * Speed up binary-indep builds by building only the configurations
+    necessary to install and run tic.
 
  -- Sven Joachim <svenjoac@gmx.de>  Sat, 12 May 2018 18:31:45 +0200
 

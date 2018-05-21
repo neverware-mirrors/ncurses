@@ -323,11 +323,11 @@ $(objdir-test)/config.status: build-wide config.guess-stamp
 		PKG_CONFIG_LIBDIR=$(wobjdir)/usr/lib/$(DEB_HOST_MULTIARCH)/pkgconfig \
 		$(relsrcdir)/test/configure $(CONFARGS-TEST)
 
-build-arch build-indep: build
+build-indep: build-normal build-wide
+	touch $@
 
-build: build-normal build-static build-wide build-debug build-wide-debug \
-	build-wide-static build-legacy build-wide-legacy build-test $(build_64) $(build_32)
-
+build-arch build: build-indep build-static build-wide-static build-test build-debug \
+	          build-wide-debug build-legacy build-wide-legacy $(build_64) $(build_32)
 	touch $@
 
 build-normal: $(objdir)/config.status
@@ -386,7 +386,7 @@ build-test: $(objdir-test)/config.status
 
 clean:
 	dh_testdir
-	rm -f build
+	rm -f build build-arch build-indep
 	rm -f build-normal build-static build-wide build-debug build-wide-debug \
 		build-wide-static build-legacy build-wide-legacy build-test $(build_32) $(build_64)
 	rm -rf $(objdir)
@@ -406,7 +406,7 @@ clean:
 	dh_autoreconf_clean
 	dh_clean
 
-install: build
+install-indep: build-indep
 	# Generate proper debhelper files for so-named packages
 	dh_testdir
 	dh_testroot
@@ -415,29 +415,6 @@ install: build
 	# Install non -DTRACE versions.
 	$(MAKE) -C $(objdir) install.libs
 	$(MAKE) -C $(wobjdir) install
-
-	install -m 644 -t $(fulltempdir)/usr/lib/$(DEB_HOST_MULTIARCH) $(objdir-static)/lib/*.a
-	install -m 644 -t $(fulltempdir)/usr/lib/$(DEB_HOST_MULTIARCH) $(wobjdir-static)/lib/*.a
-
-	# Always add -ltinfo when linking with -lncurses or -lnursesw
-	rm -f $(tempdir)/usr/lib/$(DEB_HOST_MULTIARCH)/libncurses.so
-	echo "INPUT(libncurses.so.6 -ltinfo)" > $(tempdir)/usr/lib/$(DEB_HOST_MULTIARCH)/libncurses.so
-	rm -f $(tempdir)/usr/lib/$(DEB_HOST_MULTIARCH)/libncursesw.so
-	echo "INPUT(libncursesw.so.6 -ltinfo)" > $(tempdir)/usr/lib/$(DEB_HOST_MULTIARCH)/libncursesw.so
-ifneq (,$(build_32))
-	mkdir -p $(tempdir)/usr/lib32
-	rm -f $(tempdir)/usr/lib32/libncurses.so
-	echo "INPUT(libncurses.so.6 -ltinfo)" > $(tempdir)/usr/lib32/libncurses.so
-	rm -f $(tempdir)/usr/lib32/libncursesw.so
-	echo "INPUT(libncursesw.so.6 -ltinfo)" > $(tempdir)/usr/lib32/libncursesw.so
-endif
-ifneq (,$(build_64))
-	mkdir -p $(tempdir)/usr/lib64
-	rm -f $(tempdir)/usr/lib64/libncurses.so
-	echo "INPUT(libncurses.so.6 -ltinfo)" > $(tempdir)/usr/lib64/libncurses.so
-	rm -f $(tempdir)/usr/lib64/libncursesw.so
-	echo "INPUT(libncursesw.so.6 -ltinfo)" > $(tempdir)/usr/lib64/libncursesw.so
-endif
 
 	# Move terminfo files to the right place.
 	mv $(tempdir)/etc/terminfo $(tempdir)/usr/share/terminfo
@@ -485,6 +462,30 @@ endif
 	mkdir -p $(tempdir)/etc/terminfo
 	install --mode 644 debian/README.etc $(tempdir)/etc/terminfo/README
 
+install-arch: build-arch install-indep
+	install -m 644 -t $(fulltempdir)/usr/lib/$(DEB_HOST_MULTIARCH) $(objdir-static)/lib/*.a
+	install -m 644 -t $(fulltempdir)/usr/lib/$(DEB_HOST_MULTIARCH) $(wobjdir-static)/lib/*.a
+
+	# Always add -ltinfo when linking with -lncurses or -lnursesw
+	rm -f $(tempdir)/usr/lib/$(DEB_HOST_MULTIARCH)/libncurses.so
+	echo "INPUT(libncurses.so.6 -ltinfo)" > $(tempdir)/usr/lib/$(DEB_HOST_MULTIARCH)/libncurses.so
+	rm -f $(tempdir)/usr/lib/$(DEB_HOST_MULTIARCH)/libncursesw.so
+	echo "INPUT(libncursesw.so.6 -ltinfo)" > $(tempdir)/usr/lib/$(DEB_HOST_MULTIARCH)/libncursesw.so
+ifneq (,$(build_32))
+	mkdir -p $(tempdir)/usr/lib32
+	rm -f $(tempdir)/usr/lib32/libncurses.so
+	echo "INPUT(libncurses.so.6 -ltinfo)" > $(tempdir)/usr/lib32/libncurses.so
+	rm -f $(tempdir)/usr/lib32/libncursesw.so
+	echo "INPUT(libncursesw.so.6 -ltinfo)" > $(tempdir)/usr/lib32/libncursesw.so
+endif
+ifneq (,$(build_64))
+	mkdir -p $(tempdir)/usr/lib64
+	rm -f $(tempdir)/usr/lib64/libncurses.so
+	echo "INPUT(libncurses.so.6 -ltinfo)" > $(tempdir)/usr/lib64/libncurses.so
+	rm -f $(tempdir)/usr/lib64/libncursesw.so
+	echo "INPUT(libncursesw.so.6 -ltinfo)" > $(tempdir)/usr/lib64/libncursesw.so
+endif
+
 	# Install the test programs, sparing the detour to debian/tmp.
 	$(MAKE) -C $(objdir-test) DESTDIR=$(workdir)/debian/$(package-examples) install
 
@@ -493,7 +494,7 @@ debian/%: debian/%.in
 
 binary:	binary-arch binary-indep
 
-binary-arch: build install $(autogen-files)
+binary-arch: build-arch install-arch $(autogen-files)
 	dh_testdir
 	dh_testroot
 	dh_install -p$(package-bin) -Xncurses6-config -Xncursesw6-config
@@ -556,7 +557,7 @@ endif
 	dh_md5sums -a
 	dh_builddeb -a
 
-binary-indep: build install $(autogen-files)
+binary-indep: build-indep install-indep $(autogen-files)
 	dh_testdir
 	dh_testroot
 
@@ -574,4 +575,4 @@ binary-indep: build install $(autogen-files)
 	dh_md5sums -i
 	dh_builddeb -i
 
-.PHONY: binary binary-arch binary-indep clean install
+.PHONY: binary binary-arch binary-indep clean install-indep install-arch
