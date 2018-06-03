@@ -1,6 +1,7 @@
 ncurses (6.1+20180602-1) UNRELEASED; urgency=medium
 
   * New upstream patchlevel.
+  * Refresh Debian patches.
 
  -- Sven Joachim <svenjoac@gmx.de>  Sun, 03 Jun 2018 18:18:41 +0200
 
