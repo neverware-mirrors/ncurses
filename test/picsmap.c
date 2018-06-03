@@ -26,7 +26,7 @@
  * authorization.                                                           *
  ****************************************************************************/
 /*
- * $Id: picsmap.c,v 1.116 2018/01/16 09:14:52 tom Exp $
+ * $Id: picsmap.c,v 1.122 2018/05/20 19:43:40 tom Exp $
  *
  * Author: Thomas E. Dickey
  *
@@ -71,10 +71,12 @@
 #define  L_CURLY '{'
 #define  R_CURLY '}'
 
+#define MaxSCALE	1000	/* input curses ranges 0..1000 */
+#define MaxRGB		255	/* output color ranges 0..255 */
 #define okCOLOR(n)	((n) >= 0 && (n) < COLORS)
-#define okRGB(n)	((n) >= 0 && (n) <= 1000)
-#define Scaled256(n)	(NCURSES_COLOR_T) (int)(((n) * 1000.0) / 256)
-#define ScaledColor(n)	(NCURSES_COLOR_T) (int)(((n) * 1000.0) / scale)
+#define okSCALE(n)	((n) >= 0 && (n) <= MaxSCALE)
+#define Scaled256(n)	(NCURSES_COLOR_T) (int)(((double)(n) * MaxSCALE) / 255)
+#define ScaledColor(n)	(NCURSES_COLOR_T) (int)(((double)(n) * MaxSCALE) / scale)
 
 #ifndef RGB_PATH
 #define RGB_PATH "/etc/X11/rgb.txt"
@@ -582,6 +584,7 @@ read_palette(const char *filename)
 	    strcpy(s, filename);
 	    if (tries & 4) {
 		char *t = s;
+		char *tc;
 		int num;
 		char chr;
 		int found = 0;
@@ -589,7 +592,8 @@ read_palette(const char *filename)
 		    if (*t == '-') {
 			if (sscanf(t, "-%d%c", &num, &chr) == 2 &&
 			    chr == 'c' &&
-			    !strncmp(strchr(t, chr), "color", 5)) {
+			    (tc = strchr(t, chr)) != 0 &&
+			    !(strncmp) (tc, "color", 5)) {
 			    found = 1;
 			}
 			break;
@@ -597,7 +601,7 @@ read_palette(const char *filename)
 		    ++t;
 		}
 		if (found && (t != s)
-		    && strncmp(s, "xterm", (size_t) (t - s))) {
+		    && (strncmp) (s, "xterm", (size_t) (t - s))) {
 		    sprintf(s, "xterm%s", filename + (t - s));
 		} else {
 		    continue;
@@ -650,7 +654,7 @@ init_palette(const char *palette_file)
 	if (data != 0) {
 	    int n;
 	    int red, green, blue;
-	    int scale = 1000;
+	    int scale = MaxSCALE;
 	    int c;
 	    for (n = 0; data[n] != 0; ++n) {
 		if (sscanf(data[n], "scale:%d", &c) == 1) {
@@ -661,9 +665,9 @@ init_palette(const char *palette_file)
 				  &green,
 				  &blue) == 4
 			   && okCOLOR(c)
-			   && okRGB(red)
-			   && okRGB(green)
-			   && okRGB(blue)) {
+			   && okSCALE(red)
+			   && okSCALE(green)
+			   && okSCALE(blue)) {
 		    /* *INDENT-EQLS* */
 		    all_colors[c].red   = ScaledColor(red);
 		    all_colors[c].green = ScaledColor(green);
@@ -1007,6 +1011,8 @@ parse_xbm(char **data)
 		} else if ((t = strstr(buf, "_height")) != 0) {
 		    state |= 2;
 		    result->high = (short) num;
+		} else {
+		    break;
 		}
 		*t = '\0';
 		if (result->name) {
@@ -1043,7 +1049,7 @@ parse_xbm(char **data)
 		if (isdigit(UChar(*s))) {
 		    long value = strtol(s, &t, 0);
 		    int b;
-		    if (t != s || value > 255 || value < 0) {
+		    if (t != s || value > MaxRGB || value < 0) {
 			s = t;
 		    } else {
 			state = -1;
@@ -1188,7 +1194,7 @@ parse_xpm(char **data)
 	    if (num_colors >= result->colors) {
 		finish_c_values(result);
 		state = 4;
-		if (list != 0 && list[0] == 0)
+		if (list[0] == 0)
 		    list[0] = strdup("\033");
 	    }
 	    break;
@@ -1204,7 +1210,7 @@ parse_xpm(char **data)
 			    /* should not happen... */
 			    continue;
 			}
-			if (!strncmp(cs, list[c], (size_t) cpp)) {
+			if (!(strncmp) (cs, list[c], (size_t) cpp)) {
 			    result->cells[which].ch = list[c][0];
 			    result->cells[which].fg = c;
 			    result->fgcol[c].count++;
@@ -1279,7 +1285,7 @@ parse_img(const char *filename)
 	    size_t n = strlen(filename);
 	    debugmsg2("...read %s", buffer);
 	    if (strlen(buffer) > n &&
-		!strncmp(buffer, filename, n) &&
+		!(strncmp) (buffer, filename, n) &&
 		isspace(UChar(buffer[n])) &&
 		sscanf(skip_word(buffer + n), " %dx%d ", &pic_x, &pic_y) == 2) {
 		/* distort image to make it show normally on terminal */
@@ -1347,9 +1353,9 @@ parse_img(const char *filename)
 			    &check)) {
 		    if ((s - t) > 8)	/* 6 hex digits vs 8 */
 			check /= 256;
-		    if (r > 255 ||
-			g > 255 ||
-			b > 255 ||
+		    if (r > MaxRGB ||
+			g > MaxRGB ||
+			b > MaxRGB ||
 			check != (unsigned) ((r << 16) | (g << 8) | b)) {
 			okay = FALSE;
 			break;
@@ -1577,6 +1583,8 @@ report_colors(PICS_HEAD * pics)
 	    if (j < 10)
 		++digits;
 	}
+	if (digits > 8)
+	    digits = 8;
 	logmsg("These colors were used:");
 	high = (pics->colors + wide - 1) / wide;
 	for (j = 0; j < high && j < pics->colors; ++j) {

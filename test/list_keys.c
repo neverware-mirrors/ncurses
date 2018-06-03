@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright (c) 2016,2017 Free Software Foundation, Inc.                   *
+ * Copyright (c) 2016-2017,2018 Free Software Foundation, Inc.              *
  *                                                                          *
  * Permission is hereby granted, free of charge, to any person obtaining a  *
  * copy of this software and associated documentation files (the            *
@@ -26,7 +26,7 @@
  * authorization.                                                           *
  ****************************************************************************/
 /*
- * $Id: list_keys.c,v 1.22 2017/08/12 17:28:23 tom Exp $
+ * $Id: list_keys.c,v 1.24 2018/05/20 18:56:56 tom Exp $
  *
  * Author: Thomas E Dickey
  *
@@ -209,8 +209,8 @@ draw_line(int width)
 static const char *
 modified_key(const char *name)
 {
-    static char result[80];
-    char buffer[sizeof(result)];
+    static char result[100];
+    char buffer[sizeof(result) - 10];
     int value;
     char chr;
     static const char *modifiers[][2] =
@@ -298,7 +298,7 @@ list_keys(TERMINAL **terms, int count)
 	Type(j) = ktOther;
 	if (sscanf(strnames[j], "kf%d", &k) == 1) {
 	    Type(j) = ktFunction;
-	} else if (!strncmp(strnames[j], "kcu", 3)) {
+	} else if (!(strncmp) (strnames[j], "kcu", 3)) {
 	    Type(j) = ktCursor;
 	}
 	Name(j) = strnames[j];

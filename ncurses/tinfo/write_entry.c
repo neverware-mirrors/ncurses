@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright (c) 1998-2015,2017 Free Software Foundation, Inc.              *
+ * Copyright (c) 1998-2017,2018 Free Software Foundation, Inc.              *
  *                                                                          *
  * Permission is hereby granted, free of charge, to any person obtaining a  *
  * copy of this software and associated documentation files (the            *
@@ -50,7 +50,7 @@
 #define TRACE_NUM(n)		/* nothing */
 #endif
 
-MODULE_ID("$Id: write_entry.c,v 1.101 2017/11/25 19:56:06 tom Exp $")
+MODULE_ID("$Id: write_entry.c,v 1.105 2018/05/20 18:38:08 tom Exp $")
 
 static int total_written;
 static int total_parts;
@@ -377,14 +377,16 @@ _nc_write_entry(TERMTYPE2 *const tp)
 	start_time = 0;
     }
 
-    if (strlen(first_name) >= sizeof(filename) - (2 + LEAF_LEN)) {
+    if (strlen(first_name) >= limit2) {
 	_nc_warning("terminal name too long.");
 	saved = first_name[limit2];
 	first_name[limit2] = '\0';
     }
 
     _nc_SPRINTF(filename, _nc_SLIMIT(sizeof(filename))
-		LEAF_FMT "/%s", first_name[0], first_name);
+		LEAF_FMT "/%.*s", UChar(first_name[0]),
+		(int) (sizeof(filename) - LEAF_LEN - 2),
+		first_name);
 
     if (saved)
 	first_name[limit2] = saved;
@@ -796,7 +798,8 @@ _nc_write_object(TERMTYPE2 *tp, char *buffer, unsigned *offset, unsigned limit)
 
 #if NCURSES_XNAMES
     if (extended_object(tp)) {
-	unsigned extcnt = (unsigned) NUM_EXT_NAMES(tp);
+	unsigned ext_total = (unsigned) NUM_EXT_NAMES(tp);
+	unsigned ext_usage = ext_total;
 
 	if (even_boundary(nextfree))
 	    return (ERR);
@@ -810,10 +813,16 @@ _nc_write_object(TERMTYPE2 *tp, char *buffer, unsigned *offset, unsigned limit)
 	    return (ERR);
 
 	nextfree += compute_offsets(tp->ext_Names,
-				    (size_t) extcnt,
+				    (size_t) ext_total,
 				    offsets + tp->ext_Strings);
 	TRACE_OUT(("after extended capnames, nextfree=%d", nextfree));
-	strmax = tp->ext_Strings + extcnt;
+	strmax = tp->ext_Strings + ext_total;
+	for (i = 0; i < tp->ext_Strings; ++i) {
+	    if (VALID_STRING(tp->Strings[i + STRCOUNT])) {
+		ext_usage++;
+	    }
+	}
+	TRACE_OUT(("will write %u/%lu strings", ext_usage, (unsigned long) strmax));
 
 	/*
 	 * Write the extended header
@@ -821,7 +830,7 @@ _nc_write_object(TERMTYPE2 *tp, char *buffer, unsigned *offset, unsigned limit)
 	LITTLE_ENDIAN(buf + 0, tp->ext_Booleans);
 	LITTLE_ENDIAN(buf + 2, tp->ext_Numbers);
 	LITTLE_ENDIAN(buf + 4, tp->ext_Strings);
-	LITTLE_ENDIAN(buf + 6, strmax);
+	LITTLE_ENDIAN(buf + 6, ext_usage);
 	LITTLE_ENDIAN(buf + 8, nextfree);
 	TRACE_OUT(("WRITE extended-header @%d", *offset));
 	if (Write(buf, 10, 1) != 1)
@@ -868,7 +877,7 @@ _nc_write_object(TERMTYPE2 *tp, char *buffer, unsigned *offset, unsigned limit)
 	/*
 	 * Write the extended names
 	 */
-	for (i = 0; i < extcnt; i++) {
+	for (i = 0; i < ext_total; i++) {
 	    TRACE_OUT(("WRITE ext_Names[%d]=%s", (int) i, tp->ext_Names[i]));
 	    if (!WRITE_STRING(tp->ext_Names[i]))
 		return (ERR);

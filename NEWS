@@ -25,7 +25,7 @@
 -- sale, use or other dealings in this Software without prior written        --
 -- authorization.                                                            --
 -------------------------------------------------------------------------------
--- $Id: NEWS,v 1.3080 2018/02/10 20:36:21 tom Exp $
+-- $Id: NEWS,v 1.3137 2018/06/02 22:52:28 tom Exp $
 -------------------------------------------------------------------------------
 
 This is a log of changes that ncurses has gone through since Zeyd started
@@ -44,6 +44,130 @@ See the AUTHORS file for the corresponding full names.
 
 Changes through 1.9.9e did not credit all contributions;
 it is not possible to add this information.
+
+20180602
+	+ add RPM test-package "ncursest-examples".
+	+ modified RPM test-package to work with Mageia6.
+
+20180526
+	+ add note in curs_util.3x about unctrl.h
+	+ review/improve header files to ensure that those include necessary
+	  files except for the previously-documented cases (report by Isaac
+	  Pascual Monells).
+	+ improved test-package scripts, adapted from byacc 1.9 20180525.
+	+ fix some gcc8 warnings seen in Redhat package build, but
+	  work around bug in gcc8 compiler warnings in comp_parse.c
+
+20180519
+	+ formatting fixes for manpages, regenerate man-html documentation.
+	+ trim spurious whitespace from tmux in 2018-02-24 changes;
+	  fix some inconsistencies in/between tmux- and iterm2-entries for SGR
+	  (report by C Anthony Risinger)
+	+ improve iterm2 using some xterm features which it has adapted -TD
+	+ add check in pair_content() to handle the case where caller asks
+	  for an uninitialized pair (Debian #898658).
+
+20180512
+	+ remove trailing ';' from GCC_DEPRECATED definition.
+	+ repair a change from 20110730 which left an error-check/warning dead.
+	+ fix several minor Coverity warnings.
+
+20180505
+	+ add deprecation warnings for internal functions called by older
+	  versions of tack.
+	+ fix a special case in PutAttrChar() where a cell is marked as
+	  alternate-character set, but the terminal does not actually support
+	  the given graphic character.  This would happen in an older terminal
+	  such as vt52, which lacks most line-drawing capability.
+	+ use configure --with-config-suffix option to work around filename
+	  conflict with Debian packages versus test-packages.
+	+ update tracemunch to work with perl 5.26.2, which changed the rules
+	  for escaping regular expressions.
+
+20180428
+	+ document new form-extension O_EDGE_INSERT_STAY (report by Leon
+	  Winter).
+	+ correct error-returns listed in manual pages for a few form functions
+	  (report by Leon Winter).
+	+ add a check in form-library for null-pointer dereference:
+		unfocus_current_field (form);
+		form_driver (form, REQ_VALIDATION);
+	  (patch by Leon Winter).
+
+20180414
+	+ modify form library to optionally delay cursor movement on a field
+	  edge/boundary (patch by Leon Winter).
+	+ modify form library to avoid unnecessary update of cursor position in
+	  non-public fields (patch by Leon Winter).
+	+ remove unused _nc_import_termtype2() function.
+	+ also add/improve null-pointer checks in other places
+	+ add a null-pointer check in _nc_parse_entry to handle an error when
+	  a use-name is invalid syntax (report by Chung-Yi Lin).
+
+20180407
+	+ clarify in manual pages that vwprintw and vwscanw are obsolete,
+	  not part of X/Open Curses since 2007.
+	+ use "const" in some prototypes rather than NCURSES_CONST where X/Open
+	  Curses was updated to do this, e.g., wscanw, newterm, the terminfo
+	  interface.  Also use "const" for consistency in the termcap
+	  interface, which was withdrawn by X/Open Curses in Issue 5 (2007).
+	  As of Issue 7, X/Open Curses still lacks "const" for certain return
+	  values, e.g., keyname().
+
+20180331
+	+ improve terminfo write/read by modifying the fourth item of the
+	  extended header to denote the number of valid strings in the extended
+	  string table (prompted by a comment in unibilium's sources).
+
+20180324
+	+ amend Scaled256() macro in test/picsmap.c to cover the full range
+	  0..1000 (report by Roger Pau Monne).
+	+ add some checks in tracemunch for undefined variables.
+	+ trim some redundant capabilities from st-0.7 -TD
+	+ trim unnecessary setf/setb from interix -TD
+
+20180317
+	+ fix a check in infotocap which may not have detected a problem when
+	  it should have.
+	+ add a check in tic for the case where setf/setb are given using
+	  different strings, but provide identical results to setaf/setab.
+	+ further improve fix for terminfo.5 (patch by Kir Kolyshkin).
+	+ reorder loop-limit checks in winsnstr() in case the string has no
+	  terminating null and only the number of characters is used (patch
+	  by Gyorgy Jeney).
+
+20180303
+	+ modify TurnOn/TurnOff macros in lib_vidattr.c and lib_vid_attr.c to
+	  avoid expansion of "CUR" in trace.
+	+ improve a few lintian warnings in test-packages.
+	+ modify lib_setup to avoid calling pthread_self() without first
+	  verifying that the address is valid, i.e., for weak symbols
+	  (report/patch by Werner Fink).
+	+ modify generated terminfo.5 to not use "expand" and related width
+	  on the last column of tables, making layout on wide terminals look
+	  better (adapted from patch by Kir Kolyshkin).
+	+ add a category to report_offsets, e.g., "w" for wide-character, "t"
+	  for threads to make the report more readable.  Reorganized the
+	  structures reported to make the categories more apparent.
+	+ simplify some ifdef's for extended-colors.
+	+ add NCURSES_GLOBALS and NCURSES_PRESCREEN to report_offsets, to show
+	  how similar the different tinfo configurations are.
+
+20180224
+	+ modify _nc_resolve_uses2() to detect incompatible types when merging
+	  a "use=" clause of extended capabilities.  The problem was seen in a
+	  defective terminfo integrated from simpleterm sources in 20171111,
+	  compounded by repair in 20180121.
+	+ correct Ss/Ms interchange in st-0.7 entry (tmux #1264) -TD
+	+ fix remaining flash capabilities with trailing mandatory delays -TD
+	+ correct cut/paste in NEWS (report by Sven Joachim).
+
+20180217
+	+ remove incorrect free() from 20170617 changes (report by David Macek).
+	+ correct type for "U8" in user_caps.5; it is a number not boolean.
+	+ add a null-pointer check in safe_sprintf.c (report by Steven Noonan).
+	+ improve fix for Debian #882620 by reusing limit2 variable (report by
+	  Julien Cristau, Sven Joachim).
 
 20180210
 	+ modify misc/Makefile.in to install/uninstall explicit list in case
@@ -2485,7 +2609,7 @@ it is not possible to add this information.
 	  Waterlander regarding screen flicker).
 
 20121229
-	+ fix coverity warnings regarding copying into fixed-size buffers.
+	+ fix Coverity warnings regarding copying into fixed-size buffers.
 	+ add throw-declarations in the c++ binding per Coverity warning.
 	+ minor changes to new-items for consistent reference to bug-report
 	  numbers.
@@ -4006,7 +4130,6 @@ it is not possible to add this information.
 	+ improved configure macros CF_GCC_ATTRIBUTES, CF_PROG_LINT.
 
 20091114
-
 	+ updated man/curs_trace.3x
 	+ limit hashing for termcap-names to 2-characters (Ubuntu #481740).
 	+ change a variable name in lib_newwin.c to make it clearer which

@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright (c) 1998-2016,2017 Free Software Foundation, Inc.              *
+ * Copyright (c) 1998-2017,2018 Free Software Foundation, Inc.              *
  *                                                                          *
  * Permission is hereby granted, free of charge, to any person obtaining a  *
  * copy of this software and associated documentation files (the            *
@@ -48,7 +48,7 @@
 #define CUR SP_TERMTYPE
 #endif
 
-MODULE_ID("$Id: lib_color.c,v 1.136 2017/10/22 15:19:37 tom Exp $")
+MODULE_ID("$Id: lib_color.c,v 1.138 2018/05/16 08:24:08 tom Exp $")
 
 #ifdef USE_TERM_DRIVER
 #define CanChange      InfoOf(SP_PARM).canchange
@@ -534,7 +534,7 @@ _nc_reserve_pairs(SCREEN *sp, int want)
 	if (sp->_color_pairs == 0) {
 	    sp->_color_pairs = TYPE_CALLOC(colorpair_t, have);
 	} else if (have > sp->_pair_alloc) {
-#if USE_NEW_PAIR
+#if NCURSES_EXT_COLORS
 	    colorpair_t *next;
 
 	    if ((next = typeCalloc(colorpair_t, have)) == 0)
@@ -938,9 +938,12 @@ _nc_pair_content(SCREEN *sp, int pair, int *f, int *b)
     if (!ValidPair(sp, pair)) {
 	result = ERR;
     } else {
-	int fg = FORE_OF(sp->_color_pairs[pair]);
-	int bg = BACK_OF(sp->_color_pairs[pair]);
+	int fg;
+	int bg;
 
+	_nc_reserve_pairs(sp, pair);
+	fg = FORE_OF(sp->_color_pairs[pair]);
+	bg = BACK_OF(sp->_color_pairs[pair]);
 #if NCURSES_EXT_FUNCS
 	if (isDefaultColor(fg))
 	    fg = -1;
@@ -1082,7 +1085,7 @@ _nc_do_color(int old_pair, int pair, int reverse, NCURSES_OUTC outc)
 }
 #endif
 
-#if USE_EXTENDED_COLORS
+#if NCURSES_EXT_COLORS
 NCURSES_EXPORT(int)
 NCURSES_SP_NAME(init_extended_pair) (NCURSES_SP_DCLx int pair, int f, int b)
 {
@@ -1164,4 +1167,4 @@ reset_color_pairs(void)
     NCURSES_SP_NAME(reset_color_pairs) (CURRENT_SCREEN);
 }
 #endif /* NCURSES_SP_FUNCS */
-#endif /* USE_EXTENDED_COLORS */
+#endif /* NCURSES_EXT_COLORS */

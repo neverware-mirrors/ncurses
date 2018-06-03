@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright (c) 1998-2016,2017 Free Software Foundation, Inc.              *
+ * Copyright (c) 1998-2017,2018 Free Software Foundation, Inc.              *
  *                                                                          *
  * Permission is hereby granted, free of charge, to any person obtaining a  *
  * copy of this software and associated documentation files (the            *
@@ -48,7 +48,7 @@
 #include <locale.h>
 #endif
 
-MODULE_ID("$Id: lib_setup.c,v 1.188 2017/07/01 18:24:50 tom Exp $")
+MODULE_ID("$Id: lib_setup.c,v 1.192 2018/04/07 21:10:20 tom Exp $")
 
 /****************************************************************************
  *
@@ -618,7 +618,7 @@ _nc_locale_breaks_acs(TERMINAL *termp)
 
 NCURSES_EXPORT(int)
 TINFO_SETUP_TERM(TERMINAL **tp,
-		 NCURSES_CONST char *tname,
+		 const char *tname,
 		 int Filedes,
 		 int *errret,
 		 int reuse)
@@ -722,8 +722,6 @@ TINFO_SETUP_TERM(TERMINAL **tp,
 	    termp->Filedes = (short) Filedes;
 	    termp->_termname = strdup(tname);
 	} else {
-	    _nc_free_termtype2(&TerminalType(termp));
-	    free(my_tcb);
 	    ret_error0(errret ? *errret : TGETENT_ERR,
 		       "Could not find any driver to handle this terminal.\n");
 	}
@@ -829,8 +827,9 @@ _nc_find_prescr(void)
 {
     SCREEN *result = 0;
     PRESCREEN_LIST *p;
+    pthread_t id = GetThreadID();
     for (p = _nc_prescreen.allocated; p != 0; p = p->next) {
-	if (p->id == pthread_self()) {
+	if (p->id == id) {
 	    result = p->sp;
 	    break;
 	}
@@ -847,8 +846,9 @@ NCURSES_EXPORT(void)
 _nc_forget_prescr(void)
 {
     PRESCREEN_LIST *p, *q;
+    pthread_t id = GetThreadID();
     for (p = _nc_prescreen.allocated, q = 0; p != 0; q = p, p = p->next) {
-	if (p->id == pthread_self()) {
+	if (p->id == id) {
 	    if (q) {
 		q->next = p->next;
 	    } else {
@@ -884,7 +884,7 @@ new_prescr(void)
 #ifdef USE_PTHREADS
 	    PRESCREEN_LIST *p = typeCalloc(PRESCREEN_LIST, 1);
 	    if (p != 0) {
-		p->id = pthread_self();
+		p->id = GetThreadID();
 		p->sp = sp;
 		p->next = _nc_prescreen.allocated;
 		_nc_prescreen.allocated = p;
@@ -921,7 +921,7 @@ new_prescr(void)
  * the same TERMINAL data (see comment).
  */
 NCURSES_EXPORT(int)
-_nc_setupterm(NCURSES_CONST char *tname,
+_nc_setupterm(const char *tname,
 	      int Filedes,
 	      int *errret,
 	      int reuse)
@@ -949,7 +949,7 @@ _nc_setupterm(NCURSES_CONST char *tname,
  *	Make cur_term point to the structure.
  */
 NCURSES_EXPORT(int)
-setupterm(NCURSES_CONST char *tname, int Filedes, int *errret)
+setupterm(const char *tname, int Filedes, int *errret)
 {
     START_TRACE();
     return _nc_setupterm(tname, Filedes, errret, FALSE);
