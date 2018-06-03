@@ -283,7 +283,7 @@ $(wobjdir-32)/config.status: config.guess-stamp
 	cf_cv_type_of_bool='unsigned char'; export cf_cv_type_of_bool; \
 	cf_cv_working_poll=yes; export cf_cv_working_poll; \
 	cd $(wobjdir-32) && CC="$(HOST_CC) -m32" \
-		BUILD_CC="gcc" BUILD_CPPFLAGS="-D_GNU_SOURCE" CXX="$(HOST_CXX) -m32" \
+		BUILD_CC="gcc" CXX="$(HOST_CXX) -m32" \
 		$(relsrcdir)/configure \
 		$(CONFARGS) \
 		--host=$(build_32_target) \
@@ -297,7 +297,7 @@ $(wobjdir-64)/config.status: config.guess-stamp
 	cf_cv_type_of_bool='unsigned char'; export cf_cv_type_of_bool; \
 	cf_cv_working_poll=yes; export cf_cv_working_poll; \
 	cd $(wobjdir-64) && CC="$(HOST_CC) -m64" \
-		BUILD_CC="gcc" BUILD_CPPFLAGS="-D_GNU_SOURCE" CXX="$(HOST_CXX) -m64" \
+		BUILD_CC="gcc" CXX="$(HOST_CXX) -m64" \
 		$(relsrcdir)/configure \
 		$(CONFARGS) \
 		--host=$(build_64_target) \
