@@ -1,4 +1,4 @@
-ncurses (6.1+20180602-1) UNRELEASED; urgency=medium
+ncurses (6.1+20180630-1) UNRELEASED; urgency=medium
 
   * New upstream patchlevel.
   * Refresh Debian patches.
