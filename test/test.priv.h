@@ -29,7 +29,7 @@
 /****************************************************************************
  *  Author: Thomas E. Dickey                    1996-on                     *
  ****************************************************************************/
-/* $Id: test.priv.h,v 1.165 2018/05/20 19:55:18 tom Exp $ */
+/* $Id: test.priv.h,v 1.167 2018/06/23 21:35:06 tom Exp $ */
 
 #ifndef __TEST_PRIV_H
 #define __TEST_PRIV_H 1
@@ -865,7 +865,7 @@ extern char *strnames[], *strcodes[], *strfnames[];
 #define EXIT_FAILURE 1
 #endif
 
-#if defined(__MINGW32__) || defined(USE_WIN32CON_DRIVER)
+#if defined(_WIN32) || defined(USE_WIN32CON_DRIVER)
 
 #if defined(PDCURSES)
 #ifdef WINVER
@@ -1010,7 +1010,7 @@ extern char *tgoto(char *, int, int);	/* available, but not prototyped */
 #define WANT_USE_WINDOW() extern void _nc_want_use_window(void)
 #else
 #define USING_WINDOW(w,func) func(w)
-#define USING_WINDOW1(w,func,safe) func(w,func)
+#define USING_WINDOW1(w,func,safe) func(w)
 #define USING_WINDOW2(w,func,data) func(w,data)
 #define WANT_USE_WINDOW() extern void _nc_want_use_window(void)
 #endif

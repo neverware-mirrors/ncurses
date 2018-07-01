@@ -48,7 +48,7 @@
 #include <locale.h>
 #endif
 
-MODULE_ID("$Id: lib_setup.c,v 1.192 2018/04/07 21:10:20 tom Exp $")
+MODULE_ID("$Id: lib_setup.c,v 1.194 2018/06/30 19:40:27 tom Exp $")
 
 /****************************************************************************
  *
@@ -543,9 +543,9 @@ _nc_get_locale(void)
      */
     env = setlocale(LC_CTYPE, 0);
 #else
-    if (((env = getenv("LC_ALL")) != 0 && *env != '\0')
+    if (((env = getenv("LANG")) != 0 && *env != '\0')
 	|| ((env = getenv("LC_CTYPE")) != 0 && *env != '\0')
-	|| ((env = getenv("LANG")) != 0 && *env != '\0')) {
+	|| ((env = getenv("LC_ALL")) != 0 && *env != '\0')) {
 	;
     }
 #endif
@@ -560,7 +560,7 @@ NCURSES_EXPORT(int)
 _nc_unicode_locale(void)
 {
     int result = 0;
-#if defined(__MINGW32__) && USE_WIDEC_SUPPORT
+#if defined(_WIN32) && USE_WIDEC_SUPPORT
     result = 1;
 #elif HAVE_LANGINFO_CODESET
     char *env = nl_langinfo(CODESET);
