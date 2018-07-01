@@ -36,10 +36,10 @@ Last-Update: 2018-06-03
 -		else
 -			LIBDIR=-L$libdir
 -		fi
+ 		LIBS="@LIBS@ @PRIVATE_LIBS@"
  		if test @TINFO_NAME@ = @LIB_NAME@ ; then
  		sed -e 's,^[ ]*,,' -e 's, [ ]*, ,g' -e 's,[ ]*$,,' <<-ENDECHO
- 			$LIBDIR @EXTRA_LDFLAGS@ -l${THIS} @LIBS@
-@@ -154,7 +148,6 @@ ENDECHO
+@@ -155,7 +149,6 @@ ENDECHO
  		echo $INCS
  		;;
  	--libdir)
