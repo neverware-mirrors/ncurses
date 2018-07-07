@@ -326,8 +326,8 @@ $(objdir-test)/config.status: build-wide config.guess-stamp
 build-indep: build-normal build-wide
 	touch $@
 
-build-arch build: build-indep build-static build-wide-static build-test build-debug \
-	          build-wide-debug build-legacy build-wide-legacy $(build_64) $(build_32)
+build-arch build: build-indep build-static build-wide-static build-test \
+	          build-legacy build-wide-legacy $(build_64) $(build_32)
 	touch $@
 
 build-normal: $(objdir)/config.status

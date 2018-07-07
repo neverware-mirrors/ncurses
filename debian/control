@@ -90,15 +90,14 @@ Package: libtinfo6-dbg
 Architecture: any
 Section: debug
 Priority: optional
+Multi-Arch: same
 Depends: libtinfo6 (= ${binary:Version}),
-         ${shlibs:Depends}, ${misc:Depends}
+         ${misc:Depends}
 Description: debugging/profiling library for the low-level terminfo library
  The ncurses library routines are a terminal-independent method of
  updating character screens with reasonable optimization.
  .
- This package contains a special library version of the low-level terminfo
- library suitable for debugging and profiling. Also included are detached
- debugging symbols for libtinfo6.
+ This package contains detached debugging symbols for libtinfo6.
 
 Package: libncurses5-dev
 Architecture: any
@@ -114,15 +113,14 @@ Package: libncurses6-dbg
 Architecture: any
 Section: debug
 Priority: optional
+Multi-Arch: same
 Depends: libtinfo6 (= ${binary:Version}), libncurses6 (= ${binary:Version}),
-         libtinfo6-dbg (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+         libtinfo6-dbg (= ${binary:Version}), ${misc:Depends}
 Description: debugging/profiling libraries for ncurses
  The ncurses library routines are a terminal-independent method of
  updating character screens with reasonable optimization.
  .
- This package contains special library versions of ncurses suitable
- for debugging and profiling. Also included are detached debugging
- symbols for libncurses6.
+ This package contains detached debugging symbols for libncurses6.
 
 Package: libncursesw6
 Architecture: any
@@ -152,15 +150,14 @@ Package: libncursesw6-dbg
 Architecture: any
 Section: debug
 Priority: optional
+Multi-Arch: same
 Depends: libtinfo6 (= ${binary:Version}), libtinfo6-dbg (= ${binary:Version}),
-         libncursesw6 (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+         libncursesw6 (= ${binary:Version}), ${misc:Depends}
 Description: debugging/profiling libraries for ncursesw
  The ncurses library routines are a terminal-independent method of
  updating character screens with reasonable optimization.
  .
- This package contains special library versions of ncursesw suitable
- for debugging and profiling. Also included are detached debugging
- symbols for libncursesw6.
+ This package contains detached debugging symbols for libncursesw6.
  .
  This package includes support for wide characters.
 
