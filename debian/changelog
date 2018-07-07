@@ -19,7 +19,7 @@ ncurses (6.1+20180210-4) unstable; urgency=medium
     from ncurses-term to ncurses-base (Closes: #898666, #898948).
   * Speed up binary-indep builds by building only the configurations
     necessary to install and run tic.
-    - Move the g++-muiltilib build dependency to Build-Depends-Arch.
+    - Move the g++-multilib build dependency to Build-Depends-Arch.
 
  -- Sven Joachim <svenjoac@gmx.de>  Mon, 21 May 2018 10:54:08 +0200
 
