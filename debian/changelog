@@ -4,6 +4,7 @@ ncurses (6.1+20180630-1) UNRELEASED; urgency=medium
   * Refresh Debian patches.
   * Stop building special debug libraries, and mark the -dbg packages as
     Multi-Arch: same (Addresses: #849003).
+  * Upgrade Standards-Version to 4.1.5, no changes needed.
 
  -- Sven Joachim <svenjoac@gmx.de>  Sun, 03 Jun 2018 18:18:41 +0200
 
