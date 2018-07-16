@@ -1,6 +1,8 @@
 ncurses (6.1+20180714-1) UNRELEASED; urgency=medium
 
   * New upstream patchlevel.
+    - Fix a case where tiparm could return null if the format-string was
+      empty (Closes: #902630).
   * Refresh Debian patches.
   * Stop building special debug libraries, and mark the -dbg packages as
     Multi-Arch: same (Addresses: #849003).
