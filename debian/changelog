@@ -5,9 +5,12 @@ ncurses (6.1+20180714-1) UNRELEASED; urgency=medium
       empty (Closes: #902630).
     - Reduce use of _GNU_SOURCE for current glibc where _DEFAULT_SOURCE
       combines with _XOPEN_SOURCE (Closes: #900987).
+    - Modify generated ncurses*config and ncurses.pc, ncursesw.pc, etc.,
+      to list helper libraries such as gpm for static linking (see #900839).
   * Refresh Debian patches.
   * Stop building special debug libraries, and mark the -dbg packages as
     Multi-Arch: same (Addresses: #849003).
+  * Build the static libraries without gpm support (Closes: #900839).
   * Upgrade Standards-Version to 4.1.5, no changes needed.
 
  -- Sven Joachim <svenjoac@gmx.de>  Sun, 03 Jun 2018 18:18:41 +0200

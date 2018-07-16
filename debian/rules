@@ -217,7 +217,7 @@ $(objdir-static)/config.status: config.guess-stamp
 	cd $(objdir-static) && $(relsrcdir)/configure \
 		$(CONFARGS) \
 		--without-shared \
-		--without-dlsym
+		--without-gpm
 
 $(objdir-32)/config.status: config.guess-stamp
 	test -d $(objdir-32) || mkdir $(objdir-32)
@@ -265,7 +265,7 @@ $(wobjdir-static)/config.status: config.guess-stamp
 	cd $(wobjdir-static) && $(relsrcdir)/configure \
 		$(CONFARGS) \
 		--without-shared \
-		--without-dlsym \
+		--without-gpm \
 		--enable-widec
 
 $(wobjdir-debug)/config.status: config.guess-stamp
