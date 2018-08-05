@@ -1,3 +1,9 @@
+ncurses (6.1+20180714-2) UNRELEASED; urgency=medium
+
+  * Fix wrong-path-for-interpreter lintian error in ncurses-examples.
+
+ -- Sven Joachim <svenjoac@gmx.de>  Sun, 05 Aug 2018 08:02:57 +0200
+
 ncurses (6.1+20180714-1) unstable; urgency=medium
 
   * New upstream patchlevel.
