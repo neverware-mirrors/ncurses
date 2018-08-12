@@ -328,7 +328,7 @@ build-indep: build-normal build-wide
 
 build-arch build: build-indep build-static build-wide-static build-test \
 	          build-legacy build-wide-legacy $(build_64) $(build_32)
-	touch $@
+	touch build-arch build
 
 build-normal: $(objdir)/config.status
 	cd $(objdir) && $(MAKE)
