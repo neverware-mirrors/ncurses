@@ -1,6 +1,8 @@
 ncurses (6.1+20180714-2) UNRELEASED; urgency=medium
 
   * Fix wrong-path-for-interpreter lintian error in ncurses-examples.
+  * Add Breaks against libunibilium4 (<< 2.0.0-3) to ncurses-base and
+    ncurses-term (Closes: #904337).
 
  -- Sven Joachim <svenjoac@gmx.de>  Sun, 05 Aug 2018 08:02:57 +0200
 
