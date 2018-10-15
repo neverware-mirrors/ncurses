@@ -414,6 +414,8 @@ install-indep: build-indep
 
 	# Install non -DTRACE versions.
 	$(MAKE) -C $(objdir) install.libs
+	rm -f $(tempdir)/usr/lib/$(DEB_HOST_MULTIARCH)/libtinfo.so*
+	rm -f $(tempdir)/usr/lib/$(DEB_HOST_MULTIARCH)/libtic.so*
 	$(MAKE) -C $(wobjdir) install
 
 	# Move terminfo files to the right place.
