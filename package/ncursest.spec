@@ -1,5 +1,5 @@
-Summary: shared libraries for terminal handling
-Name: ncurses6
+Summary: Curses library with POSIX thread support.
+Name: ncursest6
 Version: 6.1
 Release: 20181013
 License: X11
@@ -25,7 +25,7 @@ Source: ncurses-%{version}-%{release}.tgz
 The ncurses library routines are a terminal-independent method of
 updating character screens with reasonable optimization.
 
-This package is used for testing ABI %{MY_ABI}.
+This package is used for testing ABI %{MY_ABI} with POSIX threads.
 
 %prep
 
@@ -54,6 +54,7 @@ This package is used for testing ABI %{MY_ABI}.
 %setup -q -n ncurses-%{version}-%{release}
 
 %build
+%define my_srcdir ..
 %define CFG_OPTS \\\
 	--target %{_target_platform} \\\
 	--prefix=%{_prefix} \\\
@@ -102,8 +103,11 @@ This package is used for testing ABI %{MY_ABI}.
 
 CFLAGS="%{CC_NORMAL}" \
 RPATH_LIST=../lib:%{_libdir} \
-%configure %{CFG_OPTS}
-
+%configure %{CFG_OPTS} \
+	--enable-interop \
+	--enable-sp-funcs \
+	--program-suffix=t%{MY_ABI} \
+	--with-pthread
 make
 
 %install
@@ -111,7 +115,7 @@ rm -rf $RPM_BUILD_ROOT
 
 make install.libs install.progs
 rm -f test/ncurses
-( cd test && make ncurses LOCAL_LIBDIR=%{_libdir} && mv ncurses $RPM_BUILD_ROOT/%{_bindir}/ncurses%{MY_ABI} )
+( cd test && make ncurses LOCAL_LIBDIR=%{_libdir} && mv ncurses $RPM_BUILD_ROOT/%{_bindir}/ncursest%{MY_ABI} )
 
 %clean
 rm -rf $RPM_BUILD_ROOT

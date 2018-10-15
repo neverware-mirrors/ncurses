@@ -25,7 +25,7 @@
 -- sale, use or other dealings in this Software without prior written        --
 -- authorization.                                                            --
 -------------------------------------------------------------------------------
--- $Id: NEWS,v 1.3159 2018/07/14 23:25:22 tom Exp $
+-- $Id: NEWS,v 1.3199 2018/10/13 19:31:51 tom Exp $
 -------------------------------------------------------------------------------
 
 This is a log of changes that ncurses has gone through since Zeyd started
@@ -44,6 +44,96 @@ See the AUTHORS file for the corresponding full names.
 
 Changes through 1.9.9e did not credit all contributions;
 it is not possible to add this information.
+
+20181013
+	+ amend change from 20180818, which undid a fix for the $INSTALL value
+	  to make it an absolute path.
+
+20181006
+	+ improve a configure check to work with newer optimizers (report by
+	  Denis Pronin, Gentoo #606142).
+	+ fix typo in tput.c (Sven Joachim, cf: 20180825).
+
+20180929
+	+ fix typo in tvi955 -TD
+	+ corrected acsc for regent60 -TD
+	+ add alias n7900 -TD
+	+ corrected acsc for tvi950 -TD
+	+ remove bogus kf0 from tvi950 -TD
+	+ added function-key definitions to agree with Televideo 950 manual -TD
+	+ add bel to tvi950 -TD
+	+ add shifted function-keys to regent60 -TD
+	+ renumber regent40 function-keys to match manual -TD
+	+ add cd (clr_eos) to adds200 -TD
+
+20180923
+	+ build-fix: remove a _tracef call which was used for debugging (report
+	  by Chris Clayton).
+
+20180922
+	+ ignore interrupted system-call in test/ncurses's command-line, e.g.,
+	  if the terminal were resized.
+	+ add shift/control/alt logic for decoding xterm's 1006 mode (Redhat
+	  #1610681, cf: 20141011).
+	+ modify rpm test-packages to not use --disable-relink with Redhat,
+	  since Fedora 28's tools do not work with that feature.
+
+20180908
+	+ document --with-pcre2 configure option in INSTALL.
+	+ improve workaround for special case in PutAttrChar() where a cell is
+	  marked as alternate-character set, to handle a case where the
+	  character in the cell does not correspond to any of the ASCII
+	  fallbacks (report by Leon Winter, cf: 20180505).
+	+ amend change to form library which attempted to avoid unnecessary
+	  update of cursor position in non-public fields, to simply disable
+	  output in this case (patch by Leon Winter, cf: 20180414).
+	+ improve check for LINE_MAX runtime limit, to accommodate broken
+	  implementations of sysconf().
+
+20180901
+	+ improve manual page for wgetnstr, giving background for the length
+	  parameter.
+	+ define a limit for wgetnstr, wgetn_wstr when length is negative or
+	  "too large".
+	+ update configure script to autoconf 2.52.20180819 (Debian #887390).
+
+20180825
+	+ add a section to tput manual page clarifying how it determines the
+	  terminal size (prompted by discussion with Grant Jenks).
+	+ add "--disable-relink" to rpm test-packages, for consistency with the
+	  deb test-packages.
+	+ split spec-file into ncurses6.spec and ncursest6.spec to work around
+	  toolset breakage in Fedora 28.
+	+ drop mention of "--disable-touching", which was not in the final
+	  20180818 updates.
+
+20180818
+	+ build-fix for PDCurses with ncurses-examples.
+	+ improved CF_CC_ENV_FLAGS.
+	+ modify configure scripts to reduce relinking/ranlib during library
+	  install (Debian #903790):
+	  + use "install -p" when available, to avoid need for ranlib of
+	    static libraries.
+	  + modify scripts which use "--disable-relink" to add a 1-second
+	    sleep to work around tools which use whole-second timestamps, e.g.,
+	    in utime() rather than the actual file system resolution.
+
+20180804
+	+ improve logic for clear with E3 extension, in case the terminal
+	  scrolls content onto its saved-lines before actually clearing
+	  the display, by clearing the saved-lines after clearing the
+	  display (report/patch by Nicholas Marriott).
+
+20180728
+	+ improve documentation regarding feature-test macros in curses.h
+	+ improve documentation regarding the virtual and physical screens.
+	+ formatting fixes for manpages, regenerate man-html documentation.
+
+20180721
+	+ build-fixes for gcc8.
+	+ corrected acsc for wy50 -TD
+	+ add wy50 and wy60 shifted function-keys as kF1 to kF16 -TD
+	+ remove ansi+rep mis-added to interix in 2018-02-23 -TD
 
 20180714
 	+ add enum, regex examples to test/demo_forms
