@@ -151,6 +151,7 @@ CONFARGS =	--prefix=/usr \
 		--with-termlib=tinfo \
 		--with-versioned-syms \
 		--disable-wattr-macros \
+		--disable-relink \
 		--enable-overwrite \
 		--with-xterm-kbs=del
 
