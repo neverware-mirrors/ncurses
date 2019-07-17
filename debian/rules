@@ -61,8 +61,6 @@ wobjdir=$(srcdir)/obj-wide
 wobjdir-static=$(srcdir)/obj-wide-static
 wobjdir-32=$(srcdir)/obj-wide-32
 wobjdir-64=$(srcdir)/obj-wide-64
-objdir-debug=$(srcdir)/obj-debug
-wobjdir-debug=$(srcdir)/obj-wide-debug
 objdir-test=$(srcdir)/obj-test
 objdir-legacy=$(srcdir)/obj-legacy
 wobjdir-legacy=$(srcdir)/obj-wide-legacy
@@ -243,14 +241,6 @@ $(objdir-64)/config.status: config.guess-stamp
 		--without-gpm \
 		--libdir=/usr/lib64
 
-$(objdir-debug)/config.status: config.guess-stamp
-	test -d $(objdir-debug) || mkdir $(objdir-debug)
-	cd $(objdir-debug) && \
-		CFLAGS="$(CFLAGS) -DTRACE" $(relsrcdir)/configure \
-		$(CONFARGS) \
-		--without-cxx-binding \
-		--without-normal
-
 $(wobjdir)/config.status: config.guess-stamp
 	test -d $(wobjdir) || mkdir $(wobjdir)
 	cd $(wobjdir) && $(relsrcdir)/configure \
@@ -264,15 +254,6 @@ $(wobjdir-static)/config.status: config.guess-stamp
 		$(CONFARGS) \
 		--without-shared \
 		--without-gpm \
-		--enable-widec
-
-$(wobjdir-debug)/config.status: config.guess-stamp
-	test -d $(wobjdir-debug) || mkdir $(wobjdir-debug)
-	cd $(wobjdir-debug) && \
-		CFLAGS="$(CFLAGS) -DTRACE" $(relsrcdir)/configure \
-		$(CONFARGS) \
-		--without-cxx-binding \
-		--without-normal \
 		--enable-widec
 
 $(wobjdir-32)/config.status: config.guess-stamp
@@ -344,10 +325,6 @@ build-64: $(objdir-64)/config.status
 	cd $(objdir-64) && $(MAKE) CC="$(HOST_CC) -m64" CXX="$(HOST_CXX) -m64"
 	touch $@
 
-build-debug: $(objdir-debug)/config.status
-	cd $(objdir-debug) && $(MAKE)
-	touch $@
-
 build-wide: $(wobjdir)/config.status
 	cd $(wobjdir) && $(MAKE)
 	# needed for building the examples
@@ -366,10 +343,6 @@ build-wide-64: $(wobjdir-64)/config.status
 	cd $(wobjdir-64) && $(MAKE) CC="$(HOST_CC) -m64" CXX="$(HOST_CXX) -m64"
 	touch $@
 
-build-wide-debug: $(wobjdir-debug)/config.status
-	cd $(wobjdir-debug) && $(MAKE)
-	touch $@
-
 build-legacy: $(objdir-legacy)/config.status
 	cd $(objdir-legacy) && $(MAKE)
 	touch $@
@@ -385,7 +358,7 @@ build-test: $(objdir-test)/config.status
 clean:
 	dh_testdir
 	rm -f build build-arch build-indep
-	rm -f build-normal build-static build-wide build-debug build-wide-debug \
+	rm -f build-normal build-static build-wide \
 		build-wide-static build-legacy build-wide-legacy build-test $(build_32) $(build_64)
 	rm -rf $(objdir)
 	rm -rf $(objdir-static)
@@ -395,8 +368,6 @@ clean:
 	rm -rf $(wobjdir-static)
 	rm -rf $(wobjdir-32)
 	rm -rf $(wobjdir-64)
-	rm -rf $(objdir-debug)
-	rm -rf $(wobjdir-debug)
 	rm -rf $(objdir-legacy)
 	rm -rf $(wobjdir-legacy)
 	rm -rf $(objdir-test)
