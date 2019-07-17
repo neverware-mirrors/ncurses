@@ -3,6 +3,7 @@ ncurses (6.1+20190713-1) UNRELEASED; urgency=low
   * New upstream patchlevel.
   * Refresh patch 02-debian-backspace.diff after upstream changes to
     the screen terminfo description.
+  * Update symbols files for new symbol _nc_find_user_entry.
 
  -- Sven Joachim <svenjoac@gmx.de>  Wed, 17 Jul 2019 19:03:20 +0200
 
