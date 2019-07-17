@@ -3,6 +3,9 @@ ncurses (6.1+20190713-1) UNRELEASED; urgency=low
   * New upstream patchlevel.
   * Refresh patch 02-debian-backspace.diff after upstream changes to
     the screen terminfo description.
+  * New patch fix-tabs-manpage-installation.diff, reverts a broken
+    upstream change which inadvertently installed the tabs.1 manpage
+    as a dangling symlink.
   * Update symbols files for new symbol _nc_find_user_entry.
 
  -- Sven Joachim <svenjoac@gmx.de>  Wed, 17 Jul 2019 19:03:20 +0200
