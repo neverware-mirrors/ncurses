@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright (c) 1998-2017,2018 Free Software Foundation, Inc.              *
+ * Copyright (c) 1998-2018,2019 Free Software Foundation, Inc.              *
  *                                                                          *
  * Permission is hereby granted, free of charge, to any person obtaining a  *
  * copy of this software and associated documentation files (the            *
@@ -34,7 +34,7 @@
  ****************************************************************************/
 
 /*
- * $Id: curses.priv.h,v 1.606 2018/09/01 20:16:30 tom Exp $
+ * $Id: curses.priv.h,v 1.624 2019/06/23 15:20:49 tom Exp $
  *
  *	curses.priv.h
  *
@@ -237,6 +237,18 @@ extern NCURSES_EXPORT(void *) _nc_memmove (void *, const void *, size_t);
 
 #ifndef S_ISREG
 #define S_ISREG(mode) ((mode & S_IFMT) == S_IFREG)
+#endif
+
+/*
+ * POSIX ignores the "b", which c89 specified.  Some very old systems do not
+ * accept it.
+ */
+#if USE_FOPEN_BIN_R
+#define BIN_R	"rb"
+#define BIN_W	"wb"
+#else
+#define BIN_R	"r"
+#define BIN_W	"w"
 #endif
 
 /*
@@ -470,7 +482,14 @@ typedef union {
 #define SET_WINDOW_PAIR(w,p)	(w)->_color = (p)
 #define SameAttrOf(a,b)		(AttrOf(a) == AttrOf(b) && GetPair(a) == GetPair(b))
 
-#define VIDATTR(sp,attr,pair)	NCURSES_SP_NAME(vid_puts)(NCURSES_SP_ARGx attr, (NCURSES_PAIRS_T) pair, 0, NCURSES_OUTC_FUNC)
+#define VIDPUTS(sp,attr,pair)	do { \
+				    int vid_pair = pair; \
+				    NCURSES_SP_NAME(vid_puts)( \
+					NCURSES_SP_ARGx attr, \
+					(NCURSES_PAIRS_T) pair, \
+					&vid_pair, \
+					NCURSES_OUTC_FUNC); \
+				} while (0)
 
 #else /* !NCURSES_EXT_COLORS */
 
@@ -483,7 +502,7 @@ typedef union {
 				WINDOW_ATTRS(w) |= ColorPair(p)
 #define SameAttrOf(a,b)		(AttrOf(a) == AttrOf(b))
 
-#define VIDATTR(sp,attr,pair)	NCURSES_SP_NAME(vidputs)(NCURSES_SP_ARGx attr, NCURSES_OUTC_FUNC)
+#define VIDPUTS(sp,attr,pair)	NCURSES_SP_NAME(vidputs)(NCURSES_SP_ARGx attr, NCURSES_OUTC_FUNC)
 
 #endif /* NCURSES_EXT_COLORS */
 
@@ -538,6 +557,8 @@ NCURSES_EXPORT(int *)        _nc_ptr_Escdelay (SCREEN *);
 #define SET_ESCDELAY(value)  ESCDELAY = value
 
 #endif
+
+#define HasHardTabs()	(NonEmpty(clear_all_tabs) && NonEmpty(set_tab))
 
 #define TR_MUTEX(data) _tracef("%s@%d: me:%08lX COUNT:%2u/%2d/%6d/%2d/%s%9u: " #data, \
 	    __FILE__, __LINE__, \
@@ -1544,26 +1565,27 @@ extern NCURSES_EXPORT_VAR(SIG_ATOMIC_T) _nc_have_sigwinch;
 #define PUTC_INIT	init_mb (PUT_st)
 #define PUTC(ch)	do { if(!isWidecExt(ch)) {				    \
 			if (Charable(ch)) {					    \
-			    TR_PUTC(CharOf(ch)); \
-			    NCURSES_OUTC_FUNC (NCURSES_SP_ARGx CharOf(ch)); \
+			    TR_PUTC(CharOf(ch));				    \
+			    NCURSES_OUTC_FUNC (NCURSES_SP_ARGx CharOf(ch));	    \
 			    COUNT_OUTCHARS(1);					    \
 			} else {						    \
 			    for (PUTC_i = 0; PUTC_i < CCHARW_MAX; ++PUTC_i) {	    \
 				PUTC_ch = (ch).chars[PUTC_i];			    \
 				if (PUTC_ch == L'\0')				    \
 				    break;					    \
-				PUTC_INIT;						    \
+				PUTC_INIT;					    \
 				PUTC_n = (int) wcrtomb(PUTC_buf,		    \
 						       (ch).chars[PUTC_i], &PUT_st); \
 				if (PUTC_n <= 0) {				    \
-				    if (PUTC_ch && is8bits(PUTC_ch) && PUTC_i == 0) \
-					TR_PUTC(CharOf(ch)); \
+				    if (PUTC_ch && is8bits(PUTC_ch) && PUTC_i == 0) { \
+					TR_PUTC(CharOf(ch));			    \
 					NCURSES_OUTC_FUNC (NCURSES_SP_ARGx CharOf(ch)); \
+				    }						    \
 				    break;					    \
 				} else {					    \
 				    int PUTC_j;					    \
 				    for (PUTC_j = 0; PUTC_j < PUTC_n; ++PUTC_j) {   \
-					TR_PUTC(PUTC_buf[PUTC_j]); \
+					TR_PUTC(PUTC_buf[PUTC_j]);		    \
 					NCURSES_OUTC_FUNC (NCURSES_SP_ARGx PUTC_buf[PUTC_j]); \
 				    }						    \
 				}						    \
@@ -1623,6 +1645,7 @@ extern NCURSES_EXPORT_VAR(SIG_ATOMIC_T) _nc_have_sigwinch;
 #define isWidecExt(ch)	(0)
 #define if_WIDEC(code) /* nothing */
 
+#define Charable(ch)	((ch) >= ' ' && (ch) <= '~')
 #define L(ch)		ch
 #endif /* } */
 
@@ -1708,6 +1731,14 @@ extern NCURSES_EXPORT_VAR(SIG_ATOMIC_T) _nc_have_sigwinch;
 # endif
 #endif
 
+#ifdef __TANDEM
+#define ROOT_UID 65535
+#endif
+
+#ifndef ROOT_UID
+#define ROOT_UID 0
+#endif
+
 /*
  * Standardize/simplify common loops
  */
@@ -1724,6 +1755,9 @@ extern NCURSES_EXPORT_VAR(SIG_ATOMIC_T) _nc_have_sigwinch;
 #define T_CREATE(fmt) "create :" fmt
 #define T_RETURN(fmt) "return }" fmt
 
+#define NonNull(s)              ((s) != 0 ? s : "<null>")
+#define NonEmpty(s)             ((s) != 0 && *(s) != '\0')
+
 #ifdef TRACE
 
 #if USE_REENTRANT
@@ -1732,12 +1766,16 @@ extern NCURSES_EXPORT_VAR(SIG_ATOMIC_T) _nc_have_sigwinch;
 #define TPUTS_TRACE(s)	_nc_tputs_trace = s;
 #endif
 
+#ifdef HAVE_CONSISTENT_GETENV
 #define START_TRACE() \
 	if ((_nc_tracing & TRACE_MAXIMUM) == 0) { \
 	    int t = _nc_getenv_num("NCURSES_TRACE"); \
 	    if (t >= 0) \
 		trace((unsigned) t); \
 	}
+#else
+#define START_TRACE() /* nothing */
+#endif
 
 /*
  * Many of the _tracef() calls use static buffers; lock the trace state before
@@ -1761,8 +1799,9 @@ extern NCURSES_EXPORT(void)	_nc_locked_tracef (const char *, ...) GCC_PRINTFLIKE
 
 typedef void VoidFunc(void);
 
-#define TR_FUNC(value)          ((const char*) (value))
-#define NonNull(s)              ((s) != 0 ? s : "<null>")
+#define TR_FUNC_LEN		((sizeof(void *) + sizeof(void (*)(void))) * 2 + 4)
+#define TR_FUNC_BFR(max)	char tr_func_data[max][TR_FUNC_LEN]
+#define TR_FUNC_ARG(num,func)	_nc_fmt_funcptr(&tr_func_data[num][0], (const char *)&(func), sizeof((func)))
 
 #define returnAttr(code)	TRACE_RETURN(code,attr_t)
 #define returnBits(code)	TRACE_RETURN(code,unsigned)
@@ -1801,6 +1840,8 @@ extern NCURSES_EXPORT(unsigned)         _nc_retrace_unsigned (unsigned);
 extern NCURSES_EXPORT(void *)           _nc_retrace_void_ptr (void *);
 extern NCURSES_EXPORT(void)             _nc_fifo_dump (SCREEN *);
 
+extern NCURSES_EXPORT(char *)           _nc_fmt_funcptr(char *, const char *, size_t);
+
 #if USE_REENTRANT
 NCURSES_WRAPPED_VAR(long, _nc_outchars);
 NCURSES_WRAPPED_VAR(const char *, _nc_tputs_trace);
@@ -1834,6 +1875,7 @@ extern NCURSES_EXPORT(const char *) _nc_viscbuf (const NCURSES_CH_T *, int);
 #define T(a)
 #define TR(n, a)
 #define TPUTS_TRACE(s)
+#define TR_FUNC_BFR(max)
 
 #define returnAttr(code)	return code
 #define returnBits(code)	return code
@@ -1920,7 +1962,7 @@ extern	NCURSES_EXPORT(void) name (void); \
 #if USE_XMC_SUPPORT
 #define UpdateAttrs(sp,c) if (!SameAttrOf(SCREEN_ATTRS(sp), c)) { \
 				attr_t chg = AttrOf(SCREEN_ATTRS(sp)); \
-				VIDATTR(sp, AttrOf(c), GetPair(c)); \
+				VIDPUTS(sp, AttrOf(c), GetPair(c)); \
 				if (magic_cookie_glitch > 0 \
 				 && XMC_CHANGES((chg ^ AttrOf(SCREEN_ATTRS(sp))))) { \
 					T(("%s @%d before glitch %d,%d", \
@@ -1932,7 +1974,7 @@ extern	NCURSES_EXPORT(void) name (void); \
 			}
 #else
 #define UpdateAttrs(sp,c) if (!SameAttrOf(SCREEN_ATTRS(sp), c)) { \
-				    VIDATTR(sp, AttrOf(c), GetPair(c)); \
+				    VIDPUTS(sp, AttrOf(c), GetPair(c)); \
 			}
 #endif
 
@@ -2007,6 +2049,12 @@ extern NCURSES_EXPORT(void) _nc_expanded (void);
 	    ttytype[NAMESIZE - 1] = '\0'; \
 	}
 
+#if !NCURSES_WCWIDTH_GRAPHICS
+extern NCURSES_EXPORT(int) _nc_wacs_width(unsigned);
+#else
+#define _nc_wacs_width(ch) wcwidth(ch)
+#endif
+
 /* charable.c */
 #if USE_WIDEC_SUPPORT
 extern NCURSES_EXPORT(bool) _nc_is_charable(wchar_t);
@@ -2028,6 +2076,16 @@ typedef struct
 	short	to;
 	short	source;
 } alias_table_data;
+
+/* comp_userdefs.c */
+typedef struct {
+	short	ute_name;	/* offset of name to hash on */
+	unsigned ute_type;	/* mask (BOOLEAN, NUMBER, STRING) */
+	unsigned ute_argc;	/* number of parameters */
+	unsigned ute_args;	/* bit-mask for string parameters */
+	short	ute_index;	/* index of associated variable in its array */
+	short	ute_link;	/* index in table of next hash, or -1 */
+} user_table_data;
 
 /* doupdate.c */
 #if USE_XMC_SUPPORT
@@ -2058,8 +2116,12 @@ extern NCURSES_EXPORT(int) _nc_init_color(SCREEN *, int, int, int, int);
 extern NCURSES_EXPORT(int) _nc_init_pair(SCREEN *, int, int, int);
 extern NCURSES_EXPORT(int) _nc_pair_content(SCREEN *, int, int *, int *);
 extern NCURSES_EXPORT(bool) _nc_reset_colors(void);
-extern NCURSES_EXPORT(colorpair_t *) _nc_reserve_pairs(SCREEN *, int);
+extern NCURSES_EXPORT(void) _nc_reserve_pairs(SCREEN *, int);
 extern NCURSES_EXPORT(void) _nc_change_pair(SCREEN *, int);
+
+#define ReservePairs(sp,want) \
+	    if ((sp->_color_pairs == 0) || (want >= sp->_pair_alloc)) \
+		_nc_reserve_pairs(sp, want)
 
 /* lib_getch.c */
 extern NCURSES_EXPORT(int) _nc_wgetch(WINDOW *, int *, int EVENTLIST_2nd(_nc_eventlist *));
@@ -2239,6 +2301,7 @@ extern NCURSES_EXPORT(void) _nc_codes_leaks(void);
 extern NCURSES_EXPORT(void) _nc_comp_captab_leaks(void);
 extern NCURSES_EXPORT(void) _nc_comp_error_leaks(void);
 extern NCURSES_EXPORT(void) _nc_comp_scan_leaks(void);
+extern NCURSES_EXPORT(void) _nc_comp_userdefs_leaks(void);
 extern NCURSES_EXPORT(void) _nc_db_iterator_leaks(void);
 extern NCURSES_EXPORT(void) _nc_keyname_leaks(void);
 extern NCURSES_EXPORT(void) _nc_names_leaks(void);

@@ -1,5 +1,5 @@
 dnl***************************************************************************
-dnl Copyright (c) 1998-2017,2018 Free Software Foundation, Inc.              *
+dnl Copyright (c) 1998-2018,2019 Free Software Foundation, Inc.              *
 dnl                                                                          *
 dnl Permission is hereby granted, free of charge, to any person obtaining a  *
 dnl copy of this software and associated documentation files (the            *
@@ -28,7 +28,7 @@ dnl***************************************************************************
 dnl
 dnl Author: Thomas E. Dickey 1995-on
 dnl
-dnl $Id: aclocal.m4,v 1.850 2018/10/13 19:43:04 tom Exp $
+dnl $Id: aclocal.m4,v 1.876 2019/06/30 23:46:29 tom Exp $
 dnl Macros used in NCURSES auto-configuration script.
 dnl
 dnl These macros are maintained separately from NCURSES.  The copyright on
@@ -925,6 +925,35 @@ if test ".$system_name" != ".$cf_cv_system_name" ; then
 fi
 ])dnl
 dnl ---------------------------------------------------------------------------
+dnl CF_CHECK_ENVIRON version: 3 updated: 2010/05/26 16:44:57
+dnl ----------------
+dnl Check for data that is usually declared in <unistd.h>, e.g., the 'environ'
+dnl variable.  Define a DECL_xxx symbol if we must declare it ourselves.
+dnl
+dnl $1 = the name to check
+dnl $2 = the assumed type
+AC_DEFUN([CF_CHECK_ENVIRON],
+[
+AC_CACHE_CHECK(if external $1 is declared, cf_cv_dcl_$1,[
+    AC_TRY_COMPILE([
+#ifdef HAVE_STDLIB_H
+#include <stdlib.h>
+#endif
+#include <unistd.h> ],
+    ifelse([$2],,int,[$2]) x = (ifelse([$2],,int,[$2])) $1,
+    [cf_cv_dcl_$1=yes],
+    [cf_cv_dcl_$1=no])
+])
+
+if test "$cf_cv_dcl_$1" = no ; then
+    CF_UPPER(cf_result,decl_$1)
+    AC_DEFINE_UNQUOTED($cf_result)
+fi
+
+# It's possible (for near-UNIX clones) that the data doesn't exist
+CF_CHECK_EXTERN_DATA($1,ifelse([$2],,int,[$2]))
+])dnl
+dnl ---------------------------------------------------------------------------
 dnl CF_CHECK_ERRNO version: 12 updated: 2015/04/18 08:56:57
 dnl --------------
 dnl Check for data that is usually declared in <stdio.h> or <errno.h>, e.g.,
@@ -980,6 +1009,132 @@ if test "$cf_cv_have_$1" = yes ; then
 	AC_DEFINE_UNQUOTED($cf_result)
 fi
 
+])dnl
+dnl ---------------------------------------------------------------------------
+dnl CF_CHECK_GETENV version: 1 updated: 2019/06/23 15:28:15
+dnl ---------------
+dnl Check if repeated getenv calls return the same pointer, e.g., it does not
+dnl discard the previous pointer when returning a new one.
+AC_DEFUN([CF_CHECK_GETENV],
+[
+AC_REQUIRE([CF_CHECK_ENVIRON])
+AC_CHECK_FUNC( getenv, ,, AC_MSG_ERROR(getenv not found) )
+AC_CHECK_FUNCS( putenv setenv strdup )
+AC_CACHE_CHECK(if getenv returns consistent values,cf_cv_consistent_getenv,[
+AC_TRY_RUN([
+#include <stdlib.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <string.h>
+#include <sys/types.h>
+
+#if defined(HAVE_ENVIRON) && defined(DECL_ENVIRON) && !defined(environ)
+extern char **environ;	/* POSIX, but some systems are not... */
+#endif
+
+#if defined(HAVE_STRDUP)
+#define str_alloc(s) strdup(s)
+#else
+#define str_alloc(s) strcpy(malloc(strlen(s) + 1, s))
+#endif
+
+static void set_value(const char *name, const char *value)
+{
+#if defined(HAVE_SETENV)
+	setenv(name, value, 1);
+#elif defined(HAVE_PUTENV)
+	char buffer[1024];
+	sprintf(buffer, "%s=%s", name, value);
+	putenv(str_alloc(buffer));
+#else
+#error neither putenv/setenv found
+#endif
+}
+int main(void)
+{
+	int pass;
+	size_t numenv, limit, j;
+	char **mynames;
+	char **myvalues;
+	char **mypointer;
+	char *equals;
+	for (numenv = 0; environ[numenv]; ++numenv) ;
+	limit = numenv + 10;
+	mynames = (char **) calloc(limit + 1, sizeof(char *));
+	myvalues = (char **) calloc(limit + 1, sizeof(char *));
+	mypointer = (char **) calloc(limit + 1, sizeof(char *));
+#if defined(HAVE_ENVIRON)
+	for (j = 0; environ[j]; ++j) {
+		mynames[j] = str_alloc(environ[j]);
+		equals = strchr(mynames[j], '=');
+		if (equals != 0) {
+			*equals++ = '\0';
+			myvalues[j] = str_alloc(equals);
+		} else {
+			myvalues[j] = str_alloc("");
+		}
+	}
+#endif
+	for (j = numenv; j < limit; ++j) {
+		char name[80];
+		char value[80];
+		size_t found;
+		size_t k = 0;
+		do {
+			size_t jk;
+			found = 0;
+			sprintf(name, "TERM%lu", (unsigned long) k);
+			for (jk = 0; jk < j; ++jk) {
+				if (!strcmp(name, mynames[jk])) {
+					found = 1;
+					++k;
+					break;
+				}
+			}
+		} while (found);
+		sprintf(value, "%lu:%p", (unsigned long) k, &mynames[j]);
+		set_value(name, value);
+		mynames[j] = str_alloc(name);
+		myvalues[j] = str_alloc(value);
+	}
+	for (pass = 0; pass < 3; ++pass) {
+		for (j = 0; j < limit; ++j) {
+			char *value = getenv(mynames[j]);
+			if (pass) {
+				if (value == 0) {
+					fprintf(stderr, "getenv returned null for %s\n", mynames[j]);
+					${cf_cv_main_return:-return}(1);
+				} else if (value != mypointer[j]) {
+					fprintf(stderr, "getenv returned different pointer for %s\n", mynames[j]);
+					${cf_cv_main_return:-return}(1);
+				} else if (strcmp(value, myvalues[j])) {
+					fprintf(stderr, "getenv returned different value for %s\n", mynames[j]);
+					${cf_cv_main_return:-return}(1);
+				}
+			} else {
+				size_t k;
+				mypointer[j] = value;
+				for (k = 0; k < j; ++k) {
+					if (mypointer[j] == mypointer[k]) {
+						fprintf(stderr, "getenv returned same pointer for %s and %s\n", mynames[j], mynames[k]);
+						${cf_cv_main_return:-return}(1);
+					}
+				}
+			}
+		}
+	}
+	${cf_cv_main_return:-return}(0);
+}
+],
+[cf_cv_consistent_getenv=yes],
+[cf_cv_consistent_getenv=no],
+[cf_cv_consistent_getenv=unknown])
+])
+
+if test "x$cf_cv_consistent_getenv" = xno
+then
+	AC_DEFINE(HAVE_CONSISTENT_GETENV,1,[Define to 1 if getenv repeatably returns the same value for a given name])
+fi
 ])dnl
 dnl ---------------------------------------------------------------------------
 dnl CF_CHECK_GPM_WGETCH version: 3 updated: 2017/01/21 11:06:25
@@ -1253,6 +1408,60 @@ cf_save_CFLAGS="$cf_save_CFLAGS -Qunused-arguments"
 fi
 ])
 dnl ---------------------------------------------------------------------------
+dnl CF_CONST_X_STRING version: 1 updated: 2019/04/08 17:50:29
+dnl -----------------
+dnl The X11R4-X11R6 Xt specification uses an ambiguous String type for most
+dnl character-strings.
+dnl
+dnl It is ambiguous because the specification accommodated the pre-ANSI
+dnl compilers bundled by more than one vendor in lieu of providing a standard C
+dnl compiler other than by costly add-ons.  Because of this, the specification
+dnl did not take into account the use of const for telling the compiler that
+dnl string literals would be in readonly memory.
+dnl
+dnl As a workaround, one could (starting with X11R5) define XTSTRINGDEFINES, to
+dnl let the compiler decide how to represent Xt's strings which were #define'd. 
+dnl That does not solve the problem of using the block of Xt's strings which
+dnl are compiled into the library (and is less efficient than one might want).
+dnl
+dnl Xt specification 7 introduces the _CONST_X_STRING symbol which is used both
+dnl when compiling the library and compiling using the library, to tell the
+dnl compiler that String is const.
+AC_DEFUN([CF_CONST_X_STRING],
+[
+AC_TRY_COMPILE(
+[
+#include <stdlib.h>
+#include <X11/Intrinsic.h>
+],
+[String foo = malloc(1)],[
+
+AC_CACHE_CHECK(for X11/Xt const-feature,cf_cv_const_x_string,[
+	AC_TRY_COMPILE(
+		[
+#define _CONST_X_STRING	/* X11R7.8 (perhaps) */
+#undef  XTSTRINGDEFINES	/* X11R5 and later */
+#include <stdlib.h>
+#include <X11/Intrinsic.h>
+		],[String foo = malloc(1); *foo = 0],[
+			cf_cv_const_x_string=no
+		],[
+			cf_cv_const_x_string=yes
+		])
+])
+
+case $cf_cv_const_x_string in
+(no)
+	CF_APPEND_TEXT(CPPFLAGS,-DXTSTRINGDEFINES)
+	;;
+(*)
+	CF_APPEND_TEXT(CPPFLAGS,-D_CONST_X_STRING)
+	;;
+esac
+
+])
+])dnl
+dnl ---------------------------------------------------------------------------
 dnl CF_CPP_PARAM_INIT version: 7 updated: 2017/01/21 11:06:25
 dnl -----------------
 dnl Check if the C++ compiler accepts duplicate parameter initialization.  This
@@ -1427,6 +1636,11 @@ fi
 AC_SUBST($1)
 ])dnl
 dnl ---------------------------------------------------------------------------
+dnl CF_DIRNAME version: 4 updated: 2002/12/21 19:25:52
+dnl ----------
+dnl "dirname" is not portable, so we fake it with a shell script.
+AC_DEFUN([CF_DIRNAME],[$1=`echo $2 | sed -e 's%/[[^/]]*$%%'`])dnl
+dnl ---------------------------------------------------------------------------
 dnl CF_DIRS_TO_MAKE version: 3 updated: 2002/02/23 20:38:31
 dnl ---------------
 AC_DEFUN([CF_DIRS_TO_MAKE],
@@ -1447,11 +1661,6 @@ do
 done
 AC_SUBST(DIRS_TO_MAKE)
 ])dnl
-dnl ---------------------------------------------------------------------------
-dnl CF_DIRNAME version: 4 updated: 2002/12/21 19:25:52
-dnl ----------
-dnl "dirname" is not portable, so we fake it with a shell script.
-AC_DEFUN([CF_DIRNAME],[$1=`echo $2 | sed -e 's%/[[^/]]*$%%'`])dnl
 dnl ---------------------------------------------------------------------------
 dnl CF_DISABLE_ECHO version: 13 updated: 2015/04/18 08:56:57
 dnl ---------------
@@ -1904,6 +2113,49 @@ AC_DEFUN([CF_FIXUP_ADAFLAGS],[
 	AC_MSG_RESULT($ADAFLAGS)
 ])dnl
 dnl ---------------------------------------------------------------------------
+dnl CF_FOPEN_BIN_R version: 1 updated: 2019/03/30 17:52:21
+dnl --------------
+dnl Check if fopen works when the "b" (binary) flag is added to the mode
+dnl parameter.  POSIX ignores the "b", which c89 specified.  Some very old
+dnl systems do not accept it.
+AC_DEFUN([CF_FOPEN_BIN_R],[
+AC_CACHE_CHECK(if fopen accepts explicit binary mode,cf_cv_fopen_bin_r,[
+	AC_TRY_RUN([
+#include <stdio.h>
+int main(void) {
+	FILE *fp = fopen("conftest.tmp", "wb");
+	int rc = 0;
+	if (fp != 0) {
+		int p, q;
+		for (p = 0; p < 256; ++p) {
+			fputc(p, fp);
+		}
+		fclose(fp);
+		fp = fopen("conftest.tmp", "rb");
+		if (fp != 0) {
+			for (p = 0; p < 256; ++p) {
+				q = fgetc(fp);
+				if (q != p) {
+					rc = 1;
+					break;
+				}
+			}
+		} else {
+			rc = 1;
+		}
+	} else {
+		rc = 1;
+	}
+	${cf_cv_main_return:-return} (rc);
+}
+],
+		[cf_cv_fopen_bin_r=yes],
+		[cf_cv_fopen_bin_r=no],
+		[cf_cv_fopen_bin_r=unknown])
+])
+test "x$cf_cv_fopen_bin_r" != xno && AC_DEFINE(USE_FOPEN_BIN_R)
+])dnl
+dnl ---------------------------------------------------------------------------
 dnl CF_FORGET_TOOL version: 1 updated: 2013/04/06 18:03:09
 dnl --------------
 dnl Forget that we saw the given tool.
@@ -2300,7 +2552,7 @@ if test "$GCC" = yes ; then
 fi
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_GCC_WARNINGS version: 33 updated: 2018/06/20 20:23:13
+dnl CF_GCC_WARNINGS version: 35 updated: 2019/06/16 09:45:01
 dnl ---------------
 dnl Check if the compiler supports useful warning options.  There's a few that
 dnl we don't use, simply because they're too noisy:
@@ -2324,12 +2576,11 @@ AC_DEFUN([CF_GCC_WARNINGS],
 AC_REQUIRE([CF_GCC_VERSION])
 CF_INTEL_COMPILER(GCC,INTEL_COMPILER,CFLAGS)
 CF_CLANG_COMPILER(GCC,CLANG_COMPILER,CFLAGS)
-
+if test "x$have_x" = xyes; then CF_CONST_X_STRING fi
 cat > conftest.$ac_ext <<EOF
 #line __oline__ "${as_me:-configure}"
 int main(int argc, char *argv[[]]) { return (argv[[argc-1]] == 0) ; }
 EOF
-
 if test "$INTEL_COMPILER" = yes
 then
 # The "-wdXXX" options suppress warnings:
@@ -2364,7 +2615,6 @@ then
 		fi
 	done
 	CFLAGS="$cf_save_CFLAGS"
-
 elif test "$GCC" = yes
 then
 	AC_CHECKING([for $CC warning options])
@@ -2393,9 +2643,6 @@ then
 		if AC_TRY_EVAL(ac_compile); then
 			test -n "$verbose" && AC_MSG_RESULT(... -$cf_opt)
 			case $cf_opt in
-			(Wcast-qual)
-				CF_APPEND_TEXT(CPPFLAGS,-DXTSTRINGDEFINES)
-				;;
 			(Winline)
 				case $GCC_VERSION in
 				([[34]].*)
@@ -2720,7 +2967,7 @@ case $cf_gnat_version in
 esac
 ])
 dnl ---------------------------------------------------------------------------
-dnl CF_GNU_SOURCE version: 9 updated: 2018/06/20 20:23:13
+dnl CF_GNU_SOURCE version: 10 updated: 2018/12/10 20:09:41
 dnl -------------
 dnl Check if we must define _GNU_SOURCE to get a reasonable value for
 dnl _XOPEN_SOURCE, upon which many POSIX definitions depend.  This is a defect
@@ -2739,6 +2986,8 @@ AC_CACHE_CHECK(if this is the GNU C library,cf_cv_gnu_library,[
 AC_TRY_COMPILE([#include <sys/types.h>],[
 	#if __GLIBC__ > 0 && __GLIBC_MINOR__ >= 0
 		return 0;
+	#elif __NEWLIB__ > 0 && __NEWLIB_MINOR__ >= 0
+		return 0;
 	#else
 	#	error not GNU C library
 	#endif],
@@ -2749,12 +2998,15 @@ AC_TRY_COMPILE([#include <sys/types.h>],[
 if test x$cf_cv_gnu_library = xyes; then
 
 	# With glibc 2.19 (13 years after this check was begun), _DEFAULT_SOURCE
-	# was changed to help a little...
+	# was changed to help a little.  newlib incorporated the change about 4
+	# years later.
 	AC_CACHE_CHECK(if _DEFAULT_SOURCE can be used as a basis,cf_cv_gnu_library_219,[
 		cf_save="$CPPFLAGS"
 		CF_APPEND_TEXT(CPPFLAGS,-D_DEFAULT_SOURCE)
 		AC_TRY_COMPILE([#include <sys/types.h>],[
 			#if (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 19) || (__GLIBC__ > 2)
+				return 0;
+			#elif (__NEWLIB__ == 2 && __NEWLIB_MINOR__ >= 4) || (__GLIBC__ > 3)
 				return 0;
 			#else
 			#	error GNU C library __GLIBC__.__GLIBC_MINOR__ is too old
@@ -5354,6 +5606,51 @@ ifelse([$1],,,[$1=$PATH_SEPARATOR])
 	AC_MSG_RESULT($PATH_SEPARATOR)
 ])dnl
 dnl ---------------------------------------------------------------------------
+dnl CF_PATH_PROG version: 10 updated: 2019/06/30 19:44:43
+dnl ------------
+dnl Check for a given program, defining corresponding symbol.
+dnl	$1 = environment variable, which is suffixed by "_PATH" in the #define.
+dnl	$2 = program name to find.
+dnl	$3 = optional list of additional program names to test.
+dnl $4 = $PATH
+dnl
+dnl If there is more than one token in the result, #define the remaining tokens
+dnl to $1_ARGS.  We need this for 'install' in particular.
+dnl
+dnl FIXME: we should allow this to be overridden by environment variables
+dnl
+AC_DEFUN([CF_PATH_PROG],[
+AC_REQUIRE([CF_PATHSEP])
+test -z "[$]$1" && $1=$2
+AC_PATH_PROGS($1,[$]$1 $2 ifelse($3,,,$3),[$]$1, ifelse($4,,,$4))
+
+cf_path_prog=""
+cf_path_args=""
+IFS="${IFS:- 	}"; cf_save_ifs="$IFS"; IFS="${IFS}$PATH_SEPARATOR"
+for cf_temp in $ac_cv_path_$1
+do
+	if test -z "$cf_path_prog" ; then
+		if test "$with_full_paths" = yes ; then
+			CF_PATH_SYNTAX(cf_temp,break)
+			cf_path_prog="$cf_temp"
+		else
+			cf_path_prog="`basename $cf_temp`"
+		fi
+	elif test -z "$cf_path_args" ; then
+		cf_path_args="$cf_temp"
+	else
+		cf_path_args="$cf_path_args $cf_temp"
+	fi
+done
+IFS="$cf_save_ifs"
+
+if test -n "$cf_path_prog" ; then
+	CF_MSG_LOG(defining path for ${cf_path_prog})
+	AC_DEFINE_UNQUOTED($1_PATH,"$cf_path_prog",Define to pathname $1)
+	test -n "$cf_path_args" && AC_DEFINE_UNQUOTED($1_ARGS,"$cf_path_args",Define to provide args for $1)
+fi
+])dnl
+dnl ---------------------------------------------------------------------------
 dnl CF_PATH_SYNTAX version: 16 updated: 2015/04/18 08:56:57
 dnl --------------
 dnl Check the argument to see that it looks like a pathname.  Rewrite it if it
@@ -5427,7 +5724,7 @@ fi
 AC_SUBST(PKG_CONFIG)
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_POSIX_C_SOURCE version: 10 updated: 2018/06/20 20:23:13
+dnl CF_POSIX_C_SOURCE version: 11 updated: 2018/12/31 20:46:17
 dnl -----------------
 dnl Define _POSIX_C_SOURCE to the given level, and _POSIX_SOURCE if needed.
 dnl
@@ -5442,7 +5739,10 @@ dnl
 dnl Parameters:
 dnl	$1 is the nominal value for _POSIX_C_SOURCE
 AC_DEFUN([CF_POSIX_C_SOURCE],
-[
+[AC_REQUIRE([CF_POSIX_VISIBLE])dnl
+
+if test "$cf_cv_posix_visible" = no; then
+
 cf_POSIX_C_SOURCE=ifelse([$1],,199506L,[$1])
 
 cf_save_CFLAGS="$CFLAGS"
@@ -5499,6 +5799,35 @@ if test "$cf_cv_posix_c_source" != no ; then
 	CF_ADD_CFLAGS($cf_cv_posix_c_source)
 fi
 
+fi # cf_cv_posix_visible
+
+])dnl
+dnl ---------------------------------------------------------------------------
+dnl CF_POSIX_VISIBLE version: 1 updated: 2018/12/31 20:46:17
+dnl ----------------
+dnl POSIX documents test-macros which an application may set before any system
+dnl headers are included to make features available.
+dnl
+dnl Some BSD platforms (originally FreeBSD, but copied by a few others)
+dnl diverged from POSIX in 2002 by setting symbols which make all of the most
+dnl recent features visible in the system header files unless the application
+dnl overrides the corresponding test-macros.  Doing that introduces portability
+dnl problems.
+dnl
+dnl This macro makes a special check for the symbols used for this, to avoid a
+dnl conflicting definition.
+AC_DEFUN([CF_POSIX_VISIBLE],
+[
+AC_CACHE_CHECK(if the POSIX test-macros are already defined,cf_cv_posix_visible,[
+AC_TRY_COMPILE([#include <stdio.h>],[
+#if defined(__POSIX_VISIBLE) && ((__POSIX_VISIBLE - 0L) > 0) \
+	&& defined(__XSI_VISIBLE) && ((__XSI_VISIBLE - 0L) > 0) \
+	&& defined(__BSD_VISIBLE) && ((__BSD_VISIBLE - 0L) > 0) \
+	&& defined(__ISO_C_VISIBLE) && ((__ISO_C_VISIBLE - 0L) > 0)
+#error conflicting symbols found
+#endif
+],[cf_cv_posix_visible=no],[cf_cv_posix_visible=yes])
+])
 ])dnl
 dnl ---------------------------------------------------------------------------
 dnl CF_PREDEFINE version: 2 updated: 2010/05/26 16:44:57
@@ -5643,7 +5972,7 @@ AC_DEFUN([CF_PROG_EGREP],
 	test -z "$EGREP" && AC_MSG_ERROR(No egrep program found)
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_PROG_GNAT version: 6 updated: 2018/01/16 16:45:49
+dnl CF_PROG_GNAT version: 8 updated: 2018/11/10 19:47:04
 dnl ------------
 dnl Check for gnatmake, ensure that it is complete.
 AC_DEFUN([CF_PROG_GNAT],[
@@ -5665,7 +5994,20 @@ else
 			for cf_gprconfig in Ada C
 			do
 				AC_MSG_CHECKING(for gprconfig name for $cf_gprconfig)
-				cf_gprconfig_value=`echo s| gprconfig --config=$cf_gprconfig 2>&AC_FD_CC | ${AWK:-awk} '/^\*/{print [$]3;}' | head -n 1`
+				if test $cf_gprconfig = C
+				then
+					for cf_gprconfig_param in \
+						$cf_gprconfig,,,,GNATGCC \
+						$cf_gprconfig,,,,GCC \
+						$cf_gprconfig
+					do
+						cf_gprconfig_value=`echo s| gprconfig --config=$cf_gprconfig_param 2>&AC_FD_CC | ${AWK:-awk} '/^\*/{print [$]3;}' | head -n 1`
+						test -n "$cf_gprconfig_value" && break
+					done
+				else
+					cf_gprconfig_param=$cf_gprconfig
+					cf_gprconfig_value=`echo s| gprconfig --config=$cf_gprconfig_param 2>&AC_FD_CC | ${AWK:-awk} '/^\*/{print [$]3;}' | head -n 1`
+				fi
 				if test -n "$cf_gprconfig_value"
 				then
 					eval cf_ada_config_[$]cf_gprconfig=[$]cf_gprconfig_value
@@ -6471,12 +6813,12 @@ define([CF_SHARED_SONAME],
 	fi
 ])
 dnl ---------------------------------------------------------------------------
-dnl CF_SIGWINCH version: 1 updated: 2006/04/02 16:41:09
+dnl CF_SIGWINCH version: 2 updated: 2019/03/23 19:54:44
 dnl -----------
 dnl Use this macro after CF_XOPEN_SOURCE, but do not require it (not all
 dnl programs need this test).
 dnl
-dnl This is really a MacOS X 10.4.3 workaround.  Defining _POSIX_C_SOURCE
+dnl This is really a Mac OS X 10.4.3 workaround.  Defining _POSIX_C_SOURCE
 dnl forces SIGWINCH to be undefined (breaks xterm, ncurses).  Oddly, the struct
 dnl winsize declaration is left alone - we may revisit this if Apple choose to
 dnl break that part of the interface as well.
@@ -7173,10 +7515,11 @@ if test "$cf_cv_utf8_lib" = "add-on" ; then
 fi
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_VA_COPY version: 3 updated: 2012/10/06 11:17:15
+dnl CF_VA_COPY version: 6 updated: 2018/12/04 18:14:25
 dnl ----------
-dnl check for va_copy, part of stdarg.h
+dnl check for va_copy, part of stdarg.h starting with ISO C 1999.
 dnl Also, workaround for glibc's __va_copy, by checking for both.
+dnl Finally, try to accommodate pre-ISO C 1999 headers.
 AC_DEFUN([CF_VA_COPY],[
 AC_CACHE_CHECK(for va_copy, cf_cv_have_va_copy,[
 AC_TRY_LINK([
@@ -7188,7 +7531,10 @@ AC_TRY_LINK([
 	cf_cv_have_va_copy=yes,
 	cf_cv_have_va_copy=no)])
 
-test "$cf_cv_have_va_copy" = yes && AC_DEFINE(HAVE_VA_COPY,1,[Define to 1 if we have va_copy])
+if test "$cf_cv_have_va_copy" = yes;
+then
+	AC_DEFINE(HAVE_VA_COPY,1,[Define to 1 if we have va_copy])
+else # !cf_cv_have_va_copy
 
 AC_CACHE_CHECK(for __va_copy, cf_cv_have___va_copy,[
 AC_TRY_LINK([
@@ -7200,7 +7546,58 @@ AC_TRY_LINK([
 	cf_cv_have___va_copy=yes,
 	cf_cv_have___va_copy=no)])
 
-test "$cf_cv_have___va_copy" = yes && AC_DEFINE(HAVE___VA_COPY,1,[Define to 1 if we have __va_copy])
+if test "$cf_cv_have___va_copy" = yes
+then
+	AC_DEFINE(HAVE___VA_COPY,1,[Define to 1 if we have __va_copy])
+else # !cf_cv_have___va_copy
+
+AC_CACHE_CHECK(for __builtin_va_copy, cf_cv_have___builtin_va_copy,[
+AC_TRY_LINK([
+#include <stdarg.h>
+],[
+	static va_list dst;
+	static va_list src;
+	__builtin_va_copy(dst, src)],
+	cf_cv_have___builtin_va_copy=yes,
+	cf_cv_have___builtin_va_copy=no)])
+
+test "$cf_cv_have___builtin_va_copy" = yes &&
+	AC_DEFINE(HAVE___BUILTIN_VA_COPY,1,[Define to 1 if we have __builtin_va_copy])
+
+fi # cf_cv_have___va_copy
+
+fi # cf_cv_have_va_copy
+
+case "${cf_cv_have_va_copy}${cf_cv_have___va_copy}${cf_cv_have___builtin_va_copy}" in
+(*yes*)
+	;;
+
+(*)
+	AC_CACHE_CHECK(if we can simply copy va_list, cf_cv_pointer_va_list,[
+AC_TRY_LINK([
+#include <stdarg.h>
+],[
+	va_list dst;
+	va_list src;
+	dst = src],
+	cf_cv_pointer_va_list=yes,
+	cf_cv_pointer_va_list=no)])
+
+	if test "$cf_cv_pointer_va_list" = no
+	then
+		AC_CACHE_CHECK(if we can copy va_list indirectly, cf_cv_array_va_list,[
+AC_TRY_LINK([
+#include <stdarg.h>
+],[
+	va_list dst;
+	va_list src;
+	*dst = *src],
+			cf_cv_array_va_list=yes,
+			cf_cv_array_va_list=no)])
+		test "$cf_cv_array_va_list" = yes && AC_DEFINE(ARRAY_VA_LIST,1,[Define to 1 if we can copy va_list indirectly])
+	fi
+	;;
+esac
 ])
 dnl ---------------------------------------------------------------------------
 dnl CF_VERBOSE version: 3 updated: 2007/07/29 09:55:12
@@ -7965,6 +8362,32 @@ fi
 AC_SUBST(PKG_CONFIG_LIBDIR)
 ])dnl
 dnl ---------------------------------------------------------------------------
+dnl CF_WITH_PATH_PROG version: 1 updated: 2019/06/30 19:44:43
+dnl -----------------
+dnl Check for a given program, like CF_PATH_PROG, but allow override using a
+dnl "--with-xxx" option.
+dnl
+dnl Parameters:
+dnl		$1 = environment variable to set/update
+dnl		$2 = program name
+dnl		$3 = help-text
+dnl		$4 = $PATH
+AC_DEFUN([CF_WITH_PATH_PROG],[
+AC_ARG_WITH($2-path,
+	[  --with-$2-path=XXX     specify path of $2 ifelse($3,,,$3)],
+	[AC_MSG_CHECKING(for $2 program ifelse($3,,,$3))
+		$1=$withval
+		AC_MSG_RESULT([$]$1)
+		CF_PATH_SYNTAX($1)
+	],
+	[CF_PATH_PROG($1,$2,,ifelse($4,,,$4))
+		if test -z "[$]$1"
+		then
+			AC_MSG_WARN(no $2 program found ifelse($3,,,$3))
+		fi
+	])
+])
+dnl ---------------------------------------------------------------------------
 dnl CF_WITH_PTHREAD version: 7 updated: 2015/04/18 08:56:57
 dnl ---------------
 dnl Check for POSIX thread library.
@@ -8090,7 +8513,7 @@ CF_NO_LEAKS_OPTION(valgrind,
 	[USE_VALGRIND])
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_WITH_VERSIONED_SYMS version: 7 updated: 2015/10/24 20:50:26
+dnl CF_WITH_VERSIONED_SYMS version: 8 updated: 2018/10/20 20:24:34
 dnl ----------------------
 dnl Use this when building shared library with ELF, to markup symbols with the
 dnl version identifier from the given input file.  Generally that identifier is
@@ -8104,11 +8527,21 @@ AC_ARG_WITH(versioned-syms,
 	[  --with-versioned-syms=X markup versioned symbols using ld],
 	[with_versioned_syms=$withval],
 	[with_versioned_syms=no])
-if test "x$with_versioned_syms" = xyes
-then
+case "x$with_versioned_syms" in
+(xyes)
 	with_versioned_syms='${top_srcdir}/package/ifelse($1,,${PACKAGE},[$1]).map'
 	AC_SUBST(PACKAGE)
-fi
+	;;
+(xno)
+	;;
+(x/*)
+	test -f "$with_versioned_syms" || AC_MSG_ERROR(expected a filename: $with_versioned_syms)
+	;;
+(*)
+	test -f "$with_versioned_syms" || AC_MSG_ERROR(expected a filename: $with_versioned_syms)
+	with_versioned_syms=`pwd`/"$with_versioned_syms"
+	;;
+esac
 AC_MSG_RESULT($with_versioned_syms)
 
 RESULTING_SYMS=
@@ -8303,7 +8736,7 @@ fi
 AC_SUBST(no_x11_rgb)
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_XOPEN_SOURCE version: 53 updated: 2018/06/16 18:58:58
+dnl CF_XOPEN_SOURCE version: 55 updated: 2018/12/31 20:46:17
 dnl ---------------
 dnl Try to get _XOPEN_SOURCE defined properly that we can use POSIX functions,
 dnl or adapt to the vendor's definitions to get equivalent functionality,
@@ -8314,6 +8747,9 @@ dnl	$1 is the nominal value for _XOPEN_SOURCE
 dnl	$2 is the nominal value for _POSIX_C_SOURCE
 AC_DEFUN([CF_XOPEN_SOURCE],[
 AC_REQUIRE([AC_CANONICAL_HOST])
+AC_REQUIRE([CF_POSIX_VISIBLE])
+
+if test "$cf_cv_posix_visible" = no; then
 
 cf_XOPEN_SOURCE=ifelse([$1],,500,[$1])
 cf_POSIX_C_SOURCE=ifelse([$2],,199506L,[$2])
@@ -8333,7 +8769,7 @@ case $host_os in
 	cf_xopen_source="-D_DARWIN_C_SOURCE"
 	cf_XOPEN_SOURCE=
 	;;
-(freebsd*|dragonfly*)
+(freebsd*|dragonfly*|midnightbsd*)
 	# 5.x headers associate
 	#	_XOPEN_SOURCE=600 with _POSIX_C_SOURCE=200112L
 	#	_XOPEN_SOURCE=500 with _POSIX_C_SOURCE=199506L
@@ -8428,4 +8864,5 @@ make an error
 		CF_TRY_XOPEN_SOURCE
 	fi
 fi
+fi # cf_cv_posix_visible
 ])

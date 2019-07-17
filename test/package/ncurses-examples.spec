@@ -1,9 +1,9 @@
 Summary: example/test programs from ncurses
-%define AppProgram ncurses-examples
-%define AltProgram ncursest-examples
-%define AppVersion MAJOR.MINOR
-%define AppRelease YYYYMMDD
-# $Id: ncurses-examples.spec,v 1.12 2018/06/02 22:46:44 tom Exp $
+%global AppProgram ncurses-examples
+%global AltProgram ncursest-examples
+%global AppVersion MAJOR.MINOR
+%global AppRelease YYYYMMDD
+# $Id: ncurses-examples.spec,v 1.14 2019/02/03 01:17:27 tom Exp $
 Name: %{AppProgram}
 Version: %{AppVersion}
 Release: %{AppRelease}
@@ -52,7 +52,7 @@ CONFIGURE_TOP=%{my_srcdir} \
 	--prefix=%{_prefix} \
 	--bindir=%{_bindir}/%{AppProgram} \
 	--datadir=%{_datadir}/%{AppProgram} \
-	--with-screen=ncursesw6 \
+	--with-screen=ncursesw6dev \
 	--disable-rpath-hack
 
 make
@@ -68,7 +68,7 @@ CONFIGURE_TOP=%{my_srcdir} \
 	--prefix=%{_prefix} \
 	--bindir=%{_bindir}/%{AltProgram} \
 	--datadir=%{_datadir}/%{AltProgram} \
-	--with-screen=ncursestw6 \
+	--with-screen=ncursestw6dev \
 	--disable-rpath-hack
 
 make

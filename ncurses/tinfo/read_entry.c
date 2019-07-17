@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright (c) 1998-2017,2018 Free Software Foundation, Inc.              *
+ * Copyright (c) 1998-2018,2019 Free Software Foundation, Inc.              *
  *                                                                          *
  * Permission is hereby granted, free of charge, to any person obtaining a  *
  * copy of this software and associated documentation files (the            *
@@ -41,7 +41,7 @@
 
 #include <tic.h>
 
-MODULE_ID("$Id: read_entry.c,v 1.148 2018/04/14 17:43:37 tom Exp $")
+MODULE_ID("$Id: read_entry.c,v 1.154 2019/03/23 23:47:16 tom Exp $")
 
 #define TYPE_CALLOC(type,elts) typeCalloc(type, (unsigned)(elts))
 
@@ -57,9 +57,9 @@ convert_16bits(char *buf, NCURSES_INT2 *Numbers, int count)
     int i;
     size_t j;
     size_t size = SIZEOF_SHORT;
-    unsigned char ch;
     for (i = 0; i < count; i++) {
 	unsigned mask = 0xff;
+	unsigned char ch = 0;
 	Numbers[i] = 0;
 	for (j = 0; j < size; ++j) {
 	    ch = UChar(*buf++);
@@ -552,7 +552,7 @@ _nc_read_file_entry(const char *const filename, TERMTYPE2 *ptr)
     int code;
 
     if (_nc_access(filename, R_OK) < 0
-	|| (fp = fopen(filename, "rb")) == 0) {
+	|| (fp = fopen(filename, BIN_R)) == 0) {
 	TR(TRACE_DATABASE, ("cannot open terminfo %s (errno=%d)", filename, errno));
 	code = TGETENT_NO;
     } else {
@@ -749,10 +749,14 @@ _nc_read_tic_entry(char *filename,
        (T_CALLED("_nc_read_tic_entry(file=%p, path=%s, name=%s)"),
 	filename, path, name));
 
+    assert(TGETENT_YES == TRUE);	/* simplify call for _nc_name_match */
+
     if ((used = decode_quickdump(buffer, path)) != 0
 	&& (code = _nc_read_termtype(tp, buffer, used)) == TGETENT_YES
-	&& _nc_name_match(tp->term_names, name, "|")) {
+	&& (code = _nc_name_match(tp->term_names, name, "|")) == TGETENT_YES) {
 	TR(TRACE_DATABASE, ("loaded quick-dump for %s", name));
+	/* shorten name shown by infocmp */
+	_nc_STRCPY(filename, "$TERMINFO", limit);
     } else
 #if USE_HASHED_DB
 	if (make_db_filename(filename, limit, path)
@@ -817,7 +821,7 @@ _nc_read_tic_entry(char *filename,
 	code = _nc_read_file_entry(filename, tp);
     }
 #if NCURSES_USE_TERMCAP
-    else if (code != TGETENT_YES) {
+    if (code != TGETENT_YES) {
 	code = _nc_read_termcap_entry(name, tp);
 	_nc_SPRINTF(filename, _nc_SLIMIT(PATH_MAX)
 		    "%.*s", PATH_MAX - 1, _nc_get_source());

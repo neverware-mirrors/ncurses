@@ -84,7 +84,7 @@
 #define CUR SP_TERMTYPE
 #endif
 
-MODULE_ID("$Id: lib_mouse.c,v 1.178 2018/09/23 08:40:23 tom Exp $")
+MODULE_ID("$Id: lib_mouse.c,v 1.181 2018/11/24 17:28:37 tom Exp $")
 
 #include <tic.h>
 
@@ -605,7 +605,7 @@ initialize_mousetype(SCREEN *sp)
 #if USE_EMX_MOUSE
     if (!sp->_emxmouse_thread
 	&& strstr(SP_TERMTYPE term_names, "xterm") == 0
-	&& key_mouse) {
+	&& NonEmpty(key_mouse)) {
 	int handles[2];
 
 	if (pipe(handles) < 0) {
@@ -716,11 +716,8 @@ initialize_mousetype(SCREEN *sp)
     CallDriver(sp, td_initmouse);
 #else
     /* we know how to recognize mouse events under "xterm" */
-    if (key_mouse != 0) {
-	if (!strcmp(key_mouse, xterm_kmous)
-	    || strstr(SP_TERMTYPE term_names, "xterm") != 0) {
-	    init_xterm_mouse(sp);
-	}
+    if (NonEmpty(key_mouse)) {
+	init_xterm_mouse(sp);
     } else if (strstr(SP_TERMTYPE term_names, "xterm") != 0) {
 	if (_nc_add_to_try(&(sp->_keytry), xterm_kmous, KEY_MOUSE) == OK)
 	    init_xterm_mouse(sp);
@@ -1276,15 +1273,15 @@ decode_xterm_SGR1006(SCREEN *sp, MEVENT * eventp)
 	    } else {
 		eventp->bstate = REPORT_MOUSE_POSITION;
 	    }
-	    if (b & 4) {
-		eventp->bstate |= BUTTON_SHIFT;
-	    }
-	    if (b & 8) {
-		eventp->bstate |= BUTTON_ALT;
-	    }
-	    if (b & 16) {
-		eventp->bstate |= BUTTON_CTRL;
-	    }
+	}
+	if (b & 4) {
+	    eventp->bstate |= BUTTON_SHIFT;
+	}
+	if (b & 8) {
+	    eventp->bstate |= BUTTON_ALT;
+	}
+	if (b & 16) {
+	    eventp->bstate |= BUTTON_CTRL;
 	}
 	result = (eventp->bstate & REPORT_MOUSE_POSITION) ? TRUE : FALSE;
 	eventp->x = (data.params[1] ? (data.params[1] - 1) : 0);

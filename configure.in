@@ -1,5 +1,5 @@
 dnl***************************************************************************
-dnl Copyright (c) 1998-2017,2018 Free Software Foundation, Inc.              *
+dnl Copyright (c) 1998-2018,2019 Free Software Foundation, Inc.              *
 dnl                                                                          *
 dnl Permission is hereby granted, free of charge, to any person obtaining a  *
 dnl copy of this software and associated documentation files (the            *
@@ -28,14 +28,14 @@ dnl***************************************************************************
 dnl
 dnl Author: Thomas E. Dickey 1995-on
 dnl
-dnl $Id: configure.in,v 1.666 2018/10/13 19:32:11 tom Exp $
+dnl $Id: configure.in,v 1.688 2019/06/30 15:21:02 tom Exp $
 dnl Process this file with autoconf to produce a configure script.
 dnl
 dnl See https://invisible-island.net/autoconf/ for additional information.
 dnl
 dnl ---------------------------------------------------------------------------
 AC_PREREQ(2.52.20170501)
-AC_REVISION($Revision: 1.666 $)
+AC_REVISION($Revision: 1.688 $)
 AC_INIT(ncurses/base/lib_initscr.c)
 AC_CONFIG_HEADER(include/ncurses_cfg.h:include/ncurses_cfg.hin)
 
@@ -61,14 +61,14 @@ AC_ARG_WITH(ada,
 	[  --without-ada           suppress check for Ada95, don't build demo],
 	[cf_with_ada=$withval],
 	[cf_with_ada=yes])
+
 if test "x$cf_with_ada" = xyes
 then
-	cf_PROG_CC="gnatgcc gcc cc"
+	cf_prog_cc="gnatgcc gcc cc"
 else
-	cf_PROG_CC="gcc cc"
+	cf_prog_cc="gcc cc"
 fi
-
-CF_PROG_CC($cf_PROG_CC)
+CF_PROG_CC($cf_prog_cc)
 
 AC_PROG_CPP
 AC_PROG_GCC_TRADITIONAL
@@ -611,8 +611,39 @@ AC_ARG_WITH(fallbacks,
 	[with_fallback=$withval],
 	[with_fallback=])
 AC_MSG_RESULT($with_fallback)
-FALLBACK_LIST=`test "$with_fallback" != no && echo "$with_fallback" | sed -e 's/,/ /g'`
+
+case ".$with_fallback" in
+(.|.no)
+	FALLBACK_LIST=
+	;;
+(.yes)
+	AC_MSG_WARN(expected a list of terminal descriptions)
+	;;
+(*)
+	FALLBACK_LIST=`echo "$with_fallback" | sed -e 's/,/ /g'`
+	;;
+esac
+
+USE_FALLBACKS=
+test -z "$FALLBACK_LIST" && USE_FALLBACKS="#"
 AC_SUBST(FALLBACK_LIST)
+AC_SUBST(USE_FALLBACKS)
+
+# The fallback feature in ncurses relies upon tic/infocmp outside the build
+# tree for generating the terminal descriptions that will be compiled into the
+# library.  If your toolchain is old, it may not handle current terminal
+# databases.  Use configure-options to point to the tools which will be used,
+# rather than the first ones found on the $PATH.
+if test -n "$FALLBACK_LIST"
+then
+	CF_WITH_PATH_PROG(TIC,     tic,     [for fallbacks], $PATH:/usr/local/ncurses/bin)
+	CF_WITH_PATH_PROG(INFOCMP, infocmp, [for fallbacks], $PATH:/usr/local/ncurses/bin)
+else
+	: ${TIC:=tic}
+	: ${INFOCMP:=infocmp}
+fi
+AC_SUBST(TIC)
+AC_SUBST(INFOCMP)
 
 AC_MSG_CHECKING(if you want modern xterm or antique)
 AC_ARG_WITH(xterm-new,
@@ -661,6 +692,13 @@ CF_WITH_PATHLIST(terminfo-dirs,
 	${datadir}/terminfo)
 AC_MSG_RESULT($TERMINFO_DIRS)
 test -n "$TERMINFO_DIRS" && AC_DEFINE_UNQUOTED(TERMINFO_DIRS,"$TERMINFO_DIRS",[Define as needed to predefine the TERMINFO_DIR searchlist])
+
+case "x$TERMINFO" in
+x???:*)
+	AC_MSG_WARN(ignoring non-directory/file TERMINFO value)
+	unset TERMINFO
+	;;
+esac
 
 AC_MSG_CHECKING(for default terminfo directory)
 CF_WITH_PATH(default-terminfo-dir,
@@ -1621,6 +1659,14 @@ wctype.h \
 
 CF_GETOPT_HEADER
 
+CF_CHECK_ENVIRON(environ)
+CF_CHECK_GETENV
+if test "x$cf_cv_consistent_getenv" = xno && \
+	test "x$cf_with_trace" = xyes
+then
+	AC_MSG_WARN(The NCURSES_TRACE environment variable is not supported with this configuration)
+fi
+
 # check for ISC (this may also define _POSIX_SOURCE)
 # Note: even non-Posix ISC needs <sys/bsdtypes.h> to declare fd_set
 if test "x$ISC" = xyes ; then
@@ -1670,6 +1716,7 @@ geteuid \
 getopt \
 getttynam \
 issetugid \
+localeconv \
 poll \
 putenv \
 remove \
@@ -1684,7 +1731,6 @@ strdup \
 strstr \
 sysconf \
 tcgetpgrp \
-tdestroy \
 times \
 tsearch \
 vsnprintf \
@@ -1733,6 +1779,7 @@ CF_FUNC_MEMMOVE
 CF_FUNC_POLL
 CF_VA_COPY
 AC_FUNC_VFORK
+CF_FOPEN_BIN_R
 
 # special check for test/ditto.c
 CF_FUNC_OPENPTY
@@ -2190,16 +2237,6 @@ SUB_MAKEFILES="$SUB_MAKEFILES misc/gen-pkgconfig:misc/gen-pkgconfig.in"
 fi
 AC_SUBST(cross_compiling)
 
-AC_PATH_PROG(TIC_PATH,tic,unknown,$PATH:/usr/local/ncurses/bin)
-if test -n "$FALLBACK_LIST"
-then
-	if test "$TIC_PATH" = unknown
-	then
-		AC_MSG_WARN(no tic program found for fallbacks)
-	fi
-fi
-AC_SUBST(TIC_PATH)
-
 if test "x$cf_with_tests" != xno ; then
 	MAKE_TESTS=
 else
@@ -2300,6 +2337,13 @@ else
 fi
 AC_SUBST(MISC_INSTALL_DATA)
 AC_SUBST(MISC_UNINSTALL_DATA)
+
+if test "x$cf_with_db_install" = "xno" || test "x$TERMINFO_SRC" = "xno"; then
+	MAKE_DATABASE="#"
+else
+	MAKE_DATABASE="$MAKE_TERMINFO"
+fi
+AC_SUBST(MAKE_DATABASE)
 
 SUB_SCRIPTS=
 

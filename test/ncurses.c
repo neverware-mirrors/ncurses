@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright (c) 1998-2017,2018 Free Software Foundation, Inc.              *
+ * Copyright (c) 1998-2018,2019 Free Software Foundation, Inc.              *
  *                                                                          *
  * Permission is hereby granted, free of charge, to any person obtaining a  *
  * copy of this software and associated documentation files (the            *
@@ -40,7 +40,7 @@ AUTHOR
    Author: Eric S. Raymond <esr@snark.thyrsus.com> 1993
            Thomas E. Dickey (beginning revision 1.27 in 1996).
 
-$Id: ncurses.c,v 1.508 2018/09/22 21:21:43 tom Exp $
+$Id: ncurses.c,v 1.515 2019/04/20 20:34:11 tom Exp $
 
 ***************************************************************************/
 
@@ -2497,12 +2497,12 @@ color_test(bool recur GCC_UNUSED)
 
 #if USE_WIDEC_SUPPORT
 
-#if HAVE_INIT_EXTENDED_COLOR
+#if USE_EXTENDED_COLOR
 #define InitExtendedPair(p,f,g) init_extended_pair((p),(f),(g))
 #define ExtendedColorSet(p)     color_set((NCURSES_PAIRS_T) (p), &(p))
 #define EXTENDED_PAIRS_T int
 #else
-#define InitExtendedPair(p,f,g) init_pair((NCURSES_PAIRS_T) (p),(f),(g))
+#define InitExtendedPair(p,f,g) init_pair((NCURSES_PAIRS_T) (p),(NCURSES_COLOR_T)(f),(NCURSES_COLOR_T)(g))
 #define ExtendedColorSet(p)     color_set((NCURSES_PAIRS_T) (p), NULL)
 #define EXTENDED_PAIRS_T NCURSES_PAIRS_T
 #endif
@@ -3945,15 +3945,15 @@ merge_wide_attr(cchar_t *dst, const cchar_t *src, attr_t attr, NCURSES_PAIRS_T p
  * into account, use 256 characters for the page.
  */
 static void
-show_paged_widechars(int base,
-		     int pagesize,
+show_paged_widechars(unsigned base,
+		     unsigned pagesize,
 		     int repeat,
 		     int space,
 		     attr_t attr,
 		     NCURSES_PAIRS_T pair)
 {
-    int first = base * pagesize;
-    int last = first + pagesize - 1;
+    unsigned first = base * pagesize;
+    unsigned last = first + pagesize - 1;
     int per_line = 16;
     cchar_t temp;
     wchar_t code;
@@ -3964,8 +3964,8 @@ show_paged_widechars(int base,
     MvPrintw(0, 20, "Display of Character Codes %#x to %#x", first, last);
     attroff(A_BOLD);
 
-    for (code = (wchar_t) first; (int) code <= last; code++) {
-	int row = (2 + ((int) code - first) / per_line);
+    for (code = (wchar_t) first; code <= (wchar_t) last; code++) {
+	int row = (2 + (int) (code - (wchar_t) first) / per_line);
 	int col = 5 * ((int) code % per_line);
 	int count;
 
@@ -3986,20 +3986,20 @@ show_paged_widechars(int base,
 }
 
 static void
-show_upper_widechars(int first, int repeat, int space, attr_t attr, NCURSES_PAIRS_T pair)
+show_upper_widechars(unsigned first, int repeat, int space, attr_t attr, NCURSES_PAIRS_T pair)
 {
     cchar_t temp;
     wchar_t code;
-    int last = first + 31;
+    unsigned last = first + 31;
 
     erase();
     attron(A_BOLD);
     MvPrintw(0, 20, "Display of Character Codes %d to %d", first, last);
     attroff(A_BOLD);
 
-    for (code = (wchar_t) first; (int) code <= last; code++) {
-	int row = 2 + ((code - first) % 16);
-	int col = ((code - first) / 16) * COLS / 2;
+    for (code = (wchar_t) first; code <= (wchar_t) last; code++) {
+	int row = 2 + ((int) (code - (wchar_t) first) % 16);
+	int col = ((int) (code - (wchar_t) first) / 16) * COLS / 2;
 	wchar_t codes[10];
 	char tmp[80];
 	int count = repeat;
@@ -4355,10 +4355,10 @@ static int
 x_acs_test(bool recur GCC_UNUSED)
 {
     int c = 'a';
-    int digit = 0;
+    unsigned digit = 0;
     int repeat = 1;
     int space = ' ';
-    int pagesize = 32;
+    unsigned pagesize = 32;
     attr_t attr = WA_NORMAL;
     int fg = COLOR_BLACK;
     int bg = COLOR_BLACK;
@@ -4367,7 +4367,10 @@ x_acs_test(bool recur GCC_UNUSED)
     void (*last_show_wacs) (int, attr_t, NCURSES_PAIRS_T) = 0;
     W_ATTR_TBL my_list[SIZEOF(w_attrs_to_test)];
     unsigned my_size = init_w_attr_list(my_list, term_attrs());
+    char at_page[20];
+    bool pending_code = FALSE;
 
+    at_page[0] = '\0';
     do {
 	switch (c) {
 	case CTRL('L'):
@@ -4399,15 +4402,40 @@ x_acs_test(bool recur GCC_UNUSED)
 	case 'u':
 	    ToggleAcs(last_show_wacs, show_utf8_chars);
 	    break;
+	case '@':
+	    pending_code = !pending_code;
+	    if (pending_code) {
+		_nc_SPRINTF(at_page, _nc_SLIMIT(sizeof(at_page)) "%02x", digit);
+	    } else if (at_page[0] != '\0') {
+		_nc_SPRINTF(at_page, _nc_SLIMIT(sizeof(at_page)) "%x", digit);
+	    }
+	    break;
 	default:
-	    if (c < 256 && isdigit(c)) {
-		digit = (c - '0');
+	    if (pending_code && isxdigit(c)) {
+		size_t len = strlen(at_page);
+		if (len && at_page[0] == '0') {
+		    memmove(at_page, at_page + 1, len--);
+		}
+		if (len < sizeof(at_page) - 1) {
+		    at_page[len++] = (char) c;
+		    at_page[len] = '\0';
+		}
+	    } else if (pending_code
+		       && (c == '\b' || c == KEY_BACKSPACE || c == KEY_DC)) {
+		size_t len = strlen(at_page);
+		if (len)
+		    at_page[--len] = '\0';
+	    } else if (c < 256 && isdigit(c)) {
+		digit = (unsigned) (c - '0');
 		last_show_wacs = 0;
 	    } else if (c == '+') {
 		++digit;
+		_nc_SPRINTF(at_page, _nc_SLIMIT(sizeof(at_page)) "%02x", digit);
 		last_show_wacs = 0;
 	    } else if (c == '-' && digit > 0) {
 		--digit;
+		_nc_SPRINTF(at_page, _nc_SLIMIT(sizeof(at_page)) "%02x",
+			    UChar(digit));
 		last_show_wacs = 0;
 	    } else if (c == '>' && repeat < (COLS / 4)) {
 		++repeat;
@@ -4435,7 +4463,11 @@ x_acs_test(bool recur GCC_UNUSED)
 	}
 
 	MvPrintw(LINES - 4, 0,
-		 "Select: a/d/t WACS, w=all x=box, u UTF-8, ^L repaint");
+		 "Select: a/d/t WACS, w=%d/page, @",
+		 pagesize);
+	printw("%s",
+	       pending_code ? at_page : "page");
+	addstr(", x=box, u UTF-8, ^L repaint");
 	MvPrintw(LINES - 3, 2,
 		 "0-9,+/- non-ASCII, </> repeat, _ space, ESC=quit");
 	if (UseColors) {
@@ -7844,7 +7876,7 @@ main(int argc, char *argv[])
 {
     int c;
     int my_e_param = 1;
-#ifdef NCURSES_VERSION
+#if HAVE_USE_DEFAULT_COLORS
     int default_fg = COLOR_WHITE;
     int default_bg = COLOR_BLACK;
     bool assumed_colors = FALSE;
@@ -7860,7 +7892,7 @@ main(int argc, char *argv[])
 
     while ((c = getopt(argc, argv, "a:dEe:fhmp:s:Tt:x")) != -1) {
 	switch (c) {
-#ifdef NCURSES_VERSION
+#if HAVE_USE_DEFAULT_COLORS
 	case 'a':
 	    assumed_colors = TRUE;
 	    switch (sscanf(optarg, "%d,%d", &default_fg, &default_bg)) {

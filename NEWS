@@ -1,5 +1,5 @@
 -------------------------------------------------------------------------------
--- Copyright (c) 1998-2017,2018 Free Software Foundation, Inc.               --
+-- Copyright (c) 1998-2018,2019 Free Software Foundation, Inc.               --
 --                                                                           --
 -- Permission is hereby granted, free of charge, to any person obtaining a   --
 -- copy of this software and associated documentation files (the             --
@@ -25,7 +25,7 @@
 -- sale, use or other dealings in this Software without prior written        --
 -- authorization.                                                            --
 -------------------------------------------------------------------------------
--- $Id: NEWS,v 1.3199 2018/10/13 19:31:51 tom Exp $
+-- $Id: NEWS,v 1.3347 2019/07/13 23:10:57 tom Exp $
 -------------------------------------------------------------------------------
 
 This is a log of changes that ncurses has gone through since Zeyd started
@@ -44,6 +44,294 @@ See the AUTHORS file for the corresponding full names.
 
 Changes through 1.9.9e did not credit all contributions;
 it is not possible to add this information.
+
+20190713
+	+ change reset's behavior for margins to simply clear soft-margins if
+	  possible, rather than clearing and then setting them according to the
+	  terminal's width (suggested by Thomas Wolff).
+	+ correct order of one wbkgd versus start_color call in test/padview.c
+
+20190706
+	+ add domterm -TD
+	+ improve comments for recent changes, add alias xterm.js -TD
+
+20190630
+	+ add --with-tic-path and --with-infocmp-path to work around problems
+	  building fallback source using pre-6.0 tic/infocmp.
+	+ add a check in tic for paired indn/rin
+	+ correct a buffer-limit in write_entry.c for systems that use caseless
+	  filenames.
+	+ add ms-terminal -TD
+	+ add vscode, vscode-direct -TD
+
+20190623
+	+ improve the tabs.1 manual page to distinguish the PWB/Unix and 7th
+	  Edition versions of the tabs utility.
+	+ add configure check for getenv() to work around implementation shown
+	  in Emscripten #6766, use that to optionally suppress START_TRACE
+	  macro, whose call to getenv() may not work properly (report by Ilya
+	  Ig Petrov).
+	+ modify initialization functions to avoid relying upon persistent
+	  data for the result from getenv().
+	+ update config.guess, config.sub
+
+20190615
+	+ expand the portability section of the man/tabs.1 manual page.
+	+ regenerate HTML manpages.
+
+20190609
+	+ add mintty, mintty-direct (adapted from patch by Thomas Wolff).
+	  Some of the suggested user-defined capabilities are commented-out,
+	  to allow builds with ncurses 5.9 and 6.0
+	+ add Smol/Rmol for tmux, vte-2018 (patch by Nicholas Marriott).
+	+ add rs1 to konsole, mlterm -TD
+	+ modify _nc_merge_entry() to make a copy of the data which it merges,
+	  to avoid modifying the source-data when aligning extended names.
+
+20190601
+	+ modify an internal call to vid_puts to pass extended color pairs
+	  e.g., from tty_update.c and lib_mvcur.c (report by Niegodziwy Beru).
+	+ improve manual page description of init_tabs capability and TABSIZE
+	  variable.
+
+20190525
+	+ modify reset_cmd.c to allow for tabstops at intervals other than 8
+	  (report by Vincent Huisman).
+
+20190518
+	+ update xterm-new to xterm patch #345 -TD
+	+ add/use xterm+keypad in xterm-new (report by Alain D D Williams) -TD
+	+ update terminator entry -TD
+	+ remove hard-tabs from ti703 (report by Robert Clausecker)
+	+ mention meml/memu/box1 in user_caps manual page.
+	+ mention user_caps.5 in tic and infocmp manual pages.
+
+20190511
+	+ fix a spurious blank line seen with "infocmp -1fx xterm+x11mouse"
+	+ add checks in repair_subwindows() to keep the current position and
+	  scroll-margins inside the resized subwindow.
+	+ add a limit check in newline_forces_scroll() for the case where the
+	  row is inside scroll-margins, but not at the end (report by Toshio
+	  Kuratomi, cf: 20170729).
+	+ corrected a warning message in tic for extended capabilities versus
+	  number of parameters.
+
+20190504
+	+ improve workaround for Solaris wcwidth versus line-drawing characters
+	  (report by Pavel Stehule).
+	+ add special case in tic to validate RGB string-capability extension.
+	+ corrected string/parameter-field for RGB in Caps-ncurses.
+
+20190427
+	+ corrected problem in terminfo load/realignment which prevented
+	  infocmp from comparing extended capabilities with the same name
+	  but different types.
+
+20190420
+	+ improve ifdef's for TABSIZE variable, to help with AIX/HPUX ports.
+
+20190413
+	+ check for TABSIZE variable in test/configure script.
+	+ used test/test_arrays.c to improve Caps.aix1 and Caps.hpux11
+	+ corrected filtering of comments in MKparametrized.sh
+	+ reduce duplication across Caps* files by moving some parts which do
+	  not depend on order into Caps-ncurses.
+
+20190406
+	+ modify MKcaptab.sh, MKkey_defs.sh, and MKhashsize.sh to handle
+	  split-up Caps-files.
+	+ build-fixes if extended-functions are disabled.
+
+20190330
+	+ add "screen5", to mention italics (report by Stefan Assmann)
+	+ modify description of xterm+x11hilite to eliminate unused p5 -TD
+	+ add configure script checks to help with a port to Ultrix 3.1
+	  (report by Dennis Grevenstein).
+	  + check if "b" binary feature of fopen works
+	  + check for missing feature of locale.h
+	  + add fallback for strstr() in test-programs
+	  + add fallback for STDOUT_FILENO in test-programs
+	+ update config.guess, config.sub
+
+20190323
+	+ move macro for is_linetouched() inside NCURSES_NOMACROS ifndef.
+	+ corrected prototypes in several manpages using script to extract
+	  those in compilable form.
+	+ use _nc_copy_termtype2() rather than direct assignment in setupterm,
+	  in case it is called repeatedly using fallback terminfo descriptions
+	  (report/patch by Werner Fink).
+
+20190317
+	+ regenerate llib-* files.
+	+ modify tic to also use new function for user-defined capability info.
+	+ modify _nc_parse_entry() to check if a user-defined capability has
+	  an unexpected type; ignore it in that case.
+	+ fix a special case of link-anchors in generated Ada html files.
+	+ use newer rel=author tag in generated html rather than rev=made,
+	  which did not become accepted.
+
+20190309
+	+ in-progress changes to add parameter-checking for common user-defined
+	  capabilities in tic.
+	+ update MKcodes.awk and MKnames.awk to ignore the new "userdef"
+	  data in Caps-ncurses (cf: 20190302).
+
+20190302
+	+ corrected some of the undocumented terminfo names in Caps.hpux11
+	+ add "Caps-ncurses" file to help with checking inconsistencies in some
+	  user-defined capabilities.
+	+ amend check for repeat_char to handle a case where setlocale() was
+	  called after initscr() (report by "Ampera").
+
+20190223
+	+ fix typo in adds200 -TD
+	+ add tic check for consistent alternate character set capabilities.
+	+ improve check in mvcur() to decide whether to use hard-tabs, using
+	  xt, tbc and hts as clues.
+	+ replace check in reset command for obsolete "pt" capability using
+	  tbc and hts capabilities as clues (report by Nicolas Marriott).
+
+20190216
+	+ improve manual page description of TABSIZE.
+	+ add test/demo_tabs program.
+
+20190209
+	+ add check in tic to provide warnings for mismatched number of
+	  parameters in the documented user-capability extensions.
+
+20190202
+	+ modify rpm test-package ".spec" file to work around naming conflict
+	  with Redhat's package for ncurses6.
+	+ modify no-leaks code in test/picsmap to avoid non-standard tdestroy.
+	+ amend change to configure script which altered the top-level makefile
+	  to avoid attempting to install the terminfo database when it was not
+	  configured, to allow for installing the ".pc" files which are also
+	  in the misc directory (report by Steve Wills).
+
+20190126
+	+ change some "%define" statements in test-packages for RPMs to
+	  "%global" to work around changes in rpm 4.14 from recent Redhat.
+	+ fixes for O_INPUT_FIELD extension (patch by Leon Winter).
+	+ eliminate fixed buffer-size when reading $TERMCAP variable.
+	+ correct logic in read_entry.c which prevented $TERMCAP variable from
+	  being interpreted as a fallback to terminfo entry (prompted by
+	  Savannah #54556, cf: 20110924).
+
+20190121
+	+ add a check in test/configure to work around non-ncurses termcap.h
+	  file in Slackware.
+	+ corrected flag for "seq" method of db 1.8.5 interface, needed by toe
+	  on some of the BSDs.
+	+ updated "string-hacks" feature.
+	+ minor improvements to manpage typography.
+	+ corrected conditionally-compiled limit on color pairs (report by
+	  "Hudd").
+	+ add -x option to test/pair_content, test/color_content for testing
+	  init_extended_pair, extended_pair_content, init_extended_color,
+	  extended_color_content
+	+ add -p option to test/pair_content, test/color_content to show the
+	  return values from the tested functions.
+	+ improve manual page curs_color.3x discussion of error returns and
+	  extensions.
+	+ add O_INPUT_FIELD extension to form library (patch by Leon Winter).
+	+ override/suppress --enable-db-install if --disable-database configure
+	  option was given.
+	+ change a too-large terminal entry in tic from a fatal error to a
+	  warning (prompted by discussion with Gabriele Balducci).
+
+20190112
+	+ fix typo in term(5), improve explanation of format (report by Otto
+	  Modinos).
+	+ add nsterm-direct -TD
+	+ use SGR 1006 mouse for konsole-base -TD
+	+ use SGR 1006 mouse for putty -TD
+	+ add ti703/ti707, ti703-w/ti707-w (Robert Clausecker)
+
+20190105
+	+ add dummy "check" rule in top-level and test-Makefile to simply
+	  building test-packages for Arch.
+	+ modify configure script to avoid conflict with a non-POSIX feature
+	  that enables all parts of the system headers by default.  Some
+	  packagers have come to rely upon this behavior (FreeBSD #234049).
+	+ update config.guess, config.sub
+
+20181229
+	+ improve man/curs_mouse.3x with regard to xterm
+	+ modify tracemunch to accept filename parameters in addition to use
+	  as a pipe/filter.
+	+ minor optimization to reduce calls to _nc_reserve_pairs (prompted by
+	  discussion with Bryan Christ).
+	+ add test/pair_content.c and test/color_content.c
+	+ modify infocmp to omit filtering of "OTxx" names which are used for
+	  obsolete capabilities, when the output is sorted by long-names.
+	  Doing this helps when making a table of the short/long capability
+	  names.
+
+20181215
+	+ several fixes for gcc8 strict compiler warnings.
+	+ fix a typo in comments (Aaron Gyes).
+	+ add nsterm-build309 to replace nsterm-256color, assigning the latter
+	  as an alias of nsterm, to make mouse work with nsterm-256color -TD
+	+ base gnome-256color entry on "gnome", not "vte", for consistency -TD
+	+ updates for configure macros from work on tin and xterm:
+	  + CF_GNU_SOURCE, allow for Cygwin's newlib when checking for the
+	    _DEFAULT_SOURCE symbol.
+	  + CF_VA_COPY, add fallback check if neither va_copy/__va_copy is
+	    supported, to try copying the pointers for va_list, or as an array.
+	    Also add another fallback check, for __builtin_va_copy(), which
+	    could be used with AIX xlc in c89 mode.
+
+20181208
+	+ modify wbkgd() and wbkgrnd() to improve compatibility with SVr4
+	  curses, changing the way the window rendition is updated when the
+	  background character is modified (report by Valery Ushakov).
+
+20181201
+	+ add midnightbsd to CF_XOPEN_SOURCE macro (patch by Urs Jansen).
+	+ add "@" command to test/ncurses F-test, to allow rapid jump to
+	  different character pages.
+	+ update config.guess, config.sub from
+		http://git.savannah.gnu.org/cgit/config.git
+
+20181125
+	+ build-fix (reports by Chih-Hsuan Yen, Sven Joachim).
+
+20181124
+	+ check --with-fallbacks option to ensure there is a value, and add
+	  the fallback information to top-level Makefile summary.
+	+ add some traces in initialization to show whether a fallback entry is
+	  used.
+	+ build-fix for test/movewindow with ncurses-examples on Solaris.
+	+ add "-l" option to test/background, to dump screen contents in a form
+	  that lets different curses implementations be compared.
+	+ modify the initialization checks for mouse so that the xterm+sm+1006
+	  block will work with terminal descriptions not mentioning xterm
+	  (report by Tomas Janousek).
+
+20181117
+	+ ignore the hex/b64 $TERMINFO in toe's listing.
+	+ correct a status-check in _nc_read_tic_entry() so that if reading
+	  a hex/b64 $TERMINFO, and the $TERM does not match, fall-through to
+	  the compiled-in search list.
+
+20181110
+	+ several workarounds to ensure proper C compiler used in parts of
+	  Ada95 tree.
+	+ update config.guess, config.sub from
+		http://git.savannah.gnu.org/cgit/config.git
+
+20181027
+	+ add OpenGL clients alacritty and kitty -TD
+	+ add Smulx for tmux, vte-2018 -Nicholas Marriott
+
+20181020
+	+ ignore $TERMINFO as a default value in configure script if it came
+	  from the infocmp -Q option.
+	+ allow value for --with-versioned-syms to be a relative pathname
+	+ add a couple of broken-linker symbols to the list of versioned
+	  symbols to help with link-time optimization versus weak symbols.
+	+ apply shift/control/alt logic when decoding xterm's 1006 mode to
+	  wheel-mouse events (Redhat #1610681).
 
 20181013
 	+ amend change from 20180818, which undid a fix for the $INSTALL value
@@ -9236,7 +9524,7 @@ it is not possible to add this information.
 20000701 pre-release
 	+ change minor version to 1, i.e., ncurses 5.1
 	+ add experimental configure option --enable-colorfgbg to check for
-	  $COLORTERM variable as set by rxvt/aterm/Eterm.
+	  $COLORFGBG variable as set by rxvt/aterm/Eterm.
 	+ add Eterm terminfo entry (Michael Jennings <mej@valinux.com>).
 	+ modify manlinks.sed to pick aliases from the SYNOPSIS section, and
 	  several manpages so manlinks.sed can find aliases for creating
