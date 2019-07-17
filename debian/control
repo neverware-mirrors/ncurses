@@ -3,7 +3,7 @@ Section: libs
 Priority: required
 Maintainer: Craig Small <csmall@debian.org>
 Uploaders: Sven Joachim <svenjoac@gmx.de>
-Build-Depends: debhelper (>= 11~),
+Build-Depends: debhelper-compat (= 12),
                libgpm-dev [linux-any],
                pkg-config,
                autoconf-dickey (>= 2.52+20170501),
