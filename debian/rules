@@ -376,12 +376,12 @@ clean:
 	dh_clean
 
 install-indep: build-indep
-	# Generate proper debhelper files for so-named packages
 	dh_testdir
 	dh_testroot
 	dh_prep
 
-	# Install non -DTRACE versions.
+	# We need the tinfo and tic libraries from the wide build, so install the
+	# non-wide libraries first and overwrite their tinfo tic libraries later.
 	$(MAKE) -C $(objdir) install.libs
 	rm -f $(tempdir)/usr/lib/$(DEB_HOST_MULTIARCH)/libtinfo.so*
 	rm -f $(tempdir)/usr/lib/$(DEB_HOST_MULTIARCH)/libtic.so*
