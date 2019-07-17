@@ -525,6 +525,7 @@ endif
 	dh_installdirs -a
 
 	# Strip the packages, shipping detached debugging symbols.
+	dh_dwz -a
 	dh_strip -a
 	dh_lintian -a
 	dh_link -a
