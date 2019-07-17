@@ -41,9 +41,6 @@ package-dev-32=lib32ncurses-dev
 package-dev-64=lib64ncurses-dev
 package-devti=libtinfo-dev
 package-devw=libncursesw5-dev
-package-dbg=libncurses$(soname)-dbg
-package-dbgw=libncursesw$(soname)-dbg
-package-dbgti=libtinfo$(soname)-dbg
 package-term=ncurses-term
 package-examples=ncurses-examples
 package-lib-legacy=libncurses5
@@ -528,10 +525,7 @@ endif
 	dh_installdirs -a
 
 	# Strip the packages, shipping detached debugging symbols.
-	dh_strip -a -N$(package-lib) -N$(package-libw) -N$(package-ti)
-	dh_strip -p$(package-lib) --dbg-package=$(package-dbg)
-	dh_strip -p$(package-libw) --dbg-package=$(package-dbgw)
-	dh_strip -p$(package-ti) --dbg-package=$(package-dbgti)
+	dh_strip -a
 	dh_lintian -a
 	dh_link -a
 	dh_compress -p$(package-examples) usr/lib/ncurses/examples/README

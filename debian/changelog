@@ -9,6 +9,7 @@ ncurses (6.1+20190713-1) UNRELEASED; urgency=low
   * Update symbols files for new symbol _nc_find_user_entry.
   * Bump debhelper compatibility level to 12.
     - Build-depend on debhelper-compat (= 12) and drop debian/compat.
+  * Drop the -dbg packages (Closes: #849003).
 
  -- Sven Joachim <svenjoac@gmx.de>  Wed, 17 Jul 2019 19:03:20 +0200
 

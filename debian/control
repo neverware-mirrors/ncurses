@@ -86,19 +86,6 @@ Depends: libtinfo6 (= ${binary:Version}), libncurses-dev (= ${binary:Version}),
 Description: transitional package for libncurses-dev
  This is a transitional package that can safely be removed.
 
-Package: libtinfo6-dbg
-Architecture: any
-Section: debug
-Priority: optional
-Multi-Arch: same
-Depends: libtinfo6 (= ${binary:Version}),
-         ${misc:Depends}
-Description: debugging/profiling library for the low-level terminfo library
- The ncurses library routines are a terminal-independent method of
- updating character screens with reasonable optimization.
- .
- This package contains detached debugging symbols for libtinfo6.
-
 Package: libncurses5-dev
 Architecture: any
 Section: oldlibs
@@ -108,19 +95,6 @@ Depends: libtinfo6 (= ${binary:Version}), libncurses-dev (= ${binary:Version}),
          ${misc:Depends}
 Description: transitional package for libncurses-dev
  This is a transitional package that can safely be removed.
-
-Package: libncurses6-dbg
-Architecture: any
-Section: debug
-Priority: optional
-Multi-Arch: same
-Depends: libtinfo6 (= ${binary:Version}), libncurses6 (= ${binary:Version}),
-         libtinfo6-dbg (= ${binary:Version}), ${misc:Depends}
-Description: debugging/profiling libraries for ncurses
- The ncurses library routines are a terminal-independent method of
- updating character screens with reasonable optimization.
- .
- This package contains detached debugging symbols for libncurses6.
 
 Package: libncursesw6
 Architecture: any
@@ -145,21 +119,6 @@ Depends: libtinfo6 (= ${binary:Version}), libncurses-dev (= ${binary:Version}),
          ${misc:Depends}
 Description: transitional package for libncurses-dev
  This is a transitional package that can safely be removed.
-
-Package: libncursesw6-dbg
-Architecture: any
-Section: debug
-Priority: optional
-Multi-Arch: same
-Depends: libtinfo6 (= ${binary:Version}), libtinfo6-dbg (= ${binary:Version}),
-         libncursesw6 (= ${binary:Version}), ${misc:Depends}
-Description: debugging/profiling libraries for ncursesw
- The ncurses library routines are a terminal-independent method of
- updating character screens with reasonable optimization.
- .
- This package contains detached debugging symbols for libncursesw6.
- .
- This package includes support for wide characters.
 
 Package: lib64tinfo6
 Architecture: i386 powerpc sparc s390
