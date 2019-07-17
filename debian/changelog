@@ -1,3 +1,9 @@
+ncurses (6.1+20190713-1) UNRELEASED; urgency=low
+
+  * New upstream patchlevel.
+
+ -- Sven Joachim <svenjoac@gmx.de>  Wed, 17 Jul 2019 19:03:20 +0200
+
 ncurses (6.1+20181013-2) unstable; urgency=medium
 
   * Add Breaks against libmono-corlib4.5-cil (<< 4.6.2.7+dfsg-2)
