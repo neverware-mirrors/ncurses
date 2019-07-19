@@ -7,6 +7,8 @@ ncurses (6.1+20190713-1) UNRELEASED; urgency=low
     upstream change which inadvertently installed the tabs.1 manpage
     as a dangling symlink.
   * Update symbols files for new symbol _nc_find_user_entry.
+  * Move the tmux and tmux-256color terminfo entries to ncurses-base
+    (Closes: #927973).
   * Bump debhelper compatibility level to 12.
     - Build-depend on debhelper-compat (= 12) and drop debian/compat.
   * Drop the -dbg packages (Closes: #849003).

@@ -182,7 +182,7 @@ libterminfofiles=a/ansi c/cons25 c/cons25-debian c/cygwin d/dumb h/hurd l/linux 
 	v/vt220 v/vt52 x/xterm x/xterm-debian x/xterm-xfree86 x/xterm-color \
 	x/xterm-mono x/xterm-r5 x/xterm-r6 x/xterm-vt220 \
 	x/xterm-256color s/screen-256color s/screen-256color-bce \
-	s/screen.xterm-256color w/wsvt25 w/wsvt25m E/Eterm E/Eterm-color
+	s/screen.xterm-256color t/tmux t/tmux-256color w/wsvt25 w/wsvt25m E/Eterm E/Eterm-color
 
 # Blacklist terminfo entries shipped by other Debian packages so that we do
 # not begin shipping them by accident.
