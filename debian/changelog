@@ -1,4 +1,4 @@
-ncurses (6.1+20190713-1) UNRELEASED; urgency=low
+ncurses (6.1+20190713-1) unstable; urgency=low
 
   * New upstream patchlevel.
   * Refresh patch 02-debian-backspace.diff after upstream changes to
@@ -16,7 +16,7 @@ ncurses (6.1+20190713-1) UNRELEASED; urgency=low
   * Update years in debian/copyright.
   * Upgrade Standards-Version to 4.4.0, no changes needed.
 
- -- Sven Joachim <svenjoac@gmx.de>  Wed, 17 Jul 2019 19:03:20 +0200
+ -- Sven Joachim <svenjoac@gmx.de>  Fri, 19 Jul 2019 17:14:25 +0200
 
 ncurses (6.1+20181013-2) unstable; urgency=medium
 
