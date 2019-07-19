@@ -13,6 +13,7 @@ ncurses (6.1+20190713-1) UNRELEASED; urgency=low
     - Build-depend on debhelper-compat (= 12) and drop debian/compat.
   * Drop the -dbg packages (Closes: #849003).
   * Reduce the size of the -dbgsym packages with dh_dwz.
+  * Update years in debian/copyright.
   * Upgrade Standards-Version to 4.4.0, no changes needed.
 
  -- Sven Joachim <svenjoac@gmx.de>  Wed, 17 Jul 2019 19:03:20 +0200
