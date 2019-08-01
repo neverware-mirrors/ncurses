@@ -1,9 +1,9 @@
-ncurses (6.1+20190713-2) UNRELEASED; urgency=medium
+ncurses (6.1+20190713-2) unstable; urgency=medium
 
   * Drop "rep" from xterm-new and derived terminfo descriptions
     (Closes: #933053).
 
- -- Sven Joachim <svenjoac@gmx.de>  Sat, 27 Jul 2019 09:36:50 +0200
+ -- Sven Joachim <svenjoac@gmx.de>  Thu, 01 Aug 2019 18:12:18 +0200
 
 ncurses (6.1+20190713-1) unstable; urgency=low
 
