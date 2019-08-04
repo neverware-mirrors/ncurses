@@ -43,7 +43,7 @@
 
 #include <ctype.h>
 
-MODULE_ID("$Id: make_hash.c,v 1.26 2019/03/10 01:10:15 tom Exp $")
+MODULE_ID("$Id: make_hash.c,v 1.28 2019/07/27 23:06:54 tom Exp $")
 
 /*
  *	_nc_make_hash_table()
@@ -220,18 +220,24 @@ parse_columns(char *buffer)
 static char *
 get_type(int type_mask)
 {
-    static char result[40];
+    static char result[80];
     unsigned n;
-    strcpy(result, L_PAREN);
+    _nc_STRCPY(result, L_PAREN, sizeof(result));
     for (n = 0; n < 3; ++n) {
 	if ((1 << n) & type_mask) {
+	    size_t want = 5 + strlen(typenames[n]);
+	    if (want > sizeof(result)) {
+		fprintf(stderr, "Buffer is not large enough for %s + %s\n",
+			result, typenames[n]);
+		exit(EXIT_FAILURE);
+	    }
 	    if (result[1])
-		strcat(result, "|");
-	    strcat(result, "1<<");
-	    strcat(result, typenames[n]);
+		_nc_STRCAT(result, "|", sizeof(result));
+	    _nc_STRCAT(result, "1<<", sizeof(result));
+	    _nc_STRCAT(result, typenames[n], sizeof(result));
 	}
     }
-    strcat(result, R_PAREN);
+    _nc_STRCAT(result, R_PAREN, sizeof(result));
     return result;
 }
 
