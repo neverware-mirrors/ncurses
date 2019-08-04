@@ -1,6 +1,8 @@
 ncurses (6.1+20190803-1) UNRELEASED; urgency=medium
 
   * New upstream patchlevel.
+    - Amend the change to screen, because tmux relies upon that entry
+      and does not support that feature (Closes: #933572).
   * Drop patch fix-tabs-manpage-installation.diff, applied upstream.
   * Refresh patch 02-debian-backspace.diff after upstream changes to
     the screen terminfo description.
