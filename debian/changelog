@@ -1,3 +1,9 @@
+ncurses (6.1+20190803-1) UNRELEASED; urgency=medium
+
+  * New upstream patchlevel.
+
+ -- Sven Joachim <svenjoac@gmx.de>  Sun, 04 Aug 2019 11:14:58 +0200
+
 ncurses (6.1+20190713-2) unstable; urgency=medium
 
   * Drop "rep" from xterm-new and derived terminfo descriptions
