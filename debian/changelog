@@ -1,3 +1,10 @@
+ncurses (6.1+20181013-2+deb10u1) buster; urgency=medium
+
+  * Drop "rep" from xterm-new and derived terminfo descriptions
+    (Closes: #933053).
+
+ -- Sven Joachim <svenjoac@gmx.de>  Mon, 05 Aug 2019 20:03:21 +0200
+
 ncurses (6.1+20181013-2) unstable; urgency=medium
 
   * Add Breaks against libmono-corlib4.5-cil (<< 4.6.2.7+dfsg-2)
