@@ -1,4 +1,4 @@
-ncurses (6.1+20190803-1) UNRELEASED; urgency=medium
+ncurses (6.1+20190803-1) unstable; urgency=medium
 
   * New upstream patchlevel.
     - Amend the change to screen, because tmux relies upon that entry
@@ -9,7 +9,7 @@ ncurses (6.1+20190803-1) UNRELEASED; urgency=medium
   * Refresh patch 02-debian-backspace.diff after upstream changes to
     the screen terminfo description.
 
- -- Sven Joachim <svenjoac@gmx.de>  Sun, 04 Aug 2019 11:14:58 +0200
+ -- Sven Joachim <svenjoac@gmx.de>  Thu, 08 Aug 2019 17:39:10 +0200
 
 ncurses (6.1+20190713-2) unstable; urgency=medium
 
