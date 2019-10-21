@@ -1,6 +1,7 @@
 ncurses (6.1+20191019-1) UNRELEASED; urgency=medium
 
   * New upstream patchlevel.
+  * Refresh patch 03-debian-ncursesconfig-omit-L.diff.
 
  -- Sven Joachim <svenjoac@gmx.de>  Mon, 21 Oct 2019 18:49:24 +0200
 
