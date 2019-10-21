@@ -1,5 +1,5 @@
 dnl***************************************************************************
-dnl Copyright (c) 2010-2017,2018 Free Software Foundation, Inc.              *
+dnl Copyright (c) 2010-2018,2019 Free Software Foundation, Inc.              *
 dnl                                                                          *
 dnl Permission is hereby granted, free of charge, to any person obtaining a  *
 dnl copy of this software and associated documentation files (the            *
@@ -28,7 +28,7 @@ dnl***************************************************************************
 dnl
 dnl Author: Thomas E. Dickey
 dnl
-dnl $Id: aclocal.m4,v 1.142 2019/01/01 01:46:17 tom Exp $
+dnl $Id: aclocal.m4,v 1.146 2019/09/21 22:12:40 tom Exp $
 dnl Macros used in NCURSES Ada95 auto-configuration script.
 dnl
 dnl These macros are maintained separately from NCURSES.  The copyright on
@@ -677,6 +677,22 @@ if test ".$system_name" != ".$cf_cv_system_name" ; then
 fi
 ])dnl
 dnl ---------------------------------------------------------------------------
+dnl CF_CHECK_GNAT_VERSION version: 1 updated: 2019/09/21 18:08:42
+dnl ---------------------
+AC_DEFUN([CF_CHECK_GNAT_VERSION],
+[
+AC_REQUIRE([CF_GNAT_VERSION])
+case $cf_gnat_version in
+(3.1[[1-9]]*|3.[[2-9]]*|[[4-9]].*|20[[0-9]][[0-9]])
+	cf_cv_prog_gnat_correct=yes
+	;;
+(*)
+	AC_MSG_WARN(Unsupported GNAT version $cf_gnat_version. We require 3.11 or better. Disabling Ada95 binding.)
+	cf_cv_prog_gnat_correct=no
+	;;
+esac
+])
+dnl ---------------------------------------------------------------------------
 dnl CF_CLANG_COMPILER version: 2 updated: 2013/11/19 19:23:35
 dnl -----------------
 dnl Check if the given compiler is really clang.  clang's C driver defines
@@ -709,6 +725,60 @@ cf_save_CFLAGS="$cf_save_CFLAGS -Qunused-arguments"
 	AC_MSG_RESULT($ifelse([$2],,CLANG_COMPILER,[$2]))
 fi
 ])
+dnl ---------------------------------------------------------------------------
+dnl CF_CONST_X_STRING version: 1 updated: 2019/04/08 17:50:29
+dnl -----------------
+dnl The X11R4-X11R6 Xt specification uses an ambiguous String type for most
+dnl character-strings.
+dnl
+dnl It is ambiguous because the specification accommodated the pre-ANSI
+dnl compilers bundled by more than one vendor in lieu of providing a standard C
+dnl compiler other than by costly add-ons.  Because of this, the specification
+dnl did not take into account the use of const for telling the compiler that
+dnl string literals would be in readonly memory.
+dnl
+dnl As a workaround, one could (starting with X11R5) define XTSTRINGDEFINES, to
+dnl let the compiler decide how to represent Xt's strings which were #define'd. 
+dnl That does not solve the problem of using the block of Xt's strings which
+dnl are compiled into the library (and is less efficient than one might want).
+dnl
+dnl Xt specification 7 introduces the _CONST_X_STRING symbol which is used both
+dnl when compiling the library and compiling using the library, to tell the
+dnl compiler that String is const.
+AC_DEFUN([CF_CONST_X_STRING],
+[
+AC_TRY_COMPILE(
+[
+#include <stdlib.h>
+#include <X11/Intrinsic.h>
+],
+[String foo = malloc(1)],[
+
+AC_CACHE_CHECK(for X11/Xt const-feature,cf_cv_const_x_string,[
+	AC_TRY_COMPILE(
+		[
+#define _CONST_X_STRING	/* X11R7.8 (perhaps) */
+#undef  XTSTRINGDEFINES	/* X11R5 and later */
+#include <stdlib.h>
+#include <X11/Intrinsic.h>
+		],[String foo = malloc(1); *foo = 0],[
+			cf_cv_const_x_string=no
+		],[
+			cf_cv_const_x_string=yes
+		])
+])
+
+case $cf_cv_const_x_string in
+(no)
+	CF_APPEND_TEXT(CPPFLAGS,-DXTSTRINGDEFINES)
+	;;
+(*)
+	CF_APPEND_TEXT(CPPFLAGS,-D_CONST_X_STRING)
+	;;
+esac
+
+])
+])dnl
 dnl ---------------------------------------------------------------------------
 dnl CF_CURSES_HEADER version: 5 updated: 2015/04/23 20:35:30
 dnl ----------------
@@ -1100,9 +1170,10 @@ rm -rf conftest*
 fi
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_GCC_VERSION version: 7 updated: 2012/10/18 06:46:33
+dnl CF_GCC_VERSION version: 8 updated: 2019/09/07 13:38:36
 dnl --------------
-dnl Find version of gcc
+dnl Find version of gcc, and (because icc/clang pretend to be gcc without being
+dnl compatible), attempt to determine if icc/clang is actually used.
 AC_DEFUN([CF_GCC_VERSION],[
 AC_REQUIRE([AC_PROG_CC])
 GCC_VERSION=none
@@ -1112,9 +1183,11 @@ if test "$GCC" = yes ; then
 	test -z "$GCC_VERSION" && GCC_VERSION=unknown
 	AC_MSG_RESULT($GCC_VERSION)
 fi
+CF_INTEL_COMPILER(GCC,INTEL_COMPILER,CFLAGS)
+CF_CLANG_COMPILER(GCC,CLANG_COMPILER,CFLAGS)
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_GCC_WARNINGS version: 33 updated: 2018/06/20 20:23:13
+dnl CF_GCC_WARNINGS version: 36 updated: 2019/09/07 13:38:36
 dnl ---------------
 dnl Check if the compiler supports useful warning options.  There's a few that
 dnl we don't use, simply because they're too noisy:
@@ -1136,14 +1209,11 @@ dnl
 AC_DEFUN([CF_GCC_WARNINGS],
 [
 AC_REQUIRE([CF_GCC_VERSION])
-CF_INTEL_COMPILER(GCC,INTEL_COMPILER,CFLAGS)
-CF_CLANG_COMPILER(GCC,CLANG_COMPILER,CFLAGS)
-
+if test "x$have_x" = xyes; then CF_CONST_X_STRING fi
 cat > conftest.$ac_ext <<EOF
 #line __oline__ "${as_me:-configure}"
 int main(int argc, char *argv[[]]) { return (argv[[argc-1]] == 0) ; }
 EOF
-
 if test "$INTEL_COMPILER" = yes
 then
 # The "-wdXXX" options suppress warnings:
@@ -1178,7 +1248,6 @@ then
 		fi
 	done
 	CFLAGS="$cf_save_CFLAGS"
-
 elif test "$GCC" = yes
 then
 	AC_CHECKING([for $CC warning options])
@@ -1207,9 +1276,6 @@ then
 		if AC_TRY_EVAL(ac_compile); then
 			test -n "$verbose" && AC_MSG_RESULT(... -$cf_opt)
 			case $cf_opt in
-			(Wcast-qual)
-				CF_APPEND_TEXT(CPPFLAGS,-DXTSTRINGDEFINES)
-				;;
 			(Winline)
 				case $GCC_VERSION in
 				([[34]].*)
@@ -1486,27 +1552,21 @@ fi
 rm -rf conftest* *~conftest*
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_GNAT_VERSION version: 20 updated: 2015/04/18 08:56:57
+dnl CF_GNAT_VERSION version: 21 updated: 2019/09/21 18:08:42
 dnl ---------------
-dnl Verify version of GNAT.
+dnl $1 = cache variable to update
+dnl $2 = program name
+dnl Verify version of GNAT or related tool
 AC_DEFUN([CF_GNAT_VERSION],
 [
-AC_MSG_CHECKING(for gnat version)
-cf_gnat_version=`${cf_ada_make:-gnatmake} -v 2>&1 | \
+AC_CACHE_CHECK(for ifelse($2,,gnat,$2) version, cf_gnat_version,[
+cf_gnat_version=`ifelse($2,,${cf_ada_make:-gnatmake},$2) --version 2>&1 | \
 	grep '[[0-9]].[[0-9]][[0-9]]*' |\
 	sed -e '2,$d' -e 's/[[^0-9 \.]]//g' -e 's/^[[ ]]*//' -e 's/ .*//'`
-AC_MSG_RESULT($cf_gnat_version)
-
-case $cf_gnat_version in
-(3.1[[1-9]]*|3.[[2-9]]*|[[4-9]].*|20[[0-9]][[0-9]])
-	cf_cv_prog_gnat_correct=yes
-	;;
-(*)
-	AC_MSG_WARN(Unsupported GNAT version $cf_gnat_version. We require 3.11 or better. Disabling Ada95 binding.)
-	cf_cv_prog_gnat_correct=no
-	;;
-esac
 ])
+test -z "$cf_gnat_version" && cf_gnat_version=no
+ifelse($1,,,[eval $1=$cf_gnat_version; unset cf_gnat_version])
+])dnl
 dnl ---------------------------------------------------------------------------
 dnl CF_GNU_SOURCE version: 10 updated: 2018/12/10 20:09:41
 dnl -------------
@@ -3088,20 +3148,40 @@ AC_SUBST(PROG_EXT)
 test -n "$PROG_EXT" && AC_DEFINE_UNQUOTED(PROG_EXT,"$PROG_EXT",[Define to the program extension (normally blank)])
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_PROG_GNAT version: 8 updated: 2018/11/10 19:47:04
+dnl CF_PROG_GNAT version: 9 updated: 2019/09/21 18:08:42
 dnl ------------
-dnl Check for gnatmake, ensure that it is complete.
+dnl Check for gnat/gnatmake/etc, ensure that the toolset is complete.
 AC_DEFUN([CF_PROG_GNAT],[
-cf_ada_make=gnatmake
-cf_ada_config="#"
-AC_CHECK_PROG(gnatmake_exists, $cf_ada_make, yes, no)
-if test "$ac_cv_prog_gnatmake_exists" = no; then
+for cf_prog_gnat in gnat gnatmake gprconfig gprbuild
+do
+	CF_UPPER(cf_upper_prog_gnat,${cf_prog_gnat})
+
+	unset ac_cv_path_cf_TEMP_gnat
+	unset cf_TEMP_gnat
+	AC_PATH_PROG(cf_TEMP_gnat,$cf_prog_gnat,no)
+	eval cf_cv_PATH_$cf_upper_prog_gnat=[$]ac_cv_path_cf_TEMP_gnat
+
+	if test "x$cf_TEMP_gnat" != xno; then
+		unset cf_gnat_version
+		unset cf_TEMP_gnat
+		CF_GNAT_VERSION(cf_TEMP_gnat,$cf_prog_gnat)
+	fi
+	eval cf_cv_VERSION_$cf_upper_prog_gnat=[$]cf_TEMP_gnat
+
+	unset cf_TEMP_gnat
+	unset cf_gnat_version
+	unset ac_cv_path_cf_TEMP_gnat
+done
+
+if test "x$cf_cv_VERSION_GNATMAKE" = "xno"; then
 	cf_ada_make=
 	cf_cv_prog_gnat_correct=no
 else
-	AC_CHECK_PROG(gprconfig_exists, gprconfig, yes, no)
-	if test "$ac_cv_prog_gprconfig_exists" = yes
-	then
+	cf_ada_make=gnatmake
+	if test "x$cf_cv_VERSION_GPRCONFIG" = "xno"; then
+		# gprconfig is newer than gnatmake; we can continue...
+		cf_ada_config="##"
+	else
 		rm -rf conftest* *~conftest*
 		if mkdir conftest.src
 		then
@@ -3137,17 +3217,15 @@ else
 			cd ..
 			rm -rf conftest* *~conftest*
 		fi
-	else
-		# gprconfig is newer than gnatmake; we can continue...
-		cf_ada_config="##"
 	fi
 	if test "x$cf_ada_config" != "x#"
 	then
 		CF_GNAT_VERSION
+		CF_CHECK_GNAT_VERSION
 		AC_CHECK_PROG(M4_exists, m4, yes, no)
 		if test "$ac_cv_prog_M4_exists" = no; then
 			cf_cv_prog_gnat_correct=no
-			echo Ada95 binding required program m4 not found. Ada95 binding disabled.
+			AC_MSG_WARN(Ada95 binding required program m4 not found. Ada95 binding disabled)
 		fi
 		if test "$cf_cv_prog_gnat_correct" = yes; then
 			AC_MSG_CHECKING(if GNAT works)
@@ -3159,7 +3237,9 @@ begin
    Text_IO.Put ("Hello World");
    Text_IO.New_Line;
    GNAT.OS_Lib.OS_Exit (0);
-end conftest;],[cf_cv_prog_gnat_correct=yes],[cf_cv_prog_gnat_correct=no])
+end conftest;],
+[cf_cv_prog_gnat_correct=yes],
+[cf_cv_prog_gnat_correct=no])
 			AC_MSG_RESULT($cf_cv_prog_gnat_correct)
 		fi
 	else
@@ -3923,6 +4003,27 @@ CF_WITH_PATH(ada-include,
    [$]prefix/share/ada/adainclude)
 AC_SUBST(ADA_INCLUDE)
 AC_MSG_RESULT($ADA_INCLUDE)
+])dnl
+dnl ---------------------------------------------------------------------------
+dnl CF_WITH_ADA_LIBNAME version: 1 updated: 2019/09/07 18:59:41
+dnl -------------------
+dnl CF_WITH_ADA_LIBNAME
+dnl -------------------
+dnl Command-line option to specify how to name the resulting Ada library.
+dnl $1 = default value
+AC_DEFUN([CF_WITH_ADA_LIBNAME],[
+AC_MSG_CHECKING(for ada-libname)
+AC_ARG_WITH(ada-libname,
+   [  --with-ada-libname=XXX  override default Ada library-name],
+   ADA_LIBNAME=[$]withval,
+   ADA_LIBNAME=$1)
+case "x$ADA_LIBNAME" in
+(x|xyes|xno)
+	ADA_LIBNAME=$1
+	;;
+esac
+AC_SUBST(ADA_LIBNAME)
+AC_MSG_RESULT($ADA_LIBNAME)
 ])dnl
 dnl ---------------------------------------------------------------------------
 dnl CF_WITH_ADA_OBJECTS version: 2 updated: 2010/06/26 17:35:58

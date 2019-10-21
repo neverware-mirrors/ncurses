@@ -28,7 +28,7 @@ dnl***************************************************************************
 dnl
 dnl Author: Thomas E. Dickey 1995-on
 dnl
-dnl $Id: aclocal.m4,v 1.876 2019/06/30 23:46:29 tom Exp $
+dnl $Id: aclocal.m4,v 1.884 2019/09/27 21:08:36 tom Exp $
 dnl Macros used in NCURSES auto-configuration script.
 dnl
 dnl These macros are maintained separately from NCURSES.  The copyright on
@@ -1137,6 +1137,22 @@ then
 fi
 ])dnl
 dnl ---------------------------------------------------------------------------
+dnl CF_CHECK_GNAT_VERSION version: 1 updated: 2019/09/21 18:08:42
+dnl ---------------------
+AC_DEFUN([CF_CHECK_GNAT_VERSION],
+[
+AC_REQUIRE([CF_GNAT_VERSION])
+case $cf_gnat_version in
+(3.1[[1-9]]*|3.[[2-9]]*|[[4-9]].*|20[[0-9]][[0-9]])
+	cf_cv_prog_gnat_correct=yes
+	;;
+(*)
+	AC_MSG_WARN(Unsupported GNAT version $cf_gnat_version. We require 3.11 or better. Disabling Ada95 binding.)
+	cf_cv_prog_gnat_correct=no
+	;;
+esac
+])
+dnl ---------------------------------------------------------------------------
 dnl CF_CHECK_GPM_WGETCH version: 3 updated: 2017/01/21 11:06:25
 dnl -------------------
 dnl Check if GPM is already linked with curses.  If so - and if the linkage
@@ -1601,12 +1617,13 @@ cerr << "testing" << endl;
 fi
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_C_INLINE version: 5 updated: 2015/04/18 08:56:57
+dnl CF_C_INLINE version: 6 updated: 2019/09/07 13:38:36
 dnl -----------
 dnl Check if the C compiler supports "inline".
 dnl $1 is the name of a shell variable to set if inline is supported
 dnl $2 is the threshold for gcc 4.x's option controlling maximum inline size
 AC_DEFUN([CF_C_INLINE],[
+AC_REQUIRE([CF_GCC_VERSION])
 AC_C_INLINE
 $1=
 if test "$ac_cv_c_inline" != no ; then
@@ -2538,9 +2555,10 @@ rm -rf conftest*
 fi
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_GCC_VERSION version: 7 updated: 2012/10/18 06:46:33
+dnl CF_GCC_VERSION version: 8 updated: 2019/09/07 13:38:36
 dnl --------------
-dnl Find version of gcc
+dnl Find version of gcc, and (because icc/clang pretend to be gcc without being
+dnl compatible), attempt to determine if icc/clang is actually used.
 AC_DEFUN([CF_GCC_VERSION],[
 AC_REQUIRE([AC_PROG_CC])
 GCC_VERSION=none
@@ -2550,9 +2568,11 @@ if test "$GCC" = yes ; then
 	test -z "$GCC_VERSION" && GCC_VERSION=unknown
 	AC_MSG_RESULT($GCC_VERSION)
 fi
+CF_INTEL_COMPILER(GCC,INTEL_COMPILER,CFLAGS)
+CF_CLANG_COMPILER(GCC,CLANG_COMPILER,CFLAGS)
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_GCC_WARNINGS version: 35 updated: 2019/06/16 09:45:01
+dnl CF_GCC_WARNINGS version: 36 updated: 2019/09/07 13:38:36
 dnl ---------------
 dnl Check if the compiler supports useful warning options.  There's a few that
 dnl we don't use, simply because they're too noisy:
@@ -2574,8 +2594,6 @@ dnl
 AC_DEFUN([CF_GCC_WARNINGS],
 [
 AC_REQUIRE([CF_GCC_VERSION])
-CF_INTEL_COMPILER(GCC,INTEL_COMPILER,CFLAGS)
-CF_CLANG_COMPILER(GCC,CLANG_COMPILER,CFLAGS)
 if test "x$have_x" = xyes; then CF_CONST_X_STRING fi
 cat > conftest.$ac_ext <<EOF
 #line __oline__ "${as_me:-configure}"
@@ -2945,27 +2963,21 @@ fi
 rm -rf conftest* *~conftest*
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_GNAT_VERSION version: 20 updated: 2015/04/18 08:56:57
+dnl CF_GNAT_VERSION version: 21 updated: 2019/09/21 18:08:42
 dnl ---------------
-dnl Verify version of GNAT.
+dnl $1 = cache variable to update
+dnl $2 = program name
+dnl Verify version of GNAT or related tool
 AC_DEFUN([CF_GNAT_VERSION],
 [
-AC_MSG_CHECKING(for gnat version)
-cf_gnat_version=`${cf_ada_make:-gnatmake} -v 2>&1 | \
+AC_CACHE_CHECK(for ifelse($2,,gnat,$2) version, cf_gnat_version,[
+cf_gnat_version=`ifelse($2,,${cf_ada_make:-gnatmake},$2) --version 2>&1 | \
 	grep '[[0-9]].[[0-9]][[0-9]]*' |\
 	sed -e '2,$d' -e 's/[[^0-9 \.]]//g' -e 's/^[[ ]]*//' -e 's/ .*//'`
-AC_MSG_RESULT($cf_gnat_version)
-
-case $cf_gnat_version in
-(3.1[[1-9]]*|3.[[2-9]]*|[[4-9]].*|20[[0-9]][[0-9]])
-	cf_cv_prog_gnat_correct=yes
-	;;
-(*)
-	AC_MSG_WARN(Unsupported GNAT version $cf_gnat_version. We require 3.11 or better. Disabling Ada95 binding.)
-	cf_cv_prog_gnat_correct=no
-	;;
-esac
 ])
+test -z "$cf_gnat_version" && cf_gnat_version=no
+ifelse($1,,,[eval $1=$cf_gnat_version; unset cf_gnat_version])
+])dnl
 dnl ---------------------------------------------------------------------------
 dnl CF_GNU_SOURCE version: 10 updated: 2018/12/10 20:09:41
 dnl -------------
@@ -3836,6 +3848,76 @@ then
 		;;
 	esac
 fi
+])dnl
+dnl ---------------------------------------------------------------------------
+dnl CF_LD_SEARCHPATH version: 2 updated: 2019/09/26 20:34:14
+dnl ----------------
+dnl Try to obtain the linker's search-path, for use in scripts.
+dnl
+dnl Ignore LD_LIBRARY_PATH, etc.
+AC_DEFUN([CF_LD_SEARCHPATH],[
+AC_CACHE_CHECK(for linker search path,cf_cv_ld_searchpath,[
+
+if test "$cross_compiling" != yes ; then
+
+# GNU binutils' ld does not involve permissions which may stop ldconfig.
+cf_pathlist=`ld --verbose 2>/dev/null | grep SEARCH_DIR | sed -e 's,SEARCH_DIR[[("=]][[("=]]*,,g' -e 's/"[[)]];//gp' | sort -u`
+
+# The -NX options tell newer versions of Linux ldconfig to not attempt to
+# update the cache, which makes it run faster.
+test -z "$cf_pathlist" && \
+	cf_pathlist=`ldconfig -NX -v 2>/dev/null | sed -e '/^[[ 	]]/d' -e 's/:$//' | sort -u`
+
+test -z "$cf_pathlist" &&
+	cf_pathlist=`ldconfig -v 2>/dev/null | sed -n -e '/^[[ 	]]/d' -e 's/:$//p' | sort -u`
+
+# This works with OpenBSD 6.5, which lists only filenames
+test -z "$cf_pathlist" &&
+	cf_pathlist=`ldconfig -v 2>/dev/null | sed -n -e 's,^Adding \(.*\)/.*[$],\1,p' | sort -u`
+
+if test -z "$cf_pathlist"
+then
+	# dyld default path with MacOS
+	if test -f /usr/bin/otool && test "x`uname -s`" = xDarwin
+	then
+		# do this to bypass check
+		cf_cv_ld_searchpath='$HOME/lib'
+		cf_pathlist="/usr/local/lib /lib /usr/lib"
+	fi
+fi
+
+if test -z "$cf_pathlist"
+then
+	# Solaris is hardcoded
+	if test -d /opt/SUNWspro/lib
+	then
+		cf_pathlist="/opt/SUNWspro/lib /usr/ccs/lib /usr/lib"
+	elif test -d /usr/ccs/lib
+	then
+		cf_pathlist="/usr/ccs/lib /usr/lib"
+	fi
+fi
+
+fi
+
+# If nothing else, assume it is conventional
+test -z "$cf_pathlist" && cf_pathlist="/usr/lib /lib"
+
+# Finally, check that this is only directories
+for cf_path in [$]0 $cf_pathlist
+do
+	if test -d "$cf_path"; then
+		test -n "$cf_cv_ld_searchpath" && cf_cv_ld_searchpath="${cf_cv_ld_searchpath} "
+		cf_cv_ld_searchpath="${cf_cv_ld_searchpath}${cf_path}"
+	fi
+done
+
+# Ensure that it is nonempty
+test -z "$cf_cv_ld_searchpath" && cf_cv_ld_searchpath=/usr/lib
+])
+
+LD_SEARCHPATH=`echo "$cf_cv_ld_searchpath"|sed -e 's/ /|/g'`
+AC_SUBST(LD_SEARCHPATH)
 ])dnl
 dnl ---------------------------------------------------------------------------
 dnl CF_LIBRARY_PATH version: 10 updated: 2015/04/15 19:08:48
@@ -5972,20 +6054,40 @@ AC_DEFUN([CF_PROG_EGREP],
 	test -z "$EGREP" && AC_MSG_ERROR(No egrep program found)
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_PROG_GNAT version: 8 updated: 2018/11/10 19:47:04
+dnl CF_PROG_GNAT version: 9 updated: 2019/09/21 18:08:42
 dnl ------------
-dnl Check for gnatmake, ensure that it is complete.
+dnl Check for gnat/gnatmake/etc, ensure that the toolset is complete.
 AC_DEFUN([CF_PROG_GNAT],[
-cf_ada_make=gnatmake
-cf_ada_config="#"
-AC_CHECK_PROG(gnatmake_exists, $cf_ada_make, yes, no)
-if test "$ac_cv_prog_gnatmake_exists" = no; then
+for cf_prog_gnat in gnat gnatmake gprconfig gprbuild
+do
+	CF_UPPER(cf_upper_prog_gnat,${cf_prog_gnat})
+
+	unset ac_cv_path_cf_TEMP_gnat
+	unset cf_TEMP_gnat
+	AC_PATH_PROG(cf_TEMP_gnat,$cf_prog_gnat,no)
+	eval cf_cv_PATH_$cf_upper_prog_gnat=[$]ac_cv_path_cf_TEMP_gnat
+
+	if test "x$cf_TEMP_gnat" != xno; then
+		unset cf_gnat_version
+		unset cf_TEMP_gnat
+		CF_GNAT_VERSION(cf_TEMP_gnat,$cf_prog_gnat)
+	fi
+	eval cf_cv_VERSION_$cf_upper_prog_gnat=[$]cf_TEMP_gnat
+
+	unset cf_TEMP_gnat
+	unset cf_gnat_version
+	unset ac_cv_path_cf_TEMP_gnat
+done
+
+if test "x$cf_cv_VERSION_GNATMAKE" = "xno"; then
 	cf_ada_make=
 	cf_cv_prog_gnat_correct=no
 else
-	AC_CHECK_PROG(gprconfig_exists, gprconfig, yes, no)
-	if test "$ac_cv_prog_gprconfig_exists" = yes
-	then
+	cf_ada_make=gnatmake
+	if test "x$cf_cv_VERSION_GPRCONFIG" = "xno"; then
+		# gprconfig is newer than gnatmake; we can continue...
+		cf_ada_config="##"
+	else
 		rm -rf conftest* *~conftest*
 		if mkdir conftest.src
 		then
@@ -6021,17 +6123,15 @@ else
 			cd ..
 			rm -rf conftest* *~conftest*
 		fi
-	else
-		# gprconfig is newer than gnatmake; we can continue...
-		cf_ada_config="##"
 	fi
 	if test "x$cf_ada_config" != "x#"
 	then
 		CF_GNAT_VERSION
+		CF_CHECK_GNAT_VERSION
 		AC_CHECK_PROG(M4_exists, m4, yes, no)
 		if test "$ac_cv_prog_M4_exists" = no; then
 			cf_cv_prog_gnat_correct=no
-			echo Ada95 binding required program m4 not found. Ada95 binding disabled.
+			AC_MSG_WARN(Ada95 binding required program m4 not found. Ada95 binding disabled)
 		fi
 		if test "$cf_cv_prog_gnat_correct" = yes; then
 			AC_MSG_CHECKING(if GNAT works)
@@ -6043,7 +6143,9 @@ begin
    Text_IO.Put ("Hello World");
    Text_IO.New_Line;
    GNAT.OS_Lib.OS_Exit (0);
-end conftest;],[cf_cv_prog_gnat_correct=yes],[cf_cv_prog_gnat_correct=no])
+end conftest;],
+[cf_cv_prog_gnat_correct=yes],
+[cf_cv_prog_gnat_correct=no])
 			AC_MSG_RESULT($cf_cv_prog_gnat_correct)
 		fi
 	else
@@ -6983,7 +7085,7 @@ if test "$cf_cv_sizechange" != no ; then
 fi
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_SRC_MODULES version: 30 updated: 2017/07/26 17:08:35
+dnl CF_SRC_MODULES version: 31 updated: 2019/09/21 18:08:42
 dnl --------------
 dnl For each parameter, test if the source-directory exists, and if it contains
 dnl a 'modules' file.  If so, add to the list $cf_cv_src_modules which we'll
@@ -6993,6 +7095,7 @@ dnl This uses the configured value to make the lists SRC_SUBDIRS and
 dnl SUB_MAKEFILES which are used in the makefile-generation scheme.
 AC_DEFUN([CF_SRC_MODULES],
 [
+AC_REQUIRE([CF_CHECK_GNAT_VERSION])
 AC_MSG_CHECKING(for src modules)
 
 # dependencies and linker-arguments for test-programs
@@ -7830,6 +7933,27 @@ AC_SUBST(ADA_INCLUDE)
 AC_MSG_RESULT($ADA_INCLUDE)
 ])dnl
 dnl ---------------------------------------------------------------------------
+dnl CF_WITH_ADA_LIBNAME version: 1 updated: 2019/09/07 18:59:41
+dnl -------------------
+dnl CF_WITH_ADA_LIBNAME
+dnl -------------------
+dnl Command-line option to specify how to name the resulting Ada library.
+dnl $1 = default value
+AC_DEFUN([CF_WITH_ADA_LIBNAME],[
+AC_MSG_CHECKING(for ada-libname)
+AC_ARG_WITH(ada-libname,
+   [  --with-ada-libname=XXX  override default Ada library-name],
+   ADA_LIBNAME=[$]withval,
+   ADA_LIBNAME=$1)
+case "x$ADA_LIBNAME" in
+(x|xyes|xno)
+	ADA_LIBNAME=$1
+	;;
+esac
+AC_SUBST(ADA_LIBNAME)
+AC_MSG_RESULT($ADA_LIBNAME)
+])dnl
+dnl ---------------------------------------------------------------------------
 dnl CF_WITH_ADA_OBJECTS version: 2 updated: 2010/06/26 17:35:58
 dnl -------------------
 dnl Command-line option to specify where Ada objects will install.
@@ -8239,6 +8363,32 @@ AC_SUBST($3)dnl
 
 ])dnl
 dnl ---------------------------------------------------------------------------
+dnl CF_WITH_PATH_PROG version: 1 updated: 2019/06/30 19:44:43
+dnl -----------------
+dnl Check for a given program, like CF_PATH_PROG, but allow override using a
+dnl "--with-xxx" option.
+dnl
+dnl Parameters:
+dnl		$1 = environment variable to set/update
+dnl		$2 = program name
+dnl		$3 = help-text
+dnl		$4 = $PATH
+AC_DEFUN([CF_WITH_PATH_PROG],[
+AC_ARG_WITH($2-path,
+	[  --with-$2-path=XXX     specify path of $2 ifelse($3,,,$3)],
+	[AC_MSG_CHECKING(for $2 program ifelse($3,,,$3))
+		$1=$withval
+		AC_MSG_RESULT([$]$1)
+		CF_PATH_SYNTAX($1)
+	],
+	[CF_PATH_PROG($1,$2,,ifelse($4,,,$4))
+		if test -z "[$]$1"
+		then
+			AC_MSG_WARN(no $2 program found ifelse($3,,,$3))
+		fi
+	])
+])
+dnl ---------------------------------------------------------------------------
 dnl CF_WITH_PCRE2 version: 2 updated: 2018/07/14 16:47:56
 dnl -------------
 dnl Add PCRE2 (Perl-compatible regular expressions v2) to the build if it is
@@ -8361,32 +8511,6 @@ fi
 
 AC_SUBST(PKG_CONFIG_LIBDIR)
 ])dnl
-dnl ---------------------------------------------------------------------------
-dnl CF_WITH_PATH_PROG version: 1 updated: 2019/06/30 19:44:43
-dnl -----------------
-dnl Check for a given program, like CF_PATH_PROG, but allow override using a
-dnl "--with-xxx" option.
-dnl
-dnl Parameters:
-dnl		$1 = environment variable to set/update
-dnl		$2 = program name
-dnl		$3 = help-text
-dnl		$4 = $PATH
-AC_DEFUN([CF_WITH_PATH_PROG],[
-AC_ARG_WITH($2-path,
-	[  --with-$2-path=XXX     specify path of $2 ifelse($3,,,$3)],
-	[AC_MSG_CHECKING(for $2 program ifelse($3,,,$3))
-		$1=$withval
-		AC_MSG_RESULT([$]$1)
-		CF_PATH_SYNTAX($1)
-	],
-	[CF_PATH_PROG($1,$2,,ifelse($4,,,$4))
-		if test -z "[$]$1"
-		then
-			AC_MSG_WARN(no $2 program found ifelse($3,,,$3))
-		fi
-	])
-])
 dnl ---------------------------------------------------------------------------
 dnl CF_WITH_PTHREAD version: 7 updated: 2015/04/18 08:56:57
 dnl ---------------
