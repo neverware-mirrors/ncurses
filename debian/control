@@ -311,6 +311,7 @@ Architecture: any
 Section: misc
 Priority: optional
 Depends: ${shlibs:Depends}, ${misc:Depends}
+Build-Profiles: <!pkg.ncurses.noexamples>
 Description: test programs and examples for ncurses
  The ncurses library routines are a terminal-independent method of
  updating character screens with reasonable optimization.

@@ -117,6 +117,10 @@ ifeq (,$(filter pkg.ncurses.nolegacy,$(DEB_BUILD_PROFILES)))
 build_legacy = build-legacy build-wide-legacy
 endif
 
+ifeq (,$(filter pkg.ncurses.noexamples,$(DEB_BUILD_PROFILES)))
+build_examples = build-test
+endif
+
 ifeq ($(DEB_HOST_ARCH_OS),linux)
 with_mouse = --with-gpm
 else
@@ -310,7 +314,7 @@ $(objdir-test)/config.status: build-wide config.guess-stamp
 build-indep: build-normal build-wide
 	touch $@
 
-build-arch build: build-indep build-static build-wide-static build-test \
+build-arch build: build-indep build-static build-wide-static $(build_examples) \
 	          $(build_legacy) $(build_64) $(build_32)
 	touch build-arch build
 
@@ -462,10 +466,12 @@ ifneq (,$(build_64))
 	echo "INPUT(libncursesw.so.6 -ltinfo)" > $(tempdir)/usr/lib64/libncursesw.so
 endif
 
+ifneq ($(build_examples),)
 	# Install the test programs, sparing the detour to debian/tmp.
 	$(MAKE) -C $(objdir-test) DESTDIR=$(workdir)/debian/$(package-examples) install
 	sed -i -e 's%^#!/usr/bin/env perl%#!/usr/bin/perl%' \
 		$(workdir)/debian/$(package-examples)/usr/lib/ncurses/examples/tracemunch
+endif
 
 debian/%: debian/%.in
 	sed -e 's/$${DEB_HOST_MULTIARCH}/$(DEB_HOST_MULTIARCH)/g' $< > $@
