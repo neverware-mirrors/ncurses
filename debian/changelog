@@ -11,6 +11,7 @@ ncurses (6.1+20191019-1) UNRELEASED; urgency=medium
   * Support additional build profiles:
     - Skip building ABI 5 libraries in a pkg.ncurses.nolegacy build profile.
     - Skip building the examples in a pkg.ncurses.noexamples build profile.
+    - Do not build libtinfo6-udeb in the noudeb build profile.
 
  -- Sven Joachim <svenjoac@gmx.de>  Mon, 21 Oct 2019 18:49:24 +0200
 

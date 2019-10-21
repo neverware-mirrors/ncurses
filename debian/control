@@ -32,6 +32,7 @@ Section: debian-installer
 Architecture: any
 Priority: optional
 Depends: ${shlibs:Depends}, ${misc:Depends}
+Build-Profiles: <!noudeb>
 Description: shared low-level terminfo library for terminal handling - udeb
  The ncurses library routines are a terminal-independent method of
  updating character screens with reasonable optimization.
