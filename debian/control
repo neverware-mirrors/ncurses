@@ -345,6 +345,7 @@ Pre-Depends: ${misc:Pre-Depends}
 Multi-Arch: same
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Breaks: dialog (<< 1.2-20130523)
+Build-Profiles: <!pkg.ncurses.nolegacy>
 Description: shared low-level terminfo library (legacy version)
  The ncurses library routines are a terminal-independent method of
  updating character screens with reasonable optimization.
@@ -360,6 +361,7 @@ Pre-Depends: ${misc:Pre-Depends}
 Multi-Arch: same
 Depends: libtinfo5 (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
 Recommends: libgpm2 [linux-any]
+Build-Profiles: <!pkg.ncurses.nolegacy>
 Description: shared libraries for terminal handling (legacy version)
  The ncurses library routines are a terminal-independent method of
  updating character screens with reasonable optimization.
@@ -375,6 +377,7 @@ Pre-Depends: ${misc:Pre-Depends}
 Multi-Arch: same
 Depends: libtinfo5 (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
 Recommends: libgpm2 [linux-any]
+Build-Profiles: <!pkg.ncurses.nolegacy>
 Description: shared libraries for terminal handling (wide character legacy version)
  The ncurses library routines are a terminal-independent method of
  updating character screens with reasonable optimization.

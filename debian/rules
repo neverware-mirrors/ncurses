@@ -113,6 +113,10 @@ override build_32=
 override build_64=
 endif
 
+ifeq (,$(filter pkg.ncurses.nolegacy,$(DEB_BUILD_PROFILES)))
+build_legacy = build-legacy build-wide-legacy
+endif
+
 ifeq ($(DEB_HOST_ARCH_OS),linux)
 with_mouse = --with-gpm
 else
@@ -307,7 +311,7 @@ build-indep: build-normal build-wide
 	touch $@
 
 build-arch build: build-indep build-static build-wide-static build-test \
-	          build-legacy build-wide-legacy $(build_64) $(build_32)
+	          $(build_legacy) $(build_64) $(build_32)
 	touch build-arch build
 
 build-normal: $(objdir)/config.status
