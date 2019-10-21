@@ -1,6 +1,12 @@
 ncurses (6.1+20191019-1) UNRELEASED; urgency=medium
 
   * New upstream patchlevel.
+    - Fix several errata in tic (Closes: #942401).
+      + Check for invalid hashcode in _nc_find_type_entry
+        and nc_find_name_entry (CVE-2019-17594).
+      + Check for invalid hashcode in _nc_find_entry.
+      + Check for missing character after backslash in fmt_entry
+        (CVE-2019-17595).
   * Refresh patch 03-debian-ncursesconfig-omit-L.diff.
 
  -- Sven Joachim <svenjoac@gmx.de>  Mon, 21 Oct 2019 18:49:24 +0200
