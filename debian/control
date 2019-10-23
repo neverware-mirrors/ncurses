@@ -295,7 +295,7 @@ Section: misc
 Priority: standard
 Multi-Arch: foreign
 Depends: ncurses-base (>= 6.1+20190713), ${misc:Depends}
-Replaces: suckless-tools (<< 39), dvtm (<< 0.15-3)
+Replaces: suckless-tools (<< 39), dvtm (<< 0.15-3), alacritty (<< 0.3.4~)
 Breaks: libtinfo5 (<< 6.1), libslang2 (<< 2.3.1a-3), libunibilium0 (<< 2),
         libunibilium4 (<< 2.0.0-3), bash-static (<< 4.4.18-1.1),
         zsh-static (<< 5.4.2-4), libmono-corlib4.5-cil (<< 4.6.2.7+dfsg-2),
