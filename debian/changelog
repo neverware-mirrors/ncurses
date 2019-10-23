@@ -15,6 +15,7 @@ ncurses (6.1+20191019-1) UNRELEASED; urgency=medium
   * Add a "Replaces: alacritty (<< 0.3.4~)" to ncurses-term
     (Closes: #933386).
   * Add a Salsa CI pipeline in debian/gitlab-ci.yml.
+  * Upgrade Standards-Version to 4.4.1, no changes needed.
 
  -- Sven Joachim <svenjoac@gmx.de>  Mon, 21 Oct 2019 18:49:24 +0200
 
