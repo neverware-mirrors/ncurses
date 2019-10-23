@@ -11,6 +11,9 @@ export CFLAGS := $(shell DEB_BUILD_MAINT_OPTIONS=hardening=+bindnow dpkg-buildfl
 export CPPFLAGS := $(shell DEB_BUILD_MAINT_OPTIONS=hardening=+bindnow dpkg-buildflags --get CPPFLAGS)
 export CXXFLAGS := $(shell DEB_BUILD_MAINT_OPTIONS=hardening=+bindnow dpkg-buildflags --get CXXFLAGS)
 export LDFLAGS := $(shell DEB_BUILD_MAINT_OPTIONS=hardening=+bindnow dpkg-buildflags --get LDFLAGS)
+export BUILD_CFLAGS := $(CFLAGS)
+export BUILD_CPPFLAGS := $(CPPFLAGS)
+export BUILD_LDFLAGS := $(LDFLAGS)
 
 ifneq ($(DEB_BUILD_GNU_TYPE),$(DEB_HOST_GNU_TYPE))
 HOST_CC ?= $(DEB_HOST_GNU_TYPE)-gcc
