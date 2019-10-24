@@ -28,7 +28,7 @@ Last-Update: 2019-10-21
  datarootdir="@datarootdir@"
  datadir="@datadir@"
  mandir="@mandir@"
-@@ -106,7 +105,7 @@ do
+@@ -109,7 +108,7 @@ do
  	-L*)
  		[ -d ${opt##-L} ] || continue
  		case ${opt##-L} in
@@ -37,7 +37,7 @@ Last-Update: 2019-10-21
  			continue
  			;;
  		*)
-@@ -228,7 +227,6 @@ ENDECHO
+@@ -231,7 +230,6 @@ ENDECHO
  		echo $INCS
  		;;
  	--libdir)
