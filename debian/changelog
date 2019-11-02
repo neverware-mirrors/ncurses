@@ -1,15 +1,17 @@
 ncurses (6.1+20181013-2+deb10u2) UNRELEASED; urgency=medium
 
-  * Cherry-pick tic fixes from upstream patchlevels 20191012
-    and 20191015 (Closes: #942401).
+  * Cherry-pick tic fixes from upstream patchlevels 20191012,
+    20191015 and 20191019 (Closes: #942401).
     - Check for invalid hashcode in _nc_find_type_entry and
       nc_find_entry (CVE-2019-17594).
     - Check for missing character after backslash in fmt_entry
      (CVE-2019-17595).
     - Check for acsc with odd length in dump_entry in check for
       one-one mapping.
-   * Cherry-pick a tic fix from upstream patchlevel 20191015:
-     Check for missing character after backslash in write_it.
+    - Check for missing character after backslash in write_it.
+    - Modify tic to exit if it cannot remove a conflicting name, because
+      treating that as a partial success can cause an infinite loop in
+      use-resolution.
 
  -- Sven Joachim <svenjoac@gmx.de>  Sat, 02 Nov 2019 17:08:22 +0100
 
