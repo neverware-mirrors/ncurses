@@ -1,8 +1,13 @@
 ncurses (6.1+20181013-2+deb10u2) UNRELEASED; urgency=medium
 
-  * Cherry-pick tic fixes from upstream patchlevel 20191012.
+  * Cherry-pick tic fixes from upstream patchlevel 20191012
+    (Closes: #942401).
     - Check for invalid hashcode in _nc_find_type_entry and
       nc_find_entry (CVE-2019-17594).
+    - Check for missing character after backslash in fmt_entry
+     (CVE-2019-17595).
+    - Check for acsc with odd length in dump_entry in check for
+      one-one mapping.
 
  -- Sven Joachim <svenjoac@gmx.de>  Sat, 02 Nov 2019 17:08:22 +0100
 
