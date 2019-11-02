@@ -1,1 +1,3 @@
 unapply-patches
+tar-ignore
+tar-ignore = debian/gitlab-ci.yml
