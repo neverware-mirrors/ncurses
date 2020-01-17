@@ -68,12 +68,7 @@ objdir-test=$(srcdir)/obj-test
 objdir-legacy=$(srcdir)/obj-legacy
 wobjdir-legacy=$(srcdir)/obj-wide-legacy
 
-DEB_BUILD_GNU_TYPE ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
-DEB_HOST_GNU_TYPE ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
-DEB_HOST_GNU_SYSTEM ?= $(shell dpkg-architecture -qDEB_HOST_GNU_SYSTEM)
-DEB_HOST_ARCH ?= $(shell dpkg-architecture -qDEB_HOST_ARCH)
-DEB_HOST_ARCH_OS ?= $(shell dpkg-architecture -qDEB_HOST_ARCH_OS)
-DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
+include /usr/share/dpkg/architecture.mk
 
 autogen-files := debian/libncurses-dev.links debian/libncurses-dev.install \
 		 debian/libncurses6.install debian/libncursesw6.install \
