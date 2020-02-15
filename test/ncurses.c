@@ -1,5 +1,6 @@
 /****************************************************************************
- * Copyright (c) 1998-2018,2019 Free Software Foundation, Inc.              *
+ * Copyright 2018-2019,2020 Thomas E. Dickey                                *
+ * Copyright 1998-2016,2017 Free Software Foundation, Inc.                  *
  *                                                                          *
  * Permission is hereby granted, free of charge, to any person obtaining a  *
  * copy of this software and associated documentation files (the            *
@@ -40,7 +41,7 @@ AUTHOR
    Author: Eric S. Raymond <esr@snark.thyrsus.com> 1993
            Thomas E. Dickey (beginning revision 1.27 in 1996).
 
-$Id: ncurses.c,v 1.519 2019/09/22 19:12:40 tom Exp $
+$Id: ncurses.c,v 1.522 2020/02/02 23:34:34 tom Exp $
 
 ***************************************************************************/
 
@@ -210,7 +211,7 @@ wGetchar(WINDOW *win)
 	} else {
 	    _nc_tracing = save_trace;
 	}
-	trace(_nc_tracing);
+	curses_trace(_nc_tracing);
 	if (_nc_tracing)
 	    Trace(("TOGGLE-TRACING ON"));
     }
@@ -344,7 +345,7 @@ wGet_wchar(WINDOW *win, wint_t *result)
 	} else {
 	    _nc_tracing = save_trace;
 	}
-	trace(_nc_tracing);
+	curses_trace(_nc_tracing);
 	if (_nc_tracing)
 	    Trace(("TOGGLE-TRACING ON"));
     }
@@ -3734,7 +3735,6 @@ show_box_chars(int repeat, attr_t attr, NCURSES_PAIRS_T pair)
     MvAddCh(LINES / 2, 0,        colored_chtype(ACS_LTEE,  attr, pair));
     MvAddCh(LINES / 2, COLS - 1, colored_chtype(ACS_RTEE,  attr, pair));
     /* *INDENT-ON* */
-
 }
 
 static int
@@ -4282,7 +4282,6 @@ show_wbox_chars(int repeat, attr_t attr, NCURSES_PAIRS_T pair)
     (void) mvadd_wch(LINES / 2,   0,        MERGE_ATTR(0, WACS_LTEE));
     (void) mvadd_wch(LINES / 2,   COLS - 1, MERGE_ATTR(0, WACS_RTEE));
     /* *INDENT-ON* */
-
 }
 
 #undef MERGE_ATTR
@@ -4355,7 +4354,6 @@ show_utf8_chars(int repeat, attr_t attr, NCURSES_PAIRS_T pair)
     n = SHOW_UTF8(n, "WACS_S7",		"\342\216\274");
     (void) SHOW_UTF8(n, "WACS_S9",	"\342\216\275");
     /* *INDENT-ON* */
-
 }
 
 /* display the wide-ACS character set */
@@ -6345,7 +6343,7 @@ trace_set(bool recur GCC_UNUSED)
     for (ip = menu_items(m); *ip; ip++)
 	if (item_value(*ip))
 	    newtrace |= t_tbl[item_index(*ip)].mask;
-    trace(newtrace);
+    curses_trace(newtrace);
     Trace(("trace level interactively set to %s", tracetrace(_nc_tracing)));
 
     MvPrintw(LINES - 2, 0,
@@ -7332,7 +7330,7 @@ overlap_test(bool recur GCC_UNUSED)
     delwin(win2);
     delwin(win1);
     erase();
-    exit_curses();
+    stop_curses();
     return OK;
 }
 
@@ -7532,7 +7530,7 @@ x_overlap_test(bool recur GCC_UNUSED)
     delwin(win2);
     delwin(win1);
     erase();
-    exit_curses();
+    stop_curses();
     return OK;
 }
 #endif /* USE_WIDEC_SUPPORT */
@@ -7622,7 +7620,7 @@ settings_test(bool recur GCC_UNUSED)
 #endif
     Pause();
     erase();
-    exit_curses();
+    stop_curses();
     return OK;
 }
 
@@ -7992,10 +7990,10 @@ main(int argc, char *argv[])
 #ifdef TRACE
     /* enable debugging */
 #if !USE_LIBMENU
-    trace(save_trace);
+    curses_trace(save_trace);
 #else
     if (!isatty(fileno(stdin)))
-	trace(save_trace);
+	curses_trace(save_trace);
 #endif /* USE_LIBMENU */
 #endif /* TRACE */
 

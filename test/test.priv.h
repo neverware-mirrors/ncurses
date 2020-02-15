@@ -1,5 +1,6 @@
 /****************************************************************************
- * Copyright (c) 1998-2018,2019 Free Software Foundation, Inc.              *
+ * Copyright 2018-2019,2020 Thomas E. Dickey                                *
+ * Copyright 1998-2017,2018 Free Software Foundation, Inc.                  *
  *                                                                          *
  * Permission is hereby granted, free of charge, to any person obtaining a  *
  * copy of this software and associated documentation files (the            *
@@ -29,7 +30,7 @@
 /****************************************************************************
  *  Author: Thomas E. Dickey                    1996-on                     *
  ****************************************************************************/
-/* $Id: test.priv.h,v 1.182 2019/04/20 20:15:39 tom Exp $ */
+/* $Id: test.priv.h,v 1.185 2020/02/02 23:34:34 tom Exp $ */
 
 #ifndef __TEST_PRIV_H
 #define __TEST_PRIV_H 1
@@ -885,9 +886,9 @@ extern int TABSIZE;
  * ncurses restores the cursor in endwin().  Other libraries may not.
  */
 #ifdef NCURSES_VERSION
-#define exit_curses() endwin()
+#define stop_curses() endwin()
 #else
-#define exit_curses() do { endwin(); curs_set(1); } while (0)
+#define stop_curses() do { endwin(); curs_set(1); } while (0)
 #endif
 
 /* ncurses implements tparm() with varargs, X/Open with a fixed-parameter list
@@ -904,7 +905,7 @@ extern int TABSIZE;
 #include <nc_alloc.h>
 #if HAVE_NC_FREEALL && defined(USE_TINFO)
 #undef ExitProgram
-#define ExitProgram(code) _nc_free_tinfo(code)
+#define ExitProgram(code) exit_terminfo(code)
 #endif
 #else
 #define typeMalloc(type,n) (type *) malloc((size_t)(n) * sizeof(type))
@@ -976,9 +977,9 @@ extern int TABSIZE;
 #endif
 
 #if !HAVE_STRSTR
-extern char * _nc_strstr (const char *, const char *);
+extern char *_nc_strstr(const char *, const char *);
 #define strstr(a,b) _nc_strstr((a),(b))
-#endif	/* !HAVE_STRSTR */
+#endif /* !HAVE_STRSTR */
 
 /* Use this to quiet gcc's -Wwrite-strings warnings, but accommodate SVr4
  * curses which doesn't have const parameters declared (so far) in the places
@@ -1129,7 +1130,7 @@ extern char *tgoto(char *, int, int);	/* available, but not prototyped */
 	if ((_nc_tracing & TRACE_MAXIMUM) == 0) { \
 	    int t = _nc_getenv_num("NCURSES_TRACE"); \
 	    if (t >= 0) \
-		trace((unsigned) t); \
+		curses_trace((unsigned) t); \
 	}
 extern unsigned _nc_tracing;
 extern int _nc_getenv_num(const char *);

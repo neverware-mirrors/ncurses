@@ -1,5 +1,6 @@
 /****************************************************************************
- * Copyright (c) 2006-2017,2019 Free Software Foundation, Inc.              *
+ * Copyright 2019,2020 Thomas E. Dickey                                     *
+ * Copyright 2006-2012,2017 Free Software Foundation, Inc.                  *
  *                                                                          *
  * Permission is hereby granted, free of charge, to any person obtaining a  *
  * copy of this software and associated documentation files (the            *
@@ -37,7 +38,7 @@
 
 #include <tic.h>
 
-MODULE_ID("$Id: entries.c,v 1.27 2019/03/09 23:41:08 tom Exp $")
+MODULE_ID("$Id: entries.c,v 1.30 2020/02/02 23:34:34 tom Exp $")
 
 /****************************************************************************
  *
@@ -148,7 +149,7 @@ _nc_leaks_tinfo(void)
 
 #ifdef TRACE
     T((T_RETURN("")));
-    trace(0);
+    curses_trace(0);
     _nc_trace_buf(-1, (size_t) 0);
 #endif
 
@@ -164,3 +165,12 @@ _nc_free_tinfo(int code)
     exit(code);
 }
 #endif
+
+NCURSES_EXPORT(void)
+exit_terminfo(int code)
+{
+#if NO_LEAKS
+    _nc_leaks_tinfo();
+#endif
+    exit(code);
+}

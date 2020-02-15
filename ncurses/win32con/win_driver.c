@@ -1,5 +1,6 @@
 /****************************************************************************
- * Copyright (c) 1998-2017,2018 Free Software Foundation, Inc.              *
+ * Copyright 2018,2020 Thomas E. Dickey                                     *
+ * Copyright 2008-2016,2017 Free Software Foundation, Inc.                  *
  *                                                                          *
  * Permission is hereby granted, free of charge, to any person obtaining a  *
  * copy of this software and associated documentation files (the            *
@@ -54,7 +55,7 @@
 
 #define CUR TerminalType(my_term).
 
-MODULE_ID("$Id: win_driver.c,v 1.61 2018/06/23 21:35:06 tom Exp $")
+MODULE_ID("$Id: win_driver.c,v 1.63 2020/02/02 23:34:34 tom Exp $")
 
 #ifndef __GNUC__
 #  error We need GCC to compile for MinGW
@@ -1973,7 +1974,7 @@ _nc_mingw_isatty(int fd)
 
 /*   This is used when running in terminfo mode to discover,
      whether or not the "terminal" is actually a Windows
-     Console. It's the responsibilty of the console to deal
+     Console. It's the responsibility of the console to deal
      with the terminal escape sequences that are sent by
      terminfo.
  */
@@ -2162,7 +2163,7 @@ _nc_mingw_console_read(
 static bool
 InitConsole(void)
 {
-    /* initalize once, or not at all */
+    /* initialize once, or not at all */
     if (!console_initialized) {
 	int i;
 	DWORD num_buttons;

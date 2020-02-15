@@ -1,5 +1,6 @@
 /****************************************************************************
- * Copyright (c) 2017,2019 Free Software Foundation, Inc.                   *
+ * Copyright 2019,2020 Thomas E. Dickey                                     *
+ * Copyright 2017 Free Software Foundation, Inc.                            *
  *                                                                          *
  * Permission is hereby granted, free of charge, to any person obtaining a  *
  * copy of this software and associated documentation files (the            *
@@ -28,7 +29,7 @@
 /*
  * clone of view.c, using pads
  *
- * $Id: padview.c,v 1.14 2019/07/13 20:41:47 tom Exp $
+ * $Id: padview.c,v 1.16 2020/02/02 23:34:34 tom Exp $
  */
 
 #include <test.priv.h>
@@ -324,11 +325,11 @@ main(int argc, char *argv[])
 		int tvalue = (int) strtol(optarg, &next, 0);
 		if (tvalue < 0 || (next != 0 && *next != 0))
 		    usage();
-		trace((unsigned) tvalue);
+		curses_trace((unsigned) tvalue);
 	    }
 	    break;
 	case 't':
-	    trace(TRACE_CALLS);
+	    curses_trace(TRACE_CALLS);
 	    break;
 #endif
 	default:

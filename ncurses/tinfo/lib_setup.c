@@ -1,5 +1,6 @@
 /****************************************************************************
- * Copyright (c) 1998-2018,2019 Free Software Foundation, Inc.              *
+ * Copyright 2018-2019,2020 Thomas E. Dickey                                *
+ * Copyright 1998-2016,2017 Free Software Foundation, Inc.                  *
  *                                                                          *
  * Permission is hereby granted, free of charge, to any person obtaining a  *
  * copy of this software and associated documentation files (the            *
@@ -48,7 +49,7 @@
 #include <locale.h>
 #endif
 
-MODULE_ID("$Id: lib_setup.c,v 1.204 2019/08/10 17:08:00 tom Exp $")
+MODULE_ID("$Id: lib_setup.c,v 1.207 2020/02/02 23:34:34 tom Exp $")
 
 /****************************************************************************
  *
@@ -173,16 +174,20 @@ NCURSES_EXPORT(int)
 NCURSES_SP_NAME(set_tabsize) (NCURSES_SP_DCLx int value)
 {
     int code = OK;
-#if USE_REENTRANT
-    if (SP_PARM) {
-	SP_PARM->_TABSIZE = value;
-    } else {
+    if (value <= 0) {
 	code = ERR;
-    }
+    } else {
+#if USE_REENTRANT
+	if (SP_PARM) {
+	    SP_PARM->_TABSIZE = value;
+	} else {
+	    code = ERR;
+	}
 #else
-    (void) SP_PARM;
-    TABSIZE = value;
+	(void) SP_PARM;
+	TABSIZE = value;
 #endif
+    }
     return code;
 }
 

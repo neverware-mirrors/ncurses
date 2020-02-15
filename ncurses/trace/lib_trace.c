@@ -1,5 +1,6 @@
 /****************************************************************************
- * Copyright (c) 1998-2018,2019 Free Software Foundation, Inc.              *
+ * Copyright 2018-2019,2020 Thomas E. Dickey                                *
+ * Copyright 1998-2016,2017 Free Software Foundation, Inc.                  *
  *                                                                          *
  * Permission is hereby granted, free of charge, to any person obtaining a  *
  * copy of this software and associated documentation files (the            *
@@ -47,7 +48,7 @@
 
 #include <ctype.h>
 
-MODULE_ID("$Id: lib_trace.c,v 1.92 2019/03/23 23:47:16 tom Exp $")
+MODULE_ID("$Id: lib_trace.c,v 1.95 2020/02/02 23:34:34 tom Exp $")
 
 NCURSES_EXPORT_VAR(unsigned) _nc_tracing = 0; /* always define this */
 
@@ -91,10 +92,14 @@ NCURSES_EXPORT_VAR(long) _nc_outchars = 0;
 #define MyPath		_nc_globals.trace_fname
 #define MyLevel		_nc_globals.trace_level
 #define MyNested	_nc_globals.nested_tracef
+#endif /* TRACE */
 
-NCURSES_EXPORT(void)
-trace(const unsigned int tracelevel)
+NCURSES_EXPORT(unsigned)
+curses_trace(unsigned tracelevel)
 {
+    unsigned result;
+#if defined(TRACE)
+    result = _nc_tracing;
     if ((MyFP == 0) && tracelevel) {
 	MyInit = TRUE;
 	if (MyFD >= 0) {
@@ -146,6 +151,18 @@ trace(const unsigned int tracelevel)
 	_nc_tracing = tracelevel;
 	_tracef("tracelevel=%#x", tracelevel);
     }
+#else
+    (void) tracelevel;
+    result = 0;
+#endif
+    return result;
+}
+
+#if defined(TRACE)
+NCURSES_EXPORT(void)
+trace(const unsigned int tracelevel)
+{
+    curses_trace(tracelevel);
 }
 
 static void

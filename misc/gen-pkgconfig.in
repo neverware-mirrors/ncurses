@@ -1,7 +1,8 @@
 #!@SHELL@
-# $Id: gen-pkgconfig.in,v 1.40 2019/10/12 22:27:10 tom Exp $
+# $Id: gen-pkgconfig.in,v 1.44 2020/02/12 00:09:26 tom Exp $
 ##############################################################################
-# Copyright (c) 2009-2018,2019 Free Software Foundation, Inc.                #
+# Copyright 2018-2019,2020 Thomas E. Dickey                                  #
+# Copyright 2009-2015,2018 Free Software Foundation, Inc.                    #
 #                                                                            #
 # Permission is hereby granted, free of charge, to any person obtaining a    #
 # copy of this software and associated documentation files (the "Software"), #
@@ -46,14 +47,15 @@ CXX_NAME=@CXX_NAME@
 DFT_DEP_SUFFIX=@DFT_DEP_SUFFIX@
 TINFO_ARG_SUFFIX=@TINFO_ARG_SUFFIX@
 CXX_LIB_SUFFIX=@CXX_LIB_SUFFIX@
-RPATH_LIST=@RPATH_LIST@
-PRIVATE_LIBS="@PRIVATE_LIBS@"
 
 suffix=@PC_MODULE_SUFFIX@
 prefix="@prefix@"
 exec_prefix="@exec_prefix@"
 includedir="@includedir@@includesubdir@"
 libdir="@libdir@"
+
+RPATH_LIST=@RPATH_LIST@
+PRIVATE_LIBS="@PRIVATE_LIBS@"
 
 show_prefix='@prefix@'
 show_exec_prefix='@exec_prefix@'
@@ -82,6 +84,9 @@ for opt in -L$libdir @LDFLAGS@ @EXTRA_LDFLAGS@ @LIBS@
 do
 	case $opt in
 	-l*) # LIBS is handled specially below
+		continue
+		;;
+	-specs*) # ignore linker specs-files which were used to build library
 		continue
 		;;
 	-Wl,-z,*) # ignore flags used to manipulate shared image
@@ -120,6 +125,15 @@ if [ "x@TINFO_LIBS@" != "x" ] && \
 then
 	NEED_TINFO=yes
 fi
+
+# The "URL" feature came in pkg-config 0.17
+USEURL=""
+CFGVER=`pkg-config --version 2>/dev/null |head -n 1 | awk -F. '/0.[0-9][0-9]/{print $2;}'`
+# A missing version should simply fail, but some packagers insist on building
+# packages on machines which do not actually have the tools they depend on at
+# runtime.
+[ -z "$CFGVER" ] && CFGVER=30
+[ $CFGVER -ge 17 ] || USEURL="#"
 
 for name in @PC_MODULES_TO_MAKE@
 do
@@ -174,7 +188,7 @@ version=@NCURSES_MAJOR@.@NCURSES_MINOR@.@NCURSES_PATCH@
 Name: ${name}${suffix}
 Description: $desc
 Version: \${version}
-URL: https://invisible-island.net/ncurses
+${USEURL}URL: https://invisible-island.net/ncurses
 Requires.private: $reqs
 Libs: $lib_flags $LIBS
 Libs.private: @LIBS@ $main_libs

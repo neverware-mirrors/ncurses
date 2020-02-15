@@ -1,5 +1,6 @@
 /****************************************************************************
- * Copyright (c) 1998-2017,2019 Free Software Foundation, Inc.              *
+ * Copyright 2019,2020 Thomas E. Dickey                                     *
+ * Copyright 1998-2016,2017 Free Software Foundation, Inc.                  *
  *                                                                          *
  * Permission is hereby granted, free of charge, to any person obtaining a  *
  * copy of this software and associated documentation files (the            *
@@ -33,7 +34,7 @@
  * modified 10-18-89 for curses (jrl)
  * 10-18-89 added signal handling
  *
- * $Id: gdc.c,v 1.52 2019/08/24 23:11:01 tom Exp $
+ * $Id: gdc.c,v 1.54 2020/02/02 23:34:34 tom Exp $
  */
 
 #include <test.priv.h>
@@ -66,7 +67,7 @@ sighndl(int signo)
     signal(signo, sighndl);
     sigtermed = signo;
     if (redirected) {
-	exit_curses();
+	stop_curses();
 	ExitProgram(EXIT_FAILURE);
     }
 }
@@ -76,7 +77,7 @@ check_term(void)
 {
     if (sigtermed) {
 	(void) standend();
-	exit_curses();
+	stop_curses();
 	fprintf(stderr, "gdc terminated by signal %d\n", sigtermed);
 	ExitProgram(EXIT_FAILURE);
     }
@@ -447,6 +448,6 @@ main(int argc, char *argv[])
 	}
     } while (--count);
     (void) standend();
-    exit_curses();
+    stop_curses();
     ExitProgram(EXIT_SUCCESS);
 }

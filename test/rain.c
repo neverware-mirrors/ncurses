@@ -1,5 +1,6 @@
 /****************************************************************************
- * Copyright (c) 1998-2017,2018 Free Software Foundation, Inc.              *
+ * Copyright 2018-2019,2020 Thomas E. Dickey                                *
+ * Copyright 1998-2014,2017 Free Software Foundation, Inc.                  *
  *                                                                          *
  * Permission is hereby granted, free of charge, to any person obtaining a  *
  * copy of this software and associated documentation files (the            *
@@ -26,7 +27,7 @@
  * authorization.                                                           *
  ****************************************************************************/
 /*
- * $Id: rain.c,v 1.49 2018/06/23 21:35:06 tom Exp $
+ * $Id: rain.c,v 1.51 2020/02/02 23:34:34 tom Exp $
  */
 #include <test.priv.h>
 #include <popup_msg.h>
@@ -78,7 +79,7 @@ safe_wgetch(WINDOW *w, void *data GCC_UNUSED)
 static void
 onsig(int n GCC_UNUSED)
 {
-    exit_curses();
+    stop_curses();
     ExitProgram(EXIT_FAILURE);
 }
 
@@ -437,7 +438,7 @@ main(int argc, char *argv[])
 	}
 	napms(50);
     }
-    exit_curses();
+    stop_curses();
 #ifdef USE_PTHREADS
     printf("Counts per thread:\n");
     for (j = 0; j < MAX_THREADS; ++j)

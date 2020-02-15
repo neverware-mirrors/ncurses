@@ -1,5 +1,6 @@
 /****************************************************************************
- * Copyright (c) 1998-2018,2019 Free Software Foundation, Inc.              *
+ * Copyright 2018-2019,2020 Thomas E. Dickey                                *
+ * Copyright 1998-2017,2018 Free Software Foundation, Inc.                  *
  *                                                                          *
  * Permission is hereby granted, free of charge, to any person obtaining a  *
  * copy of this software and associated documentation files (the            *
@@ -34,7 +35,7 @@
  ****************************************************************************/
 
 /*
- * $Id: curses.priv.h,v 1.625 2019/07/28 18:32:05 tom Exp $
+ * $Id: curses.priv.h,v 1.628 2020/02/02 23:34:34 tom Exp $
  *
  *	curses.priv.h
  *
@@ -1771,7 +1772,7 @@ extern NCURSES_EXPORT_VAR(SIG_ATOMIC_T) _nc_have_sigwinch;
 	if ((_nc_tracing & TRACE_MAXIMUM) == 0) { \
 	    int t = _nc_getenv_num("NCURSES_TRACE"); \
 	    if (t >= 0) \
-		trace((unsigned) t); \
+		curses_trace((unsigned) t); \
 	}
 #else
 #define START_TRACE() /* nothing */
@@ -2170,11 +2171,7 @@ extern NCURSES_EXPORT(void)   _nc_forget_prescr(void);
 extern NCURSES_EXPORT(int)    _nc_ripoffline(int, int(*)(WINDOW*, int));
 
 /* lib_setup.c */
-#if NO_LEAKS
-#define ExitTerminfo(code)    _nc_free_tinfo(code)
-#else
-#define ExitTerminfo(code)    exit(code)
-#endif
+#define ExitTerminfo(code)    exit_terminfo(code)
 
 #define SETUP_FAIL ERR
 
@@ -2264,7 +2261,6 @@ extern NCURSES_EXPORT(int) _nc_timed_wait (SCREEN *, int, int, int * EVENTLIST_2
 extern NCURSES_EXPORT(void) _nc_init_termtype (TERMTYPE2 *const);
 extern NCURSES_EXPORT(void) _nc_do_color (int, int, int, NCURSES_OUTC);
 extern NCURSES_EXPORT(void) _nc_flush (void);
-extern NCURSES_EXPORT(void) _nc_free_and_exit (int) GCC_NORETURN;
 extern NCURSES_EXPORT(void) _nc_free_entry (ENTRY *, TERMTYPE2 *);
 extern NCURSES_EXPORT(void) _nc_freeall (void);
 extern NCURSES_EXPORT(void) _nc_hash_map (void);

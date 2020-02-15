@@ -1,5 +1,6 @@
 /****************************************************************************
- * Copyright (c) 1998-2018,2019 Free Software Foundation, Inc.              *
+ * Copyright 2018-2019,2020 Thomas E. Dickey                                *
+ * Copyright 1998-2016,2017 Free Software Foundation, Inc.                  *
  *                                                                          *
  * Permission is hereby granted, free of charge, to any person obtaining a  *
  * copy of this software and associated documentation files (the            *
@@ -48,7 +49,7 @@
 #define CUR SP_TERMTYPE
 #endif
 
-MODULE_ID("$Id: lib_color.c,v 1.140 2019/01/21 01:55:18 tom Exp $")
+MODULE_ID("$Id: lib_color.c,v 1.143 2020/02/02 23:34:34 tom Exp $")
 
 #ifdef USE_TERM_DRIVER
 #define CanChange      InfoOf(SP_PARM).canchange
@@ -803,7 +804,7 @@ NCURSES_SP_NAME(has_colors) (NCURSES_SP_DCL0)
     int code = FALSE;
 
     (void) SP_PARM;
-    T((T_CALLED("has_colors()")));
+    T((T_CALLED("has_colors(%p)"), (void *) SP_PARM));
     if (HasTerminal(SP_PARM)) {
 #ifdef USE_TERM_DRIVER
 	code = HasColor;

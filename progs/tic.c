@@ -1,5 +1,6 @@
 /****************************************************************************
- * Copyright (c) 1998-2018,2019 Free Software Foundation, Inc.              *
+ * Copyright 2018-2019,2020 Thomas E. Dickey                                *
+ * Copyright 1998-2017,2018 Free Software Foundation, Inc.                  *
  *                                                                          *
  * Permission is hereby granted, free of charge, to any person obtaining a  *
  * copy of this software and associated documentation files (the            *
@@ -48,7 +49,7 @@
 #include <parametrized.h>
 #include <transform.h>
 
-MODULE_ID("$Id: tic.c,v 1.279 2019/10/15 22:18:29 tom Exp $")
+MODULE_ID("$Id: tic.c,v 1.282 2020/02/02 23:34:34 tom Exp $")
 
 #define STDIN_NAME "<stdin>"
 
@@ -2939,6 +2940,7 @@ check_termtype(TERMTYPE2 *tp, bool literal)
      * These are probably both or none.
      */
     PAIRED(parm_index, parm_rindex);
+    PAIRED(parm_ich, parm_dch);
 
     /*
      * These may be mismatched because the terminal description relies on
@@ -3055,7 +3057,7 @@ check_termtype(TERMTYPE2 *tp, bool literal)
      * ncurses handles it.
      */
     if ((PRESENT(enter_insert_mode) || PRESENT(exit_insert_mode))
-	&& PRESENT(parm_ich)) {
+	&& PRESENT(insert_character)) {
 	_nc_warning("non-curses applications may be confused by ich1 with smir/rmir");
     }
 
