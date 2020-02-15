@@ -8,8 +8,11 @@ ncurses (6.2-1) UNRELEASED; urgency=medium
   [ Sven Joachim ]
   * New upstream release.
   * Refresh Debian patches.
-  * Silence the package-placeholder-in-symbols-file lintian warning in the
-    ABI5 library packages.
+  * Update symbols files and bump shlibs.
+    - Update the minimal version for symbols added after the 6.1 release
+      to 6.2.
+    - Silence the package-placeholder-in-symbols-file lintian warning
+      in the ABI5 library packages.
 
  -- Debian Janitor <janitor@jelmer.uk>  Fri, 17 Jan 2020 04:30:57 +0000
 
