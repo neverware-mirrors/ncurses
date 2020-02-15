@@ -20,7 +20,7 @@ Last-Update: 2019-10-21
 
 --- a/misc/ncurses-config.in
 +++ b/misc/ncurses-config.in
-@@ -40,7 +40,6 @@ exec_prefix="@exec_prefix@"
+@@ -41,7 +41,6 @@ exec_prefix="@exec_prefix@"
  
  bindir="@bindir@"
  includedir="@includedir@"
@@ -28,7 +28,7 @@ Last-Update: 2019-10-21
  datarootdir="@datarootdir@"
  datadir="@datadir@"
  mandir="@mandir@"
-@@ -109,7 +108,7 @@ do
+@@ -113,7 +112,7 @@ do
  	-L*)
  		[ -d ${opt##-L} ] || continue
  		case ${opt##-L} in
@@ -37,7 +37,7 @@ Last-Update: 2019-10-21
  			continue
  			;;
  		*)
-@@ -231,7 +230,6 @@ ENDECHO
+@@ -235,7 +234,6 @@ ENDECHO
  		echo $INCS
  		;;
  	--libdir)
