@@ -15,6 +15,7 @@ ncurses (6.2-1) UNRELEASED; urgency=medium
       in the ABI5 library packages.
   * Get rid of debian/xterm.ti, and record the changes Debian makes to the
     xterm* terminfo entries in a new patch 02-debian-xterm.diff.
+  * Switch debian/copyright to format 1.0, and update the years.
 
  -- Debian Janitor <janitor@jelmer.uk>  Fri, 17 Jan 2020 04:30:57 +0000
 
