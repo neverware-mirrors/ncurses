@@ -1,4 +1,4 @@
-ncurses (6.2-1) UNRELEASED; urgency=medium
+ncurses (6.2-1) unstable; urgency=medium
 
   [ Debian Janitor ]
   * Rely on pre-initialized dpkg-architecture variables.
@@ -18,7 +18,7 @@ ncurses (6.2-1) UNRELEASED; urgency=medium
   * Switch debian/copyright to format 1.0, and update the years.
   * Upgrade Standards-Version to 4.5.0, no changes needed.
 
- -- Debian Janitor <janitor@jelmer.uk>  Fri, 17 Jan 2020 04:30:57 +0000
+ -- Sven Joachim <svenjoac@gmx.de>  Sat, 29 Feb 2020 10:05:22 +0100
 
 ncurses (6.1+20191019-1) unstable; urgency=medium
 
