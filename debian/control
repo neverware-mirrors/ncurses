@@ -6,7 +6,7 @@ Uploaders: Sven Joachim <svenjoac@gmx.de>
 Build-Depends: debhelper-compat (= 12),
                libgpm-dev [linux-any],
                pkg-config,
-               autoconf-dickey (>= 2.52+20170501),
+               autoconf-dickey (>= 2.52+20200111),
 Build-Depends-Arch: g++-multilib [amd64 i386 powerpc ppc64 s390 sparc] <!nobiarch>
 Standards-Version: 4.5.0
 Rules-Requires-Root: no
