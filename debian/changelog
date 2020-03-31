@@ -1,7 +1,11 @@
 ncurses (6.2-2) UNRELEASED; urgency=medium
 
+  [ Sven Joachim ]
   * Bump autoconf-dickey build dependency to (>= 2.52+20200111), as per
     configure.in.
+
+  [ Debian Janitor ]
+  * Wrap long lines in changelog entries: 5.0-5.
 
  -- Sven Joachim <svenjoac@gmx.de>  Wed, 04 Mar 2020 18:01:25 +0100
 
@@ -2061,7 +2065,8 @@ ncurses (5.0-6) frozen unstable; urgency=low
 
 ncurses (5.0-5) frozen unstable; urgency=low
 
-  * Update xterm.ti from Branden Robinson <branden@debian.org> (closes:Bug#55840).
+  * Update xterm.ti from Branden Robinson <branden@debian.org>
+    (closes:Bug#55840).
   * ncurses-base: Include /usr/share/terminfo/x/xterm-color ->
     /etc/terminfo/x/xterm-color symlink (closes:Bug#56101,#55619).
   * debian/rxvt.ti: Remove kf0 due to clash with kf10 (closes:Bug#56086).
