@@ -70,11 +70,7 @@ objdir-test=$(srcdir)/obj-test
 objdir-legacy=$(srcdir)/obj-legacy
 wobjdir-legacy=$(srcdir)/obj-wide-legacy
 
-autogen-files := debian/libncurses-dev.links debian/libncurses-dev.install \
-		 debian/libncurses6.install debian/libncursesw6.install \
-		 debian/libtinfo6.install debian/libtinfo5.install \
-		 debian/libncurses5.install debian/libncursesw5.install \
-		 debian/libtermcap.so
+autogen-files := debian/libtermcap.so
 
 ifeq ($(DEB_HOST_ARCH),i386)
 build_64_target = x86_64-$(DEB_HOST_GNU_SYSTEM)
@@ -471,8 +467,8 @@ ifneq ($(build_examples),)
 		$(workdir)/debian/$(package-examples)/usr/lib/ncurses/examples/tracemunch
 endif
 
-debian/%: debian/%.in
-	sed -e 's/$${DEB_HOST_MULTIARCH}/$(DEB_HOST_MULTIARCH)/g' $< > $@
+debian/libtermcap.so: debian/libtermcap.so.in
+	cat $< > $@
 
 binary:	binary-arch binary-indep
 
@@ -537,7 +533,7 @@ endif
 	dh_md5sums -a
 	dh_builddeb -a
 
-binary-indep: build-indep install-indep $(autogen-files)
+binary-indep: build-indep install-indep
 	dh_testdir
 	dh_testroot
 

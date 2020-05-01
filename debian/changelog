@@ -4,6 +4,8 @@ ncurses (6.2-2) UNRELEASED; urgency=medium
   * Bump autoconf-dickey build dependency to (>= 2.52+20200111), as per
     configure.in.
   * Bump debhelper compatibility level to 13.
+    - Use the substition feature in that compat level to get rid of the
+      debian/*.{install,links}.in files.
 
   [ Debian Janitor ]
   * Wrap long lines in changelog entries: 5.0-5.

@@ -1,14 +1,6 @@
 autoreconf.after
 autoreconf.before
 files
-libncurses6.install
-libncursesw6.install
-libtinfo6.install
-libncurses-dev.links
-libncurses-dev.install
-libncurses5.install
-libncursesw5.install
-libtinfo5.install
 libtermcap.so
 *.substvars
 *.debhelper
