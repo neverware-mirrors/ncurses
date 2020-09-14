@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: tracemunch,v 1.27 2020/02/02 23:34:34 tom Exp $
+# $Id: tracemunch,v 1.30 2020/08/29 18:59:58 tom Exp $
 ##############################################################################
 # Copyright 2018-2019,2020 Thomas E. Dickey                                  #
 # Copyright 1998-2005,2017 Free Software Foundation, Inc.                    #
@@ -37,11 +37,33 @@
 use strict;
 use warnings;
 
+$| = 1;
+
 our $putattr =
     'PutAttrChar\(\{\{ ' . "'(.)'"
   . ' = 0[0-7]+ \}\}\) at \(([0-9]+), ([0-9]+)\)';
 our $waddnstr =
-  'waddnstr\(0x([[:xdigit:]]+),"([^\"]+)",[0-9]+\) called \{A_NORMAL\}';
+'^called \{waddnstr\((0x[[:xdigit:]]+|window\d+),"((\\.|[^\"]*))",[-]?[0-9]+\)';
+
+our %TR = qw(
+  DISABLE       0x0000
+  TIMES         0x0001
+  TPUTS         0x0002
+  UPDATE        0x0004
+  MOVE          0x0008
+  CHARPUT       0x0010
+  ORDINARY      0x001F
+  CALLS         0x0020
+  VIRTPUT       0x0040
+  IEVENT        0x0080
+  BITS          0x0100
+  ICALLS        0x0200
+  CCALLS        0x0400
+  DATABASE      0x0800
+  ATTRS         0x1000
+);
+
+our $tracelevel = 0;
 
 # If the trace is complete, we can infer addresses using the return value from
 # newwin, etc.  But if it is incomplete, we can still check for special cases
@@ -52,6 +74,7 @@ our $waddnstr =
 # 4 = TERMINAL*
 our %known_p1 = qw(
   TransformLine           1
+  _nc_console_read        1
   _nc_freewin             2
   _nc_initscr             1
   _nc_makenew             1
@@ -420,7 +443,10 @@ sub transaddr($) {
             my $type = $known_p1{$func};
             chomp $addr;
             $addr =~ s/^[^(]+\((0x[[:xdigit:]]+).*/$1/i;
-            if ( $type == 1 ) {
+            if ( $addr !~ /^0x[[:xdigit:]]+$/i ) {
+                printf "OOPS - expected type #$type, skipping\n>>$addr\n";
+            }
+            elsif ( $type == 1 ) {
                 $scr_addr{$addr} = ++$scr_nums;
                 $arg = &transaddr($arg);
             }
@@ -451,6 +477,14 @@ sub muncher($) {
             # just in case someone tries a file with cr/lf line-endings:
             $_ =~ s/\r\n/\n/g;
             $_ =~ s/\r/\n/g;
+
+            if ( $_ =~
+                /^TRACING NCURSES version.*\(tracelevel=(0x[[:xdigit:]]+)\)/ )
+            {
+                $tracelevel = hex $1;
+                print;
+                next;
+            }
 
             my $thread = "";
             if ( $_ =~ /^(0x[[:xdigit:]]+):/ ) {
@@ -515,8 +549,9 @@ sub muncher($) {
                 }
             }
 
-            # Compactify runs of PutAttrChar calls (TR_CHARPUT)
-            if ( $_ =~ /$putattr/ ) {
+            # Compactify runs of PutAttrChar
+            if ( ( ( $tracelevel & $TR{CHARPUT} ) != 0 ) and $_ =~ /$putattr/ )
+            {
                 my $putattr_chars = $1;
                 my $starty        = $2;
                 my $startx        = $3;
@@ -525,19 +560,23 @@ sub muncher($) {
                         $putattr_chars .= $1;
                     }
                     else {
+                        next if ( $_ =~ /^PUTC 0x[[:xdigit:]]+.*/ );
+                        next if ( $_ =~ /^\.\.\.skip.*/ );
+                        next if ( $_ =~ /^forced to blank.*/ );
                         last;
                     }
                 }
-                print
-"RUN of PutAttrChar()s: \"$putattr_chars\" from ${starty}, ${startx}\n";
+                print "RUN of PutAttrChar()s:"
+                  . " \"$putattr_chars\" from ${starty}, ${startx}\n";
                 redo CLASSIFY;
             }
 
-            # Compactify runs of waddnstr calls (TR_CALLS)
-            if ( $_ =~ /$waddnstr/ ) {
+            # Compactify runs of waddnstr calls
+            if ( ( ( $tracelevel & $TR{CALLS} ) != 0 ) and $_ =~ /$waddnstr/ ) {
                 my $waddnstr_chars = $2;
                 my $winaddr        = $1;
                 while (<$STDIN>) {
+                    next if ( $_ =~ /^return \}0/ );
                     if ( $_ =~ /$waddnstr/ && $1 eq $winaddr ) {
                         $waddnstr_chars .= $2;
                     }
@@ -546,7 +585,8 @@ sub muncher($) {
                     }
                 }
                 my $winaddstr = &transaddr($winaddr);
-                print "RUN of waddnstr()s: $winaddr, \"$waddnstr_chars\"\n";
+                print "RUN of waddnstr()s:"
+                  . " $winaddstr, \"$waddnstr_chars\"\n";
                 redo CLASSIFY;
             }
 
@@ -573,6 +613,10 @@ sub muncher($) {
 
         }    # :CLASSIFY
     }
+}
+
+for my $tr ( keys %TR ) {
+    $TR{$tr} = hex $TR{$tr};
 }
 
 if ( $#ARGV >= 0 ) {
