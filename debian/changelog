@@ -2,6 +2,9 @@ ncurses (6.2+20200912-1) UNRELEASED; urgency=medium
 
   [ Sven Joachim ]
   * New upstream patchlevel.
+    - Move dlclose() call from lib_mouse.c to delscreen() to avoid a
+      case in the former which could be called from SIGTSTP handler
+      (Closes: #961097).
   * Update symbols files for new symbol _nc_tiparm.
   * Bump autoconf-dickey build dependency to (>= 2.52+20200111), as per
     configure.in.
