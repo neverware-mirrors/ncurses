@@ -1,4 +1,4 @@
-ncurses (6.2+20200912-1) UNRELEASED; urgency=medium
+ncurses (6.2+20200912-1) unstable; urgency=medium
 
   [ Sven Joachim ]
   * New upstream patchlevel.
@@ -15,7 +15,7 @@ ncurses (6.2+20200912-1) UNRELEASED; urgency=medium
   [ Debian Janitor ]
   * Wrap long lines in changelog entries: 5.0-5.
 
- -- Sven Joachim <svenjoac@gmx.de>  Wed, 04 Mar 2020 18:01:25 +0100
+ -- Sven Joachim <svenjoac@gmx.de>  Thu, 17 Sep 2020 19:18:53 +0200
 
 ncurses (6.2-1) unstable; urgency=medium
 
