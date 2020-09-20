@@ -3,6 +3,8 @@ ncurses (6.2+20200918-1) UNRELEASED; urgency=medium
   * New upstream patchlevel.
     - Corrected condition for appending curses.events to the generated
       curses.h (report by Sven Joachim, Closes: #970577).
+   * Version the Provides of the transitional -dev packages
+     by libncurses-dev.
 
  -- Sven Joachim <svenjoac@gmx.de>  Sat, 19 Sep 2020 09:47:45 +0200
 
