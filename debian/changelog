@@ -1,4 +1,4 @@
-ncurses (6.2+20200918-1) UNRELEASED; urgency=medium
+ncurses (6.2+20200918-1) unstable; urgency=medium
 
   * New upstream patchlevel.
     - Corrected condition for appending curses.events to the generated
@@ -6,7 +6,7 @@ ncurses (6.2+20200918-1) UNRELEASED; urgency=medium
    * Version the Provides of the transitional -dev packages
      by libncurses-dev.
 
- -- Sven Joachim <svenjoac@gmx.de>  Sat, 19 Sep 2020 09:47:45 +0200
+ -- Sven Joachim <svenjoac@gmx.de>  Sun, 20 Sep 2020 11:16:40 +0200
 
 ncurses (6.2+20200912-1) unstable; urgency=medium
 
