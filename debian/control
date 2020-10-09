@@ -47,6 +47,7 @@ Pre-Depends: ${misc:Pre-Depends}
 Multi-Arch: same
 Depends: libtinfo6 (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
 Recommends: libgpm2 [linux-any]
+Breaks: cowdancer (<< 0.89~)
 Description: shared libraries for terminal handling
  The ncurses library routines are a terminal-independent method of
  updating character screens with reasonable optimization.
