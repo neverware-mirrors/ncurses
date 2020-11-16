@@ -6,8 +6,8 @@
 # Report bugs and new terminal descriptions to
 #	bug-ncurses@gnu.org
 #
-#	$Revision: 1.812 $
-#	$Date: 2020/09/05 17:45:56 $
+#	$Revision: 1.829 $
+#	$Date: 2020/11/08 00:03:03 $
 #
 # The original header is preserved below for reference.  It is noted that there
 # is a "newer" version which differs in some cosmetic details (but actually
@@ -4788,7 +4788,7 @@ xterm+r6f2|xterm with oldFunctionKeys and modifyFunctionKeys:2,
 #
 # This chunk is used for building the VT220/Sun/PC keyboard variants.
 xterm-basic|modern xterm terminal emulator - common,
-	OTbs, am, bce, km, mir, msgr, xenl, AX, XT,
+	OTbs, am, bce, mir, msgr, xenl, AX, XT,
 	colors#8, cols#80, it#8, lines#24, pairs#64,
 	acsc=``aaffggiijjkkllmmnnooppqqrrssttuuvvwwxxyyzz{{||}}~~,
 	bel=^G, blink=\E[5m, bold=\E[1m, cbt=\E[Z, civis=\E[?25l,
@@ -4804,7 +4804,7 @@ xterm-basic|modern xterm terminal emulator - common,
 	is2=\E[!p\E[?3;4l\E[4l\E>, kmous=\E[M, meml=\El,
 	memu=\Em, op=\E[39;49m, rc=\E8, rev=\E[7m, ri=\EM,
 	rmacs=\E(B, rmam=\E[?7l, rmir=\E[4l, rmkx=\E[?1l\E>,
-	rmm=\E[?1034l, rmso=\E[27m, rmul=\E[24m, rs1=\Ec,
+	rmso=\E[27m, rmul=\E[24m, rs1=\Ec,
 	rs2=\E[!p\E[?3;4l\E[4l\E>, sc=\E7, setab=\E[4%p1%dm,
 	setaf=\E[3%p1%dm,
 	setb=\E[4%?%p1%{1}%=%t4%e%p1%{3}%=%t6%e%p1%{4}%=%t1%e%p1%{6}
@@ -4814,10 +4814,14 @@ xterm-basic|modern xterm terminal emulator - common,
 	sgr=%?%p9%t\E(0%e\E(B%;\E[0%?%p6%t;1%;%?%p5%t;2%;%?%p2%t;4%;
 	    %?%p1%p3%|%t;7%;%?%p4%t;5%;%?%p7%t;8%;m,
 	sgr0=\E(B\E[m, smacs=\E(0, smam=\E[?7h, smir=\E[4h,
-	smkx=\E[?1h\E=, smm=\E[?1034h, smso=\E[7m, smul=\E[4m,
-	tbc=\E[3g, vpa=\E[%i%p1%dd, E3=\E[3J, use=ecma+italics,
-	use=ansi+pp, use=xterm+kbs, use=xterm+alt+title,
-	use=ansi+enq,
+	smkx=\E[?1h\E=, smso=\E[7m, smul=\E[4m, tbc=\E[3g,
+	vpa=\E[%i%p1%dd, E3=\E[3J, use=ecma+italics, use=ansi+pp,
+	use=xterm+kbs, use=xterm+alt+title, use=ansi+enq,
+	use=xterm+meta,
+
+xterm+meta|meta mode for xterm,
+	km,
+	rmm=\E[?1034l, smm=\E[?1034h,
 
 # From: David J. MacKenzie <djm@va.pubnix.com>, 14 Nov 1997
 # In retrospect, something like xterm-r6 was intended here -TD
@@ -5938,20 +5942,57 @@ konsole-256color|KDE console window with xterm 256-colors,
 	use=xterm+256setaf, use=konsole,
 
 #### MLTERM
-# http://mlterm.sourceforge.net/
+# https://github.com/arakiken/mlterm
 
 mlterm|multi lingual terminal emulator,
 	use=mlterm3,
 
-# Tested mlterm 3.2.2:
-# mlterm 3.x has made changes, but they are not reflected in the included
-# mlterm.ti; this entry is based on testing with ncurses, tack and vttest -TD
-# 2018/01/21: found xterm+sm+1006 did not work with version 3.3.8
+# Tested mlterm 3.9.0 (2020/09/19):
+# ncurses:
+# - has blinking text
+# - has italics
+# - has invisible-text
+# tack:
+# - has crossed-out text
+# - does not support palette reset with OSC 104
+# - testing the function-keys is difficult because the terminal is
+#   preconfigured to set many of the modified keys to special functions, e.g.,
+#   - shift-F1 and shift-F2 are bound to a split-screen feature
+#   - control-F1 and control-F2 is bound to a new-terminal feature
+# vttest:
+# - primary response says it is a VT340 (ReGIS and Sixel).
+# - has partial support for double-size characters.
+# - character-set tests do not work.
+# - DEC locator works.
+# - 1006-mouse works.
+# - focus-events do not work reliably.
+# - numeric keypad escapes do not work.
+# - back-color erase works
+# other:
+# - title-stack works.
+# - doesn't respond to 8-bit controls.
+# - 256-color palette initializing works.
+# - DECSTR soft-reset is documented.
+#
+# Tested mlterm 3.3.8 (2018/01/21):
+# found xterm+sm+1006 did not work with version 3.3.8
+# soft-reset DECSTR is in sources since 2017/09/19.
+#
+# Tested mlterm 3.2.2 (2014/03/22):
+# mlterm 3.x made further changes, but they were not reflected in the included
+# mlterm.ti (which was dropped in 2015).  This entry has been based on testing
+# with ncurses, tack and vttest -TD
 mlterm3|multi lingual terminal emulator,
+	bce, AX,
+	blink=\E[5m, invis=\E[8m, is2=\E[!p\E[?3;4l\E>,
 	kf1=\E[11~, kf2=\E[12~, kf3=\E[13~, kf4=\E[14~,
-	use=ecma+italics, use=xterm+app, use=xterm+pcf0,
-	use=xterm+pcc2, use=xterm+pce2, use=xterm+x11mouse,
-	use=mlterm2,
+	rs2=\E[!p\E[?3;4l\E>,
+	sgr=\E[0%?%p6%t;1%;%?%p2%t;4%;%?%p4%t;5%;%?%p1%p3%|%t;7%;%?
+	    %p7%t;8%;m%?%p9%t\E(0%e\E(B%;,
+	use=ansi+enq, use=ansi+rep, use=ecma+italics,
+	use=ecma+strikeout, use=xterm+app, use=xterm+pcf2,
+	use=xterm+pcc2, use=xterm+pce2, use=xterm+meta,
+	use=xterm+alt+title, use=xterm+sm+1006, use=mlterm2,
 
 # This is mlterm 2.9.3's mlterm.ti, with some additions/corrections -TD
 #
@@ -7059,7 +7100,6 @@ alacritty+common|base fragment for alacritty,
 
 #### Kitty
 # https://github.com/kovidgoyal/kitty
-# Version 0.13.3
 # Project started in 2016/10 (see alacritty), but is a Python script rather
 # than Rust, using OpenGL.  The same caveats regarding remote connections
 # apply.  This is not an X terminal, though (like alacritty), it copies
@@ -7074,6 +7114,23 @@ alacritty+common|base fragment for alacritty,
 #	http://lists.gnu.org/archive/html/bug-ncurses/2018-09/msg00005.html
 #	https://github.com/kovidgoyal/kitty/issues/879
 #
+# Version 0.19.1
+# changes since 0.13.3:
+# vttest
+#	ISO-6429
+#		REP works, though using unspecified behavior
+#	xterm
+#		xterm's SGR-mouse mode is recognized.
+#		does recognize original alternate-screen
+#		bug: mouse focus in/out does not work.
+#		bug: X10 mouse mode responds like any-event
+#		bug: highlight-tracking does not work; terminal hangs.
+#
+# tack
+#	rs1 adds an empty string for resetting title- and other OSC-strings.
+#	italics work
+#
+# Version 0.13.3
 # Notes:
 #	initial screensize 71x22
 #	does not respond to "resize -s"
@@ -7163,17 +7220,18 @@ kitty+common|KovId's TTY common properties,
 	kf31=\E[18;5~, kf32=\E[19;5~, kf33=\E[20;5~,
 	kf34=\E[21;5~, kf35=\E[23;5~, kf36=\E[24;5~, kf4=\EOS,
 	kf5=\E[15~, kf6=\E[17~, kf7=\E[18~, kf8=\E[19~, kf9=\E[20~,
-	khome=\EOH, kich1=\E[2~, kind=\E[1;2B, kmous=\E[M,
-	knp=\E[6~, kpp=\E[5~, kri=\E[1;2A, op=\E[39;49m, rc=\E8,
-	rev=\E[7m, ri=\EM, rmacs=\E(B, rmam=\E[?7l, rmir=\E[4l,
-	rmkx=\E[?1l, rmso=\E[27m, rmul=\E[24m, rs1=\Ec, sc=\E7,
+	khome=\EOH, kich1=\E[2~, kind=\E[1;2B, knp=\E[6~,
+	kpp=\E[5~, kri=\E[1;2A, op=\E[39;49m, rc=\E8, rev=\E[7m,
+	ri=\EM, rmacs=\E(B, rmam=\E[?7l, rmir=\E[4l, rmkx=\E[?1l,
+	rmso=\E[27m, rmul=\E[24m, rs1=\E]\E\\\Ec, sc=\E7,
 	sgr=%?%p9%t\E(0%e\E(B%;\E[0%?%p6%t;1%;%?%p5%t;2%;%?%p2%t;4%;
 	    %?%p1%p3%|%t;7%;m,
 	sgr0=\E(B\E[m, smacs=\E(0, smam=\E[?7h, smir=\E[4h,
 	smkx=\E[?1h, smso=\E[7m, smul=\E[4m, tbc=\E[3g,
-	vpa=\E[%i%p1%dd, use=ecma+index, use=xterm+sl-twm,
-	use=ecma+strikeout, use=xterm+pce2, use=xterm+pcc2,
-	use=ecma+italics, use=xterm+alt1049,
+	vpa=\E[%i%p1%dd, use=ansi+rep, use=xterm+sm+1006,
+	use=ecma+index, use=xterm+sl-twm, use=ecma+strikeout,
+	use=xterm+pce2, use=xterm+pcc2, use=ecma+italics,
+	use=xterm+alt1049,
 
 ######## WEB CLIENTS
 
@@ -7668,7 +7726,7 @@ screen5|VT 100/ANSI X3.64 virtual terminal (someday),
 # various entries such as screen.xterm-new provide a way to more closely
 # match the terminal.
 tmux|tmux terminal multiplexer,
-	invis=\E[8m, rmso=\E[27m,
+	invis=\E[8m, kbs=^?, rmso=\E[27m,
 	sgr=\E[0%?%p6%t;1%;%?%p2%t;4%;%?%p1%p3%|%t;7%;%?%p4%t;5%;%?
 	    %p5%t;2%;%?%p7%t;8%;m%?%p9%t\016%e\017%;,
 	smso=\E[7m, E3=\E[3J, Smulx=\E[4\:%p1%dm,
@@ -7678,6 +7736,11 @@ tmux|tmux terminal multiplexer,
 
 tmux-256color|tmux with 256 colors,
 	use=xterm+256setaf, use=tmux,
+
+tmux-direct|tmux with direct-color indexing,
+	setal=\E[%?%p1%{8}%<%t5%p1%d%e58\:2\:\:%p1%{65536}%/%d\:%p1
+	      %{256}%/%{255}%&%d\:%p1%{255}%&%d%;m,
+	use=xterm+direct, use=tmux,
 
 #### Dvtm
 
@@ -14487,8 +14550,8 @@ aaa+rv|ann arbor ambassador in reverse video,
 	blink=\E[5;7m, bold=\E[1;7m, invis=\E[7;8m,
 	is1=\E[7m\E7\E[H\E9\E8, rev=\E[m, rmso=\E[7m, rmul=\E[7m,
 	rs1=\E[H\E[7m\E[J$<156>,
-	sgr=\E[%?%p2%t4;%;%?%p4%t5;%;%?%p6%t1;%;%?%p1%p2%|%p3%!%t7;
-	    %;%?%p7%t8;%;m\016,
+	sgr=\E[%?%p2%t4;%;%?%p4%t5;%;%?%p6%t1;%;%?%p1%p2%|%p3%!%|%t7
+	    ;%;%?%p7%t8;%;m\016,
 	sgr0=\E[7m\016, smso=\E[m, smul=\E[4;7m,
 # Ambassador with the DEC option, for partial vt100 compatibility.
 aaa+dec|ann arbor ambassador in dec vt100 mode,
@@ -16086,9 +16149,9 @@ d220-dg|Data General DASHER D220 color terminal in DG mode,
 d230c|d230|Data General DASHER D230C,
 	blink=\E[5;50m, bold=\E[4;7;50m, dim=\E[2;50m, nel=\r\n,
 	rev=\E[7;50m, rmkx=\E[2;1v, rmso=\E[50m, rmul=\E[50m,
-	sgr=\E[50%?%p1%p3%|%p6%|%t;7%{1}%e%{0}%;%PR%?%p4%t;5%{1}%e
-	    %{0}%;%PB%?%p2%p6%|%t;4%{1}%e%{0}%;%PU%?%p1%p5%|%t;2%{1}
-	    %e%{0}%;%PDm\E)%?%p9%t6\016%e4\017%;,
+	sgr=\E[%?%p1%p3%|%p6%|%t7;%{1}%e%{0}%;%PR%?%p4%t5;%{1}%e%{0}
+	    %;%PB%?%p2%p6%|%t4;%{1}%e%{0}%;%PU%?%p1%p5%|%t2;%{1}%e
+	    %{0}%;%PD50m\E)%?%p9%t6\016%e4\017%;,
 	sgr0=\E[50m\E)4\017, smkx=\E[2;0v, smso=\E[2;7;50m,
 	smul=\E[4;50m, use=dgkeys+7b, use=d220,
 
@@ -17328,12 +17391,12 @@ ibmapa8c-c|ibm6154-c|IBM 6154 Advanced Color Graphics Display,
 	use=ibmega-c,
 ibm6154|IBM 6154 Color displays,
 	blink@, bold=\E[12m, s0ds=\E[10m, s1ds=\E[11m, s2ds=\E[12m,
-	sgr=\E[%?%p1%t;7%;%?%p2%t;4%;%?%p3%t;7%;%?%p4%t;5%;%?%p6%t;1
+	sgr=\E[%?%p1%t;7%;%?%p2%t;4%;%?%p3%t;7%;%?%p7%t;8%;%?%p6%t;1
 	    2%;m,
 	sgr0=\E[0;10m, use=ibm5154,
 ibm6153|IBM 6153 Black & White display,
 	blink@, bold=\E[12m, s0ds=\E[10m, s1ds=\E[11m, s2ds=\E[12m,
-	sgr=\E[%?%p1%t;7%;%?%p2%t;4%;%?%p3%t;7%;%?%p4%t;5%;%?%p6%t;1
+	sgr=\E[%?%p1%t;7%;%?%p2%t;4%;%?%p3%t;7%;%?%p7%t;8%;%?%p6%t;1
 	    2%;m,
 	sgr0=\E[0;10m, use=ibm5151,
 ibm6153-90|IBM 6153 Black & White display,
@@ -18939,7 +19002,7 @@ ncrvt100an|ncrvt100pp|NCR vt100 for the 2900 terminal,
 	    B\E)0\E%/0n\E[P\031$<200>,
 	sc=\E7,
 	sgr=%?%p9%t\016%e\017%;\E[0%?%p1%p6%|%t;1%;%?%p2%t;4%;%?%p1
-	    %p3%|%t;7%;%?%p4%t;5%;m$<100>,
+	    %p3%|%t;7%;%?%p4%t;5%;m$<120>,
 	sgr0=\017\E[0m$<120>, smacs=\016$<90>, smir=\E[4h$<80>,
 	smso=\E[7m$<30>, smul=\E[4m$<30>, tbc=\E[3g$<40>,
 	tsl=\E[>+1$<70>,
@@ -19553,6 +19616,13 @@ tek4106brl|tek4107brl|tek4109brl|Tektronix 4106 4107 or 4109,
 	smkx=\E[?1h\E=, smso=\E[7;42m, smul=\E[4m, tbc=\E[3g,
 	use=ecma+index,
 
+# Refer to:
+# TEK Programmer's Reference
+# Part No. 070-4893-00
+# Product Group 18
+# 4107/4109 Computer Display Terminal
+# November 1983
+#
 # Tektronix 4107/4109 interpret 4 modes using "\E%!" followed by a code:
 # 0 selects Tek mode, i.e., \E%!0
 # 1 selects ANSI mode
@@ -19561,7 +19631,9 @@ tek4106brl|tek4107brl|tek4109brl|Tektronix 4106 4107 or 4109,
 #
 # One odd thing about the description (which has been unchanged since the 90s)
 # is that the cursor addressing is using VT52 mode, and a few others use the
-# VT52's non-CSI versions of ANSI, e.g., \EJ.
+# VT52's non-CSI versions of ANSI, e.g., \EJ.  A possible explanation is that
+# the developer used Emacs, which misuses cvvis (this description sets VT52
+# mode in that capability).
 tek4107|tek4109|tektronix terminals 4107 4109,
 	OTbs, am, mir, msgr, ul, xenl, xt,
 	cols#79, it#8, lines#29,
@@ -20990,16 +21062,16 @@ putty-m1|Putty Minitel 1 "like" Couleurs,
 	dim@, kf1=\E[11~, kf2=\E[12~, kf3=\E[13~, kf4=\E[14~,
 	kf5=\E[15~, rmcup=\E[2J\E[?47l\E8, rmul=\E[24m,
 	smcup=\E7\E[?47h, smul=\E[4m, .E3=\E[300S,
-	.WS=\E[8;%d;%dt, Z0=\E[?3h, Z1=\E[?3l, use=xterm+sl-twm,
-	use=ecma+index, use=linux-m1,
+	use=putty+screen, use=xterm+sl-twm, use=ecma+index,
+	use=linux-m1,
 
 putty-m1b|Putty Minitel 1B "like" Monochrome (Gris/Blanc/Noir),
 	hs,
 	dim@, kf1=\E[11~, kf2=\E[12~, kf3=\E[13~, kf4=\E[14~,
 	kf5=\E[15~, rmcup=\E[2J\E[?47l\E8, rmul=\E[24m,
 	smcup=\E7\E[?47h, smul=\E[4m, .E3=\E[300S,
-	.WS=\E[8;%d;%dt, Z0=\E[?3h, Z1=\E[?3l, use=xterm+sl-twm,
-	use=ecma+index, use=linux-m1b,
+	use=putty+screen, use=xterm+sl-twm, use=ecma+index,
+	use=linux-m1b,
 
 putty-m2|Putty Minitel 2 "like" Couleurs (Vert/Blanc/Noir),
 	hs,
@@ -21008,8 +21080,14 @@ putty-m2|Putty Minitel 2 "like" Couleurs (Vert/Blanc/Noir),
 	dim@, kf1=\E[11~, kf2=\E[12~, kf3=\E[13~, kf4=\E[14~,
 	kf5=\E[15~, rmcup=\E[2J\E[?47l\E8, rmul=\E[24m,
 	smcup=\E7\E[?47h, smul=\E[4m, .E3=\E[300S,
-	.WS=\E[8;%d;%dt, Z0=\E[?3h, Z1=\E[?3l, use=xterm+sl-twm,
-	use=ecma+index, use=linux-m2,
+	use=putty+screen, use=xterm+sl-twm, use=ecma+index,
+	use=linux-m2,
+
+putty+screen|PuTTY with screen resizing extensions,
+	.WS=\E[8;%p1%d;%p2%dt, Z0=\E[?3h, Z1=\E[?3l,
+
+putty-screen|PuTTY with screen resizing extensions,
+	WS=\E[8;%p1%d;%p2%dt, Z0=\E[?3h, Z1=\E[?3l, use=putty,
 
 screen.putty-m1|Putty m1 specific for screen,
 	dim@, rmul=\E[24m, smul=\E[4m, E3@, use=screen.linux-m1,
@@ -26625,5 +26703,25 @@ v3220|LANPAR Vision II model 3220/3221/3222,
 #
 # 2020-09-05
 #	+ correct description of vt330/vt340 (Ross Combs).
+#
+# 2020-09-19
+#	+ update mlterm3 for 3.9.0 (report by Premysl Eric Janouch).
+#
+# 2020-09-29
+#	+ add tmux-direct (tmux #2370)
+#	+ simplify mlterm initialization with DECSTR -TD
+#	+ change tmux's kbs to ^? (report by Premysl Eric Janouch)
+#
+# 2020-10-10
+#	+ correct sgr in aaa+rv (report by Florian Weimer) -TD
+#	+ fix some sgr inconsistencies in d230c, ibm6153, ibm6154,
+#	  ncrvt100an -TD
+#
+# 2020-10-17
+#	+ expanded notes about tek4107 -TD
+#
+# 2020-11-07
+#	+ update kitty+common -TD
+#	+ add putty+screen and putty-screen (suggested by Alexandre Montaron).
 #
 ######## SHANTIH!  SHANTIH!  SHANTIH!

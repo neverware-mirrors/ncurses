@@ -29,7 +29,7 @@ dnl***************************************************************************
 dnl
 dnl Author: Thomas E. Dickey 1995-on
 dnl
-dnl $Id: aclocal.m4,v 1.931 2020/09/12 22:30:53 tom Exp $
+dnl $Id: aclocal.m4,v 1.939 2020/11/14 15:25:03 tom Exp $
 dnl Macros used in NCURSES auto-configuration script.
 dnl
 dnl These macros are maintained separately from NCURSES.  The copyright on
@@ -604,7 +604,7 @@ else	AC_MSG_RESULT(no)
 fi
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_BOOL_SIZE version: 15 updated: 2017/01/21 11:06:25
+dnl CF_BOOL_SIZE version: 17 updated: 2020/10/24 19:48:55
 dnl ------------
 dnl Test for the size of 'bool' in the configured C++ compiler (e.g., a type).
 dnl Don't bother looking for bool.h, since it's been deprecated.
@@ -613,8 +613,30 @@ dnl If the current compiler is C rather than C++, we get the bool definition
 dnl from <stdbool.h>.
 AC_DEFUN([CF_BOOL_SIZE],
 [
-AC_MSG_CHECKING([for size of bool])
-AC_CACHE_VAL(cf_cv_type_of_bool,[
+AC_CHECK_SIZEOF(bool,,[
+#include <stdlib.h>
+#include <stdio.h>
+
+#if defined(__cplusplus)
+
+#ifdef HAVE_GXX_BUILTIN_H
+#include <g++/builtin.h>
+#elif HAVE_GPP_BUILTIN_H
+#include <gpp/builtin.h>
+#elif HAVE_BUILTIN_H
+#include <builtin.h>
+#endif
+
+#else
+
+#if $cf_cv_header_stdbool_h
+#include <stdbool.h>
+#endif
+
+#endif
+])
+
+AC_CACHE_CHECK(for type of bool, cf_cv_type_of_bool,[
 	rm -f cf_test.out
 	AC_TRY_RUN([
 #include <stdlib.h>
@@ -659,10 +681,18 @@ int main(void)
 		   cf_cv_type_of_bool=unknown
 		 fi],
 		[cf_cv_type_of_bool=unknown],
-		[cf_cv_type_of_bool=unknown])
-	])
+		[
+		case x$ac_cv_sizeof_bool in
+		(x1) cf_cv_type_of_bool="unsigned char";;
+		(x2) cf_cv_type_of_bool="unsigned short";;
+		(x4) cf_cv_type_of_bool="unsigned int";;
+		(x8) cf_cv_type_of_bool="unsigned long";;
+		(*)  cf_cv_type_of_bool=unknown;;
+		esac
+		])
 	rm -f cf_test.out
-AC_MSG_RESULT($cf_cv_type_of_bool)
+])
+
 if test "$cf_cv_type_of_bool" = unknown ; then
 	case .$NCURSES_BOOL in
 	(.auto|.) NCURSES_BOOL=unsigned;;
@@ -1450,7 +1480,7 @@ main(void)
 ])
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_CLANG_COMPILER version: 3 updated: 2020/08/28 04:10:22
+dnl CF_CLANG_COMPILER version: 4 updated: 2020/10/31 15:46:50
 dnl -----------------
 dnl Check if the given compiler is really clang.  clang's C driver defines
 dnl __GNUC__ (fooling the configure script into setting $GCC to yes) but does
@@ -1469,21 +1499,34 @@ ifelse([$2],,CLANG_COMPILER,[$2])=no
 if test "$ifelse([$1],,[$1],GCC)" = yes ; then
 	AC_MSG_CHECKING(if this is really Clang ifelse([$1],GXX,C++,C) compiler)
 	cf_save_CFLAGS="$ifelse([$3],,CFLAGS,[$3])"
-	ifelse([$3],,CFLAGS,[$3])="$ifelse([$3],,CFLAGS,[$3]) -Qunused-arguments"
 	AC_TRY_COMPILE([],[
 #ifdef __clang__
 #else
 make an error
 #endif
 ],[ifelse([$2],,CLANG_COMPILER,[$2])=yes
-cf_save_CFLAGS="$cf_save_CFLAGS -Qunused-arguments"
 ],[])
 	ifelse([$3],,CFLAGS,[$3])="$cf_save_CFLAGS"
 	AC_MSG_RESULT($ifelse([$2],,CLANG_COMPILER,[$2]))
 fi
 
-if test "x$CLANG_COMPILER" = "xyes" ; then
-	CF_APPEND_TEXT(CFLAGS,-Wno-error=implicit-function-declaration)
+if test "x$ifelse([$2],,CLANG_COMPILER,[$2])" = "xyes" ; then
+	for cf_clang_opt in \
+		-Qunused-arguments \
+		-Wno-error=implicit-function-declaration
+	do
+		AC_MSG_CHECKING(if option $cf_clang_opt works)
+		AC_TRY_LINK([
+			#include <stdio.h>],[
+			printf("hello!\n");],[
+			cf_clang_optok=yes],[
+			cf_clang_optok=no])
+		AC_MSG_RESULT($cf_clang_optok)
+		if test $cf_clang_optok = yes; then
+			CF_VERBOSE(adding option $cf_clang_opt)
+			CF_APPEND_TEXT(CFLAGS,$cf_clang_opt)
+		fi
+	done
 fi
 ])
 dnl ---------------------------------------------------------------------------
@@ -5680,7 +5723,7 @@ ifelse($1,,[
 fi
 ])
 dnl ---------------------------------------------------------------------------
-dnl CF_MIXEDCASE_FILENAMES version: 7 updated: 2015/04/12 15:39:00
+dnl CF_MIXEDCASE_FILENAMES version: 8 updated: 2020/11/14 10:12:15
 dnl ----------------------
 dnl Check if the file-system supports mixed-case filenames.  If we're able to
 dnl create a lowercase name and see it as uppercase, it doesn't support that.
@@ -5689,7 +5732,7 @@ AC_DEFUN([CF_MIXEDCASE_FILENAMES],
 AC_CACHE_CHECK(if filesystem supports mixed-case filenames,cf_cv_mixedcase,[
 if test "$cross_compiling" = yes ; then
 	case $target_alias in
-	(*-os2-emx*|*-msdosdjgpp*|*-cygwin*|*-msys*|*-mingw*|*-uwin*)
+	(*-os2-emx*|*-msdosdjgpp*|*-cygwin*|*-msys*|*-mingw*|*-uwin*|darwin*)
 		cf_cv_mixedcase=no
 		;;
 	(*)
@@ -6444,7 +6487,7 @@ AC_MSG_RESULT($cf_prog_ln_sf)
 test "$cf_prog_ln_sf" = yes && LN_S="$LN_S -f"
 ])dnl
 dnl ---------------------------------------------------------------------------
-dnl CF_REGEX version: 15 updated: 2020/09/12 18:30:01
+dnl CF_REGEX version: 16 updated: 2020/09/26 19:56:36
 dnl --------
 dnl Attempt to determine if we've got one of the flavors of regular-expression
 dnl code that we can support.
@@ -6463,7 +6506,9 @@ case $host_os in
 		CF_ADD_LIB(systre)
 		cf_regex_func=regcomp
 	],[
-		AC_CHECK_LIB(gnurx,regcomp,cf_regex_func=regcomp)
+		AC_CHECK_LIB(gnurx,regcomp,[
+			CF_ADD_LIB(gnurx)
+			cf_regex_func=regcomp])
 	])
 	;;
 (*)
