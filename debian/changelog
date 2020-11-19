@@ -1,11 +1,11 @@
-ncurses (6.2+20201114-1) UNRELEASED; urgency=medium
+ncurses (6.2+20201114-1) unstable; urgency=medium
 
   * New upstream patchlevel.
     - Add tmux-direct terminfo entry (Closes: #895754).
   * Add Breaks on cowdancer (<< 0.89~) to libncurses6 (Closes: #971672).
   * Upgrade Standards-Version to 4.5.1, no changes needed.
 
- -- Sven Joachim <svenjoac@gmx.de>  Fri, 09 Oct 2020 18:21:11 +0200
+ -- Sven Joachim <svenjoac@gmx.de>  Thu, 19 Nov 2020 18:08:43 +0100
 
 ncurses (6.2+20200918-1) unstable; urgency=medium
 
